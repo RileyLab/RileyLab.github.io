@@ -1,62 +1,167 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riley Lab Portal</title>
-  <link rel="shortcut icon" href="https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/favicon.ico"/>
+  <link rel="shortcut icon" href="https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/favicon.ico" />
+  <style>
+    :root{
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --muted: #444;
+      --text: #111;
+      --accent: #0057b7;
+      --accent-2: #198754;
+      --ring: rgba(0,87,183,.3);
+      --link: #0057b7;
+      --warn: #ffc107;
+      --shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+    html,body{height:100%}
+    body{
+      margin:0; font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background: var(--bg);
+    }
+    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 8px 0 24px
+    }
+    .title{ font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; letter-spacing:.2px }
+    .subtitle{ color: var(--muted); font-size: 14px }
+    .note{
+      display:flex; align-items:center; gap:8px; background: #fff8e1;
+      border: 1px dashed #ffe082; color: var(--text); padding: 10px 12px; border-radius: 12px; margin: 0 0 18px 0
+    }
+    .grid{
+      display:grid; gap: 16px; grid-template-columns: repeat(1, minmax(0,1fr));
+    }
+    @media (min-width:640px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (min-width:960px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
+
+    .card{
+      background: var(--card); border-radius: 12px; box-shadow: var(--shadow);
+      padding: 16px 16px; border: 1px solid #e0e0e0; position: relative;
+    }
+    .card h2{ font-size: 16px; letter-spacing:.2px; margin: 0 0 10px; display:flex; align-items:center; gap:10px }
+    .badge{ display:inline-block; font-size:12px; padding:2px 8px; border-radius: 999px; background: #e3f2fd; color: var(--link); border: 1px solid #bbdefb }
+    .list{ list-style:none; padding:0; margin:0 }
+    .list li{ margin: 8px 0 }
+    .list a{
+      text-decoration:none; color: var(--link); font-weight:600; position:relative; padding:6px 10px; display:inline-flex; gap:8px; align-items:center;
+      border-radius:8px; outline: none; border: 1px solid transparent
+    }
+    .list a:hover{ background: #e3f2fd; border-color: #90caf9 }
+    .list a:focus{ box-shadow: 0 0 0 3px var(--ring) }
+    .ext::after{ content: "↗"; font-size: 12px; opacity:.85 }
+    .muted{ color: var(--muted); font-weight:500 }
+    .pill{ font-size: 12px; padding:2px 8px; border-radius: 999px; border:1px solid #ddd; color: var(--muted) }
+    footer{ margin-top: 26px; color: var(--muted); font-size: 12px }
+    .stack{ display:flex; gap:8px; flex-wrap:wrap }
+
+    details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa }
+    details[open]{ background: #e3f2fd }
+    summary{ cursor:pointer; list-style:none; font-weight:700 }
+    summary::-webkit-details-marker{ display:none }
+  </style>
 </head>
 <body>
-<center><p>Riley Lab Portal</p></center>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title">Riley Lab Portal</div>
+      <div class="subtitle">Quick links for bookings, cores, and lab resources</div>
+    </div>
+    <div class="stack">
+      <span class="pill">Updated</span>
+      <span class="pill">v1.1</span>
+    </div>
+  </header>
 
-<p>Calendars</p>
-  <ul>
-    <li>Riley Lab Hood Bookings</li>
-    <ul>
-          <li><a href="https://www.brownbearsw.com/cal/RNAFortessa">Fortessa</a></li>
-          <li><a href="https://www.brownbearsw.com/cal/CancerRoom">Cancer Room</a></li>
-          <li><a href="https://www.brownbearsw.com/cal/HIVRoom">HIV Room</a></li>
-          <li><a href="https://www.brownbearsw.com/cal/HICRoom">HIC Room</a></li>
-    </ul> <br>
-    <li>Shared Use Equipment</li>
-    <ul>
-          <li><a href="https://med-upenn.corefacilities.org/service_center/show_external/5381/small_animal_radiation_core_sarc">Irradiator</a></li>
-          <li><a href="https://calendar.med.upenn.edu/cci/secure/mrbs/index.php">Ultra Centrifuge</a></li>
-          <li><a href="https://teamup.com/kssvtmecq8agaw4phy">Xcelligence</a></li>
-    </ul> <br>
-    <li>Lab Duties</li>
-    <ul>
-          <li><a href="https://www.brownbearsw.com/cal/293T">293T Cells</a></li>
-          <li><a href="https://www.brownbearsw.com/mc/Riley/room_1">Cancer Room #1 Duty</a></li>
-          <li><a href="https://www.brownbearsw.com/mc/Riley/room_2">Cancer Room #2 Duty</a></li>
-          <li><a href="https://www.brownbearsw.com/mc/Riley/room_3">HIV Room Duty</a></li>
-          <li><a href="https://www.brownbearsw.com/mc/Riley/mainlabduty">Main Lab Duty</a></li>
-    </ul> <br>
-    <li>Other Resources</li>
-    <ul>
-          <li><a href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York">Lab Meeting Calendar</a></li>
-          <li><a href="http://apps.brownbearsw.com/iobee/FlowJo">FlowJo Dongles</a></li>
-          <li><a href="https://genetics.med.upenn.edu/cores/cell-center-stockroom/">Cell Center Stockroom</a></li>
-          <li><a href="https://med-upenn.corefacilities.org/homepage/">iLab (Xenograft Core)</a></li>
-          <li><a href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home">Fortessa Flow Core Scheduler (at this time, use only to prevent Bill from turning off LSRFortessa E TRC 8-183)</a></li>
-    </ul>
-  </ul>
-<p>Other Links</p>
-  <ul>
-      <li>Cores</li>
-      <ul>
-        <li><a href="https://www.med.upenn.edu/apps/my/index.php?_app_id=5ecffaaf109d6&_display=1&_hist_id=1&_preserve[init_panel]=dnacore%2Fmain&_token=5fb240a6e9f15f8adf144d9632c2fc81&CEALID=6B037AA7C0FFD4D899C03C18B4E98342&_token=3adca2be899805c397f63c7bf0dbfdb8">Penn Sequencing Core</a></li>
-        <li><a href="https://pathbio.med.upenn.edu/hic/hiccell/">HIC Cell Ordering</a></li>
-        <li><a href="https://pathbio.med.upenn.edu/duars/EntreeServer/">Flow Core Data</a></li>
-        <li><a href="https://pathbio.med.upenn.edu/saif/EntreeServer/">Mouse Imaging Data</a></li>
+  <main class="grid" aria-label="Link groups">
+
+    <section class="card" aria-labelledby="cal-title">
+      <h2 id="cal-title">Calendars/Hood Bookings <span class="badge">Bookings</span></h2>
+      <ul class="list" style="margin-top:10px">
+        <li><a class="ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener">Lab Meeting Calendar</a></li>
       </ul>
-  </ul>
-  <ul>
-    <li><a href="https://forms.gle/mNc43ejEpeXRTfYV9">Riley Lab Ordering Form</a></li>
-    <li><a href="https://docs.google.com/spreadsheets/d/1EWxp0SgVXKpk8jPVvy0lLlk8iD1QHOZ_Ocj8JSMj218/edit?usp=sharing">Riley Lab Order Statuses</a></li>
-    <li><a href="https://rileylabworkspace.slack.com/">Riley Lab Slack</a></li>
-    <li><a href="https://penno365-my.sharepoint.com/:o:/g/personal/rileyj_upenn_edu/EreHrOPLVsBMhp_VD8rdvDwBXswkXTZpRWzQqIWqfsGnzA?e=08zM26">Riley Lab OneNote</a></li>
-    <li><a href="https://app.quartzy.com/groups/201349/requests?status">Riley Lab Quartzy</a></li>
-    <li><a href="https://lims.pmacs.upenn.edu/limsprod/logon.jsp">LabVantage</a></li>
-    <li><a href="https://upenn.app.box.com/file/878046376947">Riley Lab Plasmid & Bacterial Stock List.xls</a> (Box Login Required)</li>
-    <li><a href="https://upenn.app.box.com/folder/132773147650">Riley Lab Plasmid DNA Snapgene Files</a> (Box Login Required)</li>
-  </ul>
+      <details>
+        <summary>Riley Lab Hood Bookings</summary>
+        <ul class="list" aria-label="Riley Lab Hood Bookings list">
+          <li><a class="ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener">Fortessa</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/cal/CancerRoom" target="_blank" rel="noopener">Cancer Room</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/cal/HIVRoom" target="_blank" rel="noopener">HIV Room</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/cal/HICRoom" target="_blank" rel="noopener">HIC Room</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="equip-title">
+      <h2 id="equip-title">Shared Use Equipment <span class="badge">Core</span></h2>
+      <ul class="list">
+        <li><a class="ext" href="https://med-upenn.corefacilities.org/service_center/show_external/5381/small_animal_radiation_core_sarc" target="_blank" rel="noopener">Irradiator</a></li>
+        <li><a class="ext" href="https://calendar.med.upenn.edu/cci/secure/mrbs/index.php" target="_blank" rel="noopener">Ultra Centrifuge</a></li>
+        <li><a class="ext" href="https://teamup.com/kssvtmecq8agaw4phy" target="_blank" rel="noopener">xCELLigence</a></li>
+        <li><a class="ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home" target="_blank" rel="noopener">Fortessa Flow Core Scheduler <span class="muted">(use only to prevent Bill from turning off LSRFortessa E TRC 8-183)</span></a></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="duties-title">
+      <h2 id="duties-title">Lab Duties <span class="badge">Rotations</span></h2>
+      <ul class="list">
+        <li><a class="ext" href="https://www.brownbearsw.com/cal/293T" target="_blank" rel="noopener">293T Cells</a></li>
+      </ul>
+      <details>
+        <summary>Room Maintenance Rotations</summary>
+        <ul class="list" aria-label="Riley Lab Hood Bookings list">
+          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/room_1" target="_blank" rel="noopener">Cancer Room #1 Duty</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/room_2" target="_blank" rel="noopener">Cancer Room #2 Duty</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/room_3" target="_blank" rel="noopener">HIV Room Duty</a></li>
+          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/mainlabduty" target="_blank" rel="noopener">Main Lab Duty</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="cores-title">
+      <h2 id="cores-title">Cores <span class="badge">Penn</span></h2>
+      <ul class="list">
+        <li><a class="ext" href="https://www.med.upenn.edu/apps/my/index.php?_app_id=5ecffaaf109d6&_display=1&_hist_id=1&_preserve[init_panel]=dnacore%2Fmain&_token=5fb240a6e9f15f8adf144d9632c2fc81&CEALID=6B037AA7C0FFD4D899C03C18B4E98342&_token=3adca2be899805c397f63c7bf0dbfdb8" target="_blank" rel="noopener">Penn Sequencing Core</a></li>
+        <li><a class="ext" href="https://pathbio.med.upenn.edu/hic/hiccell/" target="_blank" rel="noopener">HIC Cell Ordering</a></li>
+        <li><a class="ext" href="https://pathbio.med.upenn.edu/duars/EntreeServer/" target="_blank" rel="noopener">Flow Core Data</a></li>
+        <li><a class="ext" href="https://pathbio.med.upenn.edu/saif/EntreeServer/" target="_blank" rel="noopener">Mouse Imaging Data</a></li>
+        <li><a class="ext" href="https://genetics.med.upenn.edu/cores/cell-center-stockroom/" target="_blank" rel="noopener">Cell Center Stockroom</a></li>
+        <li><a class="ext" href="https://med-upenn.corefacilities.org/homepage/" target="_blank" rel="noopener">iLab (Xenograft Core)</a></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="tools-title">
+      <h2 id="tools-title">Tools & Docs <span class="badge">Internal</span></h2>
+      <ul class="list">
+        <li><a class="ext" href="https://forms.gle/mNc43ejEpeXRTfYV9" target="_blank" rel="noopener">Riley Lab Ordering Form</a></li>
+        <li><a class="ext" href="https://docs.google.com/spreadsheets/d/1EWxp0SgVXKpk8jPVvy0lLlk8iD1QHOZ_Ocj8JSMj218/edit?usp=sharing" target="_blank" rel="noopener">Order Statuses (Google Sheet)</a></li>
+        <li><a class="ext" href="https://rileylabworkspace.slack.com/" target="_blank" rel="noopener">Riley Lab Slack</a></li>
+        <li><a class="ext" href="https://penno365-my.sharepoint.com/:o:/g/personal/rileyj_upenn_edu/EreHrOPLVsBMhp_VD8rdvDwBXswkXTZpRWzQqIWqfsGnzA?e=08zM26" target="_blank" rel="noopener">Riley Lab OneNote</a></li>
+        <li><a class="ext" href="https://app.quartzy.com/groups/201349/requests?status" target="_blank" rel="noopener">Riley Lab Quartzy</a></li>
+        <li><a class="ext" href="https://lims.pmacs.upenn.edu/limsprod/logon.jsp" target="_blank" rel="noopener">LabVantage</a></li>
+        <li><a class="ext" href="https://upenn.app.box.com/file/878046376947" target="_blank" rel="noopener">Plasmid & Bacterial Stock List.xls <span class="muted">(Box)</span></a></li>
+        <li><a class="ext" href="https://upenn.app.box.com/folder/132773147650" target="_blank" rel="noopener">Plasmid DNA SnapGene Files <span class="muted">(Box)</span></a></li>
+      </ul>
+    </section>
+
+    <section class="card" aria-labelledby="misc-title">
+      <h2 id="misc-title">Other Resources <span class="badge">Handy</span></h2>
+      <ul class="list">
+        <li><a class="ext" href="http://apps.brownbearsw.com/iobee/FlowJo" target="_blank" rel="noopener">FlowJo Dongles</a></li>
+      </ul>
+      <p class="muted" style="margin:8px 0 0">Add more frequently used links here.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div>Problems with a link? Contact the portal maintainer.</div>
+  </footer>
+</div>
 </body>
 </html>
