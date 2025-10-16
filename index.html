@@ -266,6 +266,19 @@
       .calendar-wide { grid-column: span 1; }
     }
 
+    /* Calendar view toolbar */
+    .calendar-toolbar{
+      display:flex; gap:8px; align-items:center; margin:10px 0 12px;
+    }
+    .calendar-toolbar .btn{
+      appearance:none; border:1px solid #d6e3ff; background:#f4f8ff; color:#0b3d91;
+      padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
+    }
+    .calendar-toolbar .btn[aria-pressed="true"]{
+      background:#e6efff; border-color:#bcd0ff;
+    }
+
+
 
     details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
     details[open]{ background: #e3f2fd }
@@ -344,8 +357,14 @@
   <!-- LEFT: sidebar calendar -->
   <aside class="sidebar" aria-label="Lab calendar">
     <section class="card" aria-labelledby="live-cal-title">
-      <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Live Lab Calendar</h2>
+      <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Riley Lab Calendar</h2>
 
+      <div class="calendar-toolbar" role="toolbar" aria-label="Calendar view">
+        <button class="btn" data-view="AGENDA" aria-pressed="false">Agenda</button>
+        <button class="btn" data-view="WEEK"   aria-pressed="false">Week</button>
+        <button class="btn" data-view="MONTH"  aria-pressed="true">Month</button>
+      </div>
+      
       <div class="iframe-wrap" style="margin-top:10px">
         <iframe
           title="Riley Lab Google Calendar"
@@ -355,9 +374,6 @@
       </div>
 
       <div class="stack" style="margin-top:10px">
-        <a class="link ext" href="https://calendar.google.com/calendar/u/0?cid=j27deqargjjbeg5835162djbl8@group.calendar.google.com" target="_blank" rel="noopener">
-          <span class="ms" aria-hidden="true">add</span> Add to Google Calendar
-        </a>
         <a class="link ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener">
           <span class="ms" aria-hidden="true">open_in_new</span> Open full calendar
         </a>
@@ -510,6 +526,7 @@
 </script>
 </body>
 </html>
+
 
 
 
