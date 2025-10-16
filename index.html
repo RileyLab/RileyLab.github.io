@@ -401,10 +401,12 @@
     }
   })();
 
+
   /* === QUICK FIND (limit to center grid ONLY) === */
   const q = document.getElementById('q');
   const linkItems = Array.from(document.querySelectorAll('main.grid .list a'));
   const sections  = Array.from(document.querySelectorAll('main.grid section.card'));
+
   function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
 
   q.addEventListener('input', () => {
@@ -428,16 +430,14 @@
     });
   });
 
-  /* === ANNOUNCEMENTS (shared source for toast + right sidebar) === */
 
-  // Use window.NOTICES so all components share the same data.
+  /* === LAB ANNOUNCEMENTS (right sidebar only) === */
+
+  // Use window.NOTICES so it’s editable later
   window.NOTICES = window.NOTICES || [
-    { text: "Label printer is now functional and ready to print!", when: "2025-10-16T09:00:00-04:00" },
-    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-16T12:00:00-04:00" },
+    { text: "Label printer is now functional and ready to print!", when: "2025-10-15T09:00:00-04:00" },
+    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-12T12:00:00-04:00" },
   ];
-
-  const noticeEl = document.getElementById('notice');
-  const noticeText = document.getElementById('notice-text');
 
   function normalizeNotices(arr){
     return (arr || []).map(n =>
@@ -447,20 +447,6 @@
     );
   }
 
-  // Toast rotator (top-right)
-  // function startNotices() {
-  //   const items = normalizeNotices(window.NOTICES);
-  //   if (!items.length) return;
-  //   let i = 0;
-  //   noticeText.textContent = items[i].text;
-  //   noticeEl.classList.add('show');
-  //   setInterval(() => {
-  //     i = (i + 1) % items.length;
-  //     noticeText.textContent = items[i].text;
-  //   }, 10000);
-  // }
-
-  // Right sidebar list
   function renderAnnouncements(){
     const list = document.getElementById('ann-list');
     if(!list) return;
@@ -479,7 +465,7 @@
       time.textContent = isNaN(d.getTime()) ? "" :
         d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
 
-      body.textContent = text; // swap to innerHTML + linkify if you want live links
+      body.textContent = text;
       li.appendChild(time);
       li.appendChild(body);
       frag.appendChild(li);
@@ -494,16 +480,17 @@
     renderAnnouncements();
   };
 
-  // Init
-  startNotices();
+  // Initialize announcements sidebar
   renderAnnouncements();
 
-  // Example (remove if not needed):
+  // Example:
   // addAnnouncement("Freezer maintenance Tue 10am", "2025-10-21T10:00:00-04:00");
 </script>
 
+
 </body>
 </html>
+
 
 
 
