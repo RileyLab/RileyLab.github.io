@@ -314,6 +314,22 @@
     .lab-announcements .card {
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
     }
+
+    /* === Announcements banner spacing (matches: <section class="card ann-banner">) === */
+    .card.ann-banner {
+      display: block;
+      margin: 0 0 28px 0;   /* <- the gap you want */
+      padding-bottom: 8px;
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06); /* optional pop */
+    }
+    
+    /* If the banner sits directly above the main .layout, add extra safety gap */
+    .card.ann-banner + .layout {
+      margin-top: 28px;
+    }
     
   </style>
 
@@ -589,6 +605,7 @@
 
 </body>
 </html>
+
 
 
 
