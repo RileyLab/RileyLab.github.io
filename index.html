@@ -147,6 +147,7 @@
     .ext::after {
       content: none !important;
     }
+    a.link.ext::after { content: "" !important; }
     .muted{ color: var(--muted); font-weight:500 }
 
     details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
@@ -302,7 +303,7 @@
 
   // ------- LIVE NOTICES -------
   const NOTICES = [
-    "Label printer is now functional and ready to print!",
+    "Label printer is now functional and ready to print!"
   ];
   const noticeEl = document.getElementById('notice');
   const noticeText = document.getElementById('notice-text');
@@ -338,5 +339,6 @@
 </script>
 </body>
 </html>
+
 
 
