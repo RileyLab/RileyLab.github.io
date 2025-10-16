@@ -166,13 +166,14 @@
     
     /* custom arrow */
     summary::before {
-      content: "▶";
+      content: "";
       position: absolute;
       left: 0;
       top: 50%;
-      transform: translateY(-50%);
-      font-size: 12px;
-      color: #333;
+      transform: translateY(-50%) rotate(0deg);
+      border-width: 5px 0 5px 7px;       /* shape */
+      border-style: solid;
+      border-color: transparent transparent transparent #555; /* dark gray arrow */
       transition: transform 0.2s ease;
     }
     
@@ -379,6 +380,7 @@
 </script>
 </body>
 </html>
+
 
 
 
