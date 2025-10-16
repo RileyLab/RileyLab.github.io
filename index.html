@@ -330,6 +330,32 @@
     .card.ann-banner + .layout {
       margin-top: 28px;
     }
+
+    /* === MATCH LAB CALENDAR HEIGHT TO TWO STACKED CARDS === */
+    .sidebar .card#live-cal-card {
+      height: calc((18px * 2) + (var(--card-height, 0px) * 2) + 40px); /* placeholder fallback */
+    }
+    
+    /* Simpler and more reliable: match overall column height visually */
+    .sidebar .card#live-cal-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 720px;    /* base height */
+      max-height: 1000px;   /* cap for long screens */
+    }
+    
+    /* Let the iframe expand to fill available space */
+    .sidebar .iframe-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .iframe-wrap iframe {
+      flex: 1;
+      height: 100%;
+    }
+
     
   </style>
 
@@ -605,6 +631,7 @@
 
 </body>
 </html>
+
 
 
 
