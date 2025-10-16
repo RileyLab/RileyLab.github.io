@@ -160,14 +160,37 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      position: relative;
+      padding-left: 20px;
     }
-
+    
+    /* custom arrow */
+    summary::before {
+      content: "▶";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #333;
+      transition: transform 0.2s ease;
+    }
+    
+    /* rotate arrow when open */
+    details[open] > summary::before {
+      transform: translateY(-50%) rotate(90deg);
+    }
+    
     summary .ms {
       font-size: 20px;
-      line-height: 1;       
-      vertical-align: middle;  
+      line-height: 1;
+      vertical-align: middle;
       position: relative;
-      top: 1px;     
+      top: 1px;
+    }
+    
+    summary::-webkit-details-marker {
+      display: none; /* hides default browser arrow */
     }
 
     footer{ margin-top: 26px; color: var(--muted); font-size: 12px }
@@ -356,6 +379,7 @@
 </script>
 </body>
 </html>
+
 
 
 
