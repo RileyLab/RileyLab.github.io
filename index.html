@@ -127,7 +127,9 @@
       outline: none; border: 1px solid transparent;
       transition: background .15s ease, border-color .15s ease;
     }
-    .link .arrow{ transition: transform .2s ease }
+    .link .arrow {
+      display: none !important;
+    }
     .link::after{
       content:""; position:absolute; left:10px; right:10px; bottom:6px; height:2px;
       background: var(--underline);
@@ -298,9 +300,7 @@
 
   // ------- LIVE NOTICES -------
   const NOTICES = [
-    "Fortessa maintenance Tues 10–12 — expect downtime.",
-    "Please sign up for room maintenance rotations by Friday.",
-    "New: Quick Find added (⌘/Ctrl+K focuses search)."
+    "Label printer is now functional and ready to print!",
   ];
   const noticeEl = document.getElementById('notice');
   const noticeText = document.getElementById('notice-text');
@@ -336,3 +336,4 @@
 </script>
 </body>
 </html>
+
