@@ -217,7 +217,7 @@
     summary .ms { font-size: 20px; line-height: 1; position: relative; top: 1px; }
     summary::-webkit-details-marker { display: none; }
 
-    /* Calendar specific */
+    /* Live Google Calendar card */
     .calendar-card h2 { background:#cfe0ff; }
     .calendar-toolbar{
       display:flex; gap:8px; align-items:center; margin-bottom:10px;
@@ -232,7 +232,6 @@
     .iframe-wrap{
       border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow: var(--shadow);
       background:#fff;
-      /* Maintain nice aspect on tall screens; height is set directly as well */
     }
     .iframe-wrap iframe{
       width:100%; height:640px; border:0;
@@ -304,9 +303,37 @@
       </section>
     </aside>
 
-    <!-- RIGHT: your existing content grid -->
+
     <main class="grid" aria-label="Link groups">
-      <!-- Removed the old calendar card from here (moved to sidebar) -->
+
+      <!-- Live Google Calendar -->
+      <section class="card calendar-card" aria-labelledby="live-cal-title">
+        <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Live Lab Calendar</h2>
+      
+        <div class="calendar-toolbar" role="toolbar" aria-label="Calendar view">
+          <button class="btn" data-view="AGENDA" aria-pressed="true">Agenda</button>
+          <button class="btn" data-view="WEEK" aria-pressed="false">Week</button>
+          <button class="btn" data-view="MONTH" aria-pressed="false">Month</button>
+        </div>
+      
+        <div class="iframe-wrap">
+          <iframe
+            id="labCalendar"
+            title="Riley Lab Google Calendar"
+            loading="lazy"
+            src="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York&mode=AGENDA&showPrint=0&showTabs=0&showCalendars=0&showTitle=0&showTz=0&wkst=1&bgcolor=%23ffffff"
+          ></iframe>
+        </div>
+      
+        <div class="stack" style="margin-top:10px">
+          <a class="link ext" href="https://calendar.google.com/calendar/u/0?cid=j27deqargjjbeg5835162djbl8@group.calendar.google.com" target="_blank" rel="noopener">
+            <span class="ms" aria-hidden="true">add</span> Add to Google Calendar
+          </a>
+          <a class="link ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener">
+            <span class="ms" aria-hidden="true">open_in_new</span> Open full calendar
+          </a>
+        </div>
+      </section>
 
       <section class="card" aria-labelledby="equip-title">
         <h2 id="equip-title"><span class="ms" aria-hidden="true">biotech</span> Shared Use Equipment <span class="badge"><span class="ms" aria-hidden="true">group</span>Shared</span></h2>
@@ -429,9 +456,9 @@
   // ------- CALENDAR VIEW TOGGLE -------
   (function(){
     const iframe = document.getElementById('labCalendar');
-    const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
+    if(!iframe) return;
 
-    // Base URL without mode param (we’ll replace mode=)
+    const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
     const base = "https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York&showPrint=0&showTabs=0&showCalendars=0&showTitle=0&showTz=0&wkst=1&bgcolor=%23ffffff&mode=";
 
     btns.forEach(b=>{
@@ -446,3 +473,4 @@
 </script>
 </body>
 </html>
+
