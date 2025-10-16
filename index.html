@@ -367,15 +367,13 @@
 </div>
 
 <script>
+  /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
   (() => {
-    const iframe = document.querySelector('.sidebar #live-cal-title') 
-      ? document.querySelector('.sidebar .iframe-wrap iframe') 
-      : null;
-    if(!iframe) return;
-  
+    const iframe = document.querySelector('.sidebar .iframe-wrap iframe');
+    if (!iframe) return;
+
     const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
-  
-    // Build a base URL without the mode (we’ll append it)
+
     const params = new URLSearchParams({
       src: 'j27deqargjjbeg5835162djbl8@group.calendar.google.com',
       ctz: 'America/New_York',
@@ -388,48 +386,40 @@
       bgcolor: '#ffffff'
     });
     const BASE = `https://calendar.google.com/calendar/embed?${params.toString()}&mode=`;
-  
-    // Restore last view (default MONTH)
+
     const saved = localStorage.getItem('labCalView') || 'MONTH';
     setView(saved, false);
-  
+
     btns.forEach(b => {
       b.addEventListener('click', () => setView(b.dataset.view || 'MONTH', true));
     });
-  
+
     function setView(view, fromClick){
-      // update buttons’ pressed state
       btns.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view || '') === view)));
-      // update iframe
       iframe.src = BASE + encodeURIComponent(view);
       if(fromClick) localStorage.setItem('labCalView', view);
     }
   })();
-  
-  // ------- QUICK FIND -------
-  const q = document.getElementById('q');
-  const linkItems = Array.from(document.querySelectorAll('.list a'));
-  const sections = Array.from(document.querySelectorAll('section.card'));
 
+  /* === QUICK FIND (limit to center grid ONLY) === */
+  const q = document.getElementById('q');
+  const linkItems = Array.from(document.querySelectorAll('main.grid .list a'));
+  const sections  = Array.from(document.querySelectorAll('main.grid section.card'));
   function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
 
   q.addEventListener('input', () => {
     const term = normalize(q.value);
-    // Show all if empty
     if(!term){
       sections.forEach(sec => sec.style.display = '');
       linkItems.forEach(a => a.parentElement.style.display = '');
       return;
     }
-    // Hide all sections initially
     sections.forEach(sec => sec.style.display = 'none');
-
     linkItems.forEach(a => {
       const text = normalize(a.textContent);
       const match = text.includes(term);
       a.parentElement.style.display = match ? '' : 'none';
       if(match){
-        // reveal the section and any parent details if collapsed
         const section = a.closest('section.card');
         if(section) section.style.display = '';
         const details = a.closest('details');
@@ -438,71 +428,83 @@
     });
   });
 
-  // ------- LIVE NOTICES -------
-  const NOTICES = [
-    "Label printer is now functional and ready to print!",
-    "Please check out the new Maintenance Rotations links to view when you are scheduled!",
+  /* === ANNOUNCEMENTS (shared source for toast + right sidebar) === */
+
+  // Use window.NOTICES so all components share the same data.
+  window.NOTICES = window.NOTICES || [
+    { text: "Label printer is now functional and ready to print!", when: "2025-10-15T09:00:00-04:00" },
+    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-12T12:00:00-04:00" },
   ];
+
   const noticeEl = document.getElementById('notice');
   const noticeText = document.getElementById('notice-text');
-  
+
+  function normalizeNotices(arr){
+    return (arr || []).map(n =>
+      (typeof n === 'string')
+        ? { text: n, when: new Date().toISOString() }
+        : { text: n.text || '', when: n.when || new Date().toISOString() }
+    );
+  }
+
+  // Toast rotator (top-right)
   function startNotices() {
-    if (!NOTICES.length) return;
+    const items = normalizeNotices(window.NOTICES);
+    if (!items.length) return;
     let i = 0;
-    noticeText.textContent = NOTICES[i];
+    noticeText.textContent = items[i].text;
     noticeEl.classList.add('show');
-  
-    // rotate messages every 10 seconds
     setInterval(() => {
-      i = (i + 1) % NOTICES.length;
-      noticeText.textContent = NOTICES[i];
+      i = (i + 1) % items.length;
+      noticeText.textContent = items[i].text;
     }, 10000);
   }
-  
-  startNotices();
 
-  // ------- ANNOUNCMENTS ---------
-  (function renderAnnouncements(){
+  // Right sidebar list
+  function renderAnnouncements(){
     const list = document.getElementById('ann-list');
-    if(!list || !Array.isArray(window.NOTICES)) return;
-
-    // If you ever want time stamps per notice, allow NOTICES to contain objects:
-    // NOTICES = [{text:"...", when:"2025-10-16T13:05:00Z"}, "plain string", ...]
-    const items = window.NOTICES.map(n => {
-      if (typeof n === "string") return { text: n, when: new Date().toISOString() };
-      return { text: n.text || "", when: n.when || new Date().toISOString() };
-    });
-
-    // newest first
-    items.reverse();
+    if(!list) return;
+    const items = normalizeNotices(window.NOTICES)
+      .sort((a,b) => new Date(b.when) - new Date(a.when)); // newest first
 
     const frag = document.createDocumentFragment();
     items.forEach(({text, when})=>{
-      const li = document.createElement('li');
+      const li   = document.createElement('li');
       const time = document.createElement('div');
       const body = document.createElement('div');
       time.className = 'ann-time';
       body.className = 'ann-text';
 
-      // format time as short date; fallback if Date fails
       const d = new Date(when);
       time.textContent = isNaN(d.getTime()) ? "" :
         d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
 
-      body.textContent = text;
+      body.textContent = text; // swap to innerHTML + linkify if you want live links
       li.appendChild(time);
       li.appendChild(body);
       frag.appendChild(li);
     });
     list.innerHTML = "";
     list.appendChild(frag);
-  })();
+  }
 
-  // TIP: to add a dated announcement, push an object:
-  // NOTICES.push({ text: "Freezer maintenance Tue 10am", when: "2025-10-21T10:00:00-04:00" });
+  // Helper to add at runtime
+  window.addAnnouncement = function(text, when){
+    window.NOTICES.push({ text, when: when || new Date().toISOString() });
+    renderAnnouncements();
+  };
+
+  // Init
+  startNotices();
+  renderAnnouncements();
+
+  // Example (remove if not needed):
+  // addAnnouncement("Freezer maintenance Tue 10am", "2025-10-21T10:00:00-04:00");
 </script>
+
 </body>
 </html>
+
 
 
 
