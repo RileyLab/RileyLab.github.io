@@ -211,42 +211,58 @@
     /* ==== Page centering + wider left calendar ==== */
     /* Tweakable variables */
     :root{
-      --page-max: 1520px;   /* overall page width */
-      --gap: 22px;          /* space between columns */
-      --left: 440px;        /* LEFT sidebar (calendar) width */
-      --right: 300px;       /* RIGHT sidebar (announcements) width */
+      --page-max: 1600px;   /* overall page width for centering */
+      --gap: 22px;          /* space between columns/cards */
+      --left: 460px;        /* LEFT sidebar (calendar) width */
     }
     
-    /* Center the entire page with comfy margins */
-    .wrap{ max-width: var(--page-max); }
+    /* Page wrapper — truly centered */
+    .wrap{ max-width: var(--page-max); margin-inline: auto; }
     
-    /* Three-column layout: left | center | right */
+    /* Top banner: Lab Announcements (full-width) */
+    .ann-banner.card{ padding: 14px 16px; }
+    #ann-banner-title{ background: #ffe3b3; }
+    .ann-banner .ann-list{
+      display: grid; gap: 10px; margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .ann-banner .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+    }
+    .ann-time{ font-size:12px; color:#6b5d3b; font-weight:600; white-space:nowrap }
+    .ann-text{ flex:1 }
+    
+    /* Two-column layout now: LEFT sidebar (calendar) + CENTER grid (cards) */
     .layout{
-      gap: var(--gap);
-      grid-template-columns: var(--left) 1fr var(--right);
+      display: grid; gap: var(--gap);
+      grid-template-columns: var(--left) 1fr;
+      align-items: start;
     }
     
-    /* Keep the center grid roomy so cards don't squish */
+    /* Make the calendar sticky and taller for the wider column */
+    .sidebar .card{ position: sticky; top: 16px; }
+    .iframe-wrap iframe{ height: 840px; }  /* was ~760-820, adjust if you like */
+    
+    /* Center grid: give cards more breathing room so badges don't overflow */
     .grid{
-      gap: var(--gap);
-      grid-template-columns: repeat(3, minmax(320px, 1fr));
+      display:grid; gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(340px, 1fr));   /* wider minimums */
     }
     
-    /* Make the embedded calendar a touch taller for the wider column */
-    .iframe-wrap iframe{ height: 820px; }
+    /* Avoid header/badge overflow inside narrow cards */
+    .card h2{ min-width: 0; display:flex; align-items:center; gap:10px; }
+    .card h2 .badge{ flex-shrink: 0; }        /* keep the badge from squashing title */
     
-    /* --- Responsive refinements --- */
-    /* When the screen narrows, slightly reduce the left width and center to 2 cols */
-    @media (max-width: 1350px){
-      :root{ --left: 380px; --page-max: 1400px; }
-      .grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+    /* Responsive steps: 2 cols earlier, then stack */
+    @media (max-width: 1450px){
+      :root{ --left: 420px; --page-max: 1500px; }
+      .grid{ grid-template-columns: repeat(2, minmax(340px, 1fr)); }
     }
-    
-    /* Stack everything on small screens */
-    @media (max-width: 900px){
+    @media (max-width: 1000px){
       .layout{ grid-template-columns: 1fr; }
       .grid{ grid-template-columns: 1fr; }
-      .sidebar .card, .rightbar .card{ position: static; top:auto; }
+      .sidebar .card{ position: static; top:auto; }
     }
     
   </style>
@@ -277,6 +293,13 @@
     </div>
   </header>
 
+<section class="card ann-banner" aria-labelledby="ann-banner-title">
+  <h2 id="ann-banner-title">
+    <span class="ms" aria-hidden="true">campaign</span> Lab Announcements
+  </h2>
+  <ul id="ann-banner-list" class="list ann-list"></ul>
+</section>
+  
 <div class="layout">
   <!-- LEFT: sidebar calendar -->
   <aside class="sidebar" aria-label="Lab calendar">
@@ -383,22 +406,6 @@
     </section>
 
   </main>
-
-  <!-- RIGHT: announcements sidebar -->
-  <aside class="rightbar" aria-label="Lab announcements">
-    <section class="card" aria-labelledby="ann-title">
-      <h2 id="ann-title"><span class="ms" aria-hidden="true">campaign</span> Lab Announcements</h2>
-
-      <ul id="ann-list" class="list ann-list" style="margin-top:10px">
-        <!-- JS will render items here from NOTICES -->
-      </ul>
-
-      <!-- Optional link to a full announcements doc/page -->
-      <!-- <a class="link ext" href="https://…" target="_blank" rel="noopener">
-        <span class="ms" aria-hidden="true">open_in_new</span> Open full announcements
-      </a> -->
-    </section>
-  </aside>
   
 </div>
 
@@ -490,7 +497,7 @@
   }
 
   function renderAnnouncements(){
-    const list = document.getElementById('ann-list');
+    const list = document.getElementById('ann-banner-list');
     if(!list) return;
     const items = normalizeNotices(window.NOTICES)
       .sort((a,b) => new Date(b.when) - new Date(a.when)); // newest first
@@ -532,6 +539,7 @@
 
 </body>
 </html>
+
 
 
 
