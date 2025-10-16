@@ -12,261 +12,179 @@
 
   <style>
     :root{
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --muted: #495057;
-      --text: #111;
-      --accent: #0057b7;
-      --ring: rgba(0,87,183,.25);
-      --link: #0b5ed7;
-      --warn-bg: #fff8e1;
-      --warn-border: #ffe082;
-      --shadow: 0 6px 18px rgba(0,0,0,.08);
-      --shadow-hover: 0 10px 26px rgba(0,87,183,.15);
-      --radius: 12px;
-      --underline: linear-gradient(currentColor,currentColor);
+      --bg:#f5f7fb;
+      --card:#fff;
+      --muted:#495057;
+      --text:#111;
+      --accent:#0057b7;
+      --ring:rgba(0,87,183,.25);
+      --link:#0b5ed7;
+      --warn-bg:#fff8e1;
+      --warn-border:#ffe082;
+      --shadow:0 6px 18px rgba(0,0,0,.08);
+      --shadow-hover:0 10px 26px rgba(0,87,183,.15);
+      --radius:12px;
+      --underline:linear-gradient(currentColor,currentColor);
     }
-
+  
     html,body{height:100%}
     body{
       margin:0;
-      font: 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
-      color: var(--text);
-      background: var(--bg);
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
     }
     body::before{
       content:""; position:fixed; inset:0;
       background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center/cover no-repeat fixed;
-      z-index:-2;
-      filter: saturate(0.9) contrast(1.02);
+      z-index:-2; filter:saturate(.9) contrast(1.02);
     }
     body::after{
-      content:""; position:fixed; inset:0;
-      background: rgba(245,247,251,.86);
-      z-index:-1;
-      backdrop-filter: blur(0.5px);
+      content:""; position:fixed; inset:0; z-index:-1;
+      background:rgba(245,247,251,.86); backdrop-filter:blur(.5px);
     }
-
-    .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px }
+  
+    /* Page frame */
+    .wrap{ max-width:1440px; margin:0 auto; padding:28px 20px 60px }
+  
     header{
-      display:grid; grid-template-columns: 1fr auto; align-items:end; gap:16px; margin: 8px 0 16px;
+      display:grid; grid-template-columns:1fr auto; align-items:end; gap:16px;
+      margin:8px 0 16px;
     }
-    .title{ font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; letter-spacing:.2px }
-    .subtitle{ color: var(--muted); font-size: 14px; margin-top:4px }
-
-    /* Notices banner */
+    .title{ font-size:clamp(24px,3.5vw,36px); font-weight:800; letter-spacing:.2px }
+    .subtitle{ color:var(--muted); font-size:14px; margin-top:4px }
+  
+    /* Notice banner (toast) */
     .notice{
       display:none; align-items:center; gap:10px;
-      background: var(--warn-bg);
-      border: 1px dashed var(--warn-border);
-      color: #3b3b00;
-      padding: 10px 12px; border-radius: var(--radius); margin: 0 0 16px 0;
+      background:var(--warn-bg); border:1px dashed var(--warn-border);
+      color:#3b3b00; padding:10px 12px; border-radius:var(--radius); margin:0 0 16px;
     }
     .notice.show{ display:flex }
     .notice .close{ margin-left:auto; background:transparent; border:0; cursor:pointer; font-size:18px; line-height:1; color:#6c6c3a }
-
-    .notice-fixed {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 280px;
-      z-index: 9999;
-      background: #fff8e1;
-      border: 2px solid #ffca28;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      padding: 14px 16px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      color: #3b3b00;
-      font-weight: 600;
-      font-size: 14px;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: transform 0.5s ease, opacity 0.6s ease;
+    .notice-fixed{
+      position:fixed; top:20px; right:20px; width:280px; z-index:9999;
+      background:#fff8e1; border:2px solid #ffca28; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);
+      padding:14px 16px; display:flex; align-items:flex-start; gap:10px; color:#3b3b00; font-weight:600; font-size:14px;
+      opacity:0; transform:translateX(100%); transition:transform .5s ease, opacity .6s ease;
     }
-    
-    .notice-fixed.show {
-      opacity: 1;
-      transform: translateX(0);
+    .notice-fixed.show{ opacity:1; transform:translateX(0); animation:pulseNotice 3s infinite }
+    @keyframes pulseNotice{
+      0%,100%{ box-shadow:0 0 0 0 rgba(255,193,7,.4) }
+      50%{ box-shadow:0 0 0 6px rgba(255,193,7,0) }
     }
-    
-    /* subtle pulse effect */
-    @keyframes pulseNotice {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(255, 193, 7, 0); }
-    }
-    
-    .notice-fixed.show {
-      animation: pulseNotice 3s infinite;
-    }
-    
-    .notice-fixed .ms {
-      font-size: 22px;
-      color: #ff8f00;
-      flex-shrink: 0;
-    }
-    
-    .ms{ font-family: "Material Symbols Rounded"; font-weight: 400; font-style: normal; font-size: 20px; line-height: 1; }
-
-    /* Quick search */
-    .actions{ display:flex; gap:10px; align-items:center; }
-    .pill{ font-size: 12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color: var(--muted) }
+    .notice-fixed .ms{ font-size:22px; color:#ff8f00; flex-shrink:0 }
+  
+    /* Icon font */
+    .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
+  
+    /* Search */
+    .actions{ display:flex; gap:10px; align-items:center }
+    .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
     .search{
-      display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef; border-radius:999px; padding:8px 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
+      display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef;
+      border-radius:999px; padding:8px 12px; box-shadow:0 2px 8px rgba(0,0,0,.04);
     }
-    .search input{
-      border:0; outline:0; font: inherit; background:transparent; min-width: 220px;
+    .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:220px }
+    .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
+  
+    /* === Three-column page layout: left sidebar | main grid | right sidebar === */
+    .layout{
+      display:grid; gap:20px;
+      grid-template-columns:340px 1fr 320px;   /* adjust widths as desired */
+      align-items:start;
     }
-    .search:focus-within{ box-shadow: 0 0 0 3px var(--ring) }
-
-    .grid{ display:grid; gap: 16px; grid-template-columns: repeat(1, minmax(0,1fr)); }
-    @media (min-width:640px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    @media (min-width:960px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
-
+    /* collapse right sidebar below on medium screens */
+    @media (max-width:1250px){
+      .layout{ grid-template-columns:320px 1fr; }
+      .rightbar{ grid-column:1 / -1; }  /* full width under main */
+    }
+    /* single column on small screens */
+    @media (max-width:900px){
+      .layout{ grid-template-columns:1fr; }
+      .sidebar .card, .rightbar .card{ position:static; top:auto }
+    }
+  
+    /* Sidebars stick to top row */
+    .sidebar .card, .rightbar .card{ position:sticky; top:16px }
+  
+    /* Main grid (center column) */
+    .grid{
+      display:grid; gap:20px;
+      grid-template-columns:repeat(3, minmax(300px, 1fr));
+    }
+    @media (max-width:1250px){
+      .grid{ grid-template-columns:repeat(2, minmax(320px, 1fr)) }
+    }
+    @media (max-width:900px){
+      .grid{ grid-template-columns:1fr }
+    }
+  
+    /* Cards */
     .card{
-      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 16px; border: 1px solid #e7e7e7; position: relative; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:18px; border:1px solid #e7e7e7; position:relative;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
-    .card:hover{
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-hover);
-      border-color: #d6e3ff;
-    }
-    @media (prefers-reduced-motion: reduce){
-      .card{ transition: box-shadow .18s ease, border-color .18s ease }
+    .card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-hover); border-color:#d6e3ff }
+    @media (prefers-reduced-motion:reduce){
+      .card{ transition:box-shadow .18s ease, border-color .18s ease }
       .card:hover{ transform:none }
     }
-
     .card h2{
-      font-size: 20px; letter-spacing:.3px; margin: -16px -16px 12px -16px; padding: 12px 16px;
-      border-radius: var(--radius) var(--radius) 0 0; color:#222; display:flex; align-items:center; gap:10px;
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);
+      font-size:20px; letter-spacing:.3px; margin:-18px -18px 12px -18px; padding:14px 18px;
+      border-radius:var(--radius) var(--radius) 0 0; color:#222; display:flex; align-items:center; gap:10px;
+      box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);
     }
     .card h2 .badge{ margin-left:auto }
     .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
-
+  
     /* Section header colors */
-    #cal-title { background: #a8c8ff; }
-    #equip-title { background: #a9e5c2; }
-    #duties-title { background: #ffe69b; }
-    #cores-title { background: #f5a3a3; }
-    #tools-title { background: #9ee5f0; }
-    #misc-title { background: #ffcba4; }
-
+    #cal-title{ background:#a8c8ff }
+    #equip-title{ background:#a9e5c2 }
+    #duties-title{ background:#ffe69b }
+    #cores-title{ background:#f5a3a3 }
+    #tools-title{ background:#9ee5f0 }
+    #misc-title{ background:#ffcba4 }
+  
+    /* Lists & links */
     .list{ list-style:none; padding:0; margin:0 }
-    .list li{ margin: 8px 0 }
-
-    /* Upgraded links */
+    .list li{ margin:8px 0 }
     .link{
-      --pad: 8px;
-      text-decoration: none;
-      color: var(--link);
-      font-weight: 600;
-      position: relative;
-      display:inline-flex; align-items:center; gap:10px;
-      padding: 6px 10px;
-      border-radius: 8px;
-      outline: none; border: 1px solid transparent;
-      transition: background .15s ease, border-color .15s ease;
-    }
-    .link .arrow {
-      display: none !important;
+      text-decoration:none; color:var(--link); font-weight:600; position:relative;
+      display:inline-flex; align-items:center; gap:10px; padding:6px 10px;
+      border-radius:8px; outline:none; border:1px solid transparent; transition:background .15s ease, border-color .15s ease;
     }
     .link::after{
       content:""; position:absolute; left:10px; right:10px; bottom:6px; height:2px;
-      background: var(--underline);
-      transform: scaleX(0); transform-origin: left;
-      transition: transform .2s ease;
-      opacity:.75;
+      background:var(--underline); transform:scaleX(0); transform-origin:left; transition:transform .2s ease; opacity:.75;
     }
-    .link:hover{
-      background: #eaf2ff; border-color: #cfe0ff;
+    .link:hover{ background:#eaf2ff; border-color:#cfe0ff }
+    .link:hover::after{ transform:scaleX(1) }
+    .link:focus{ box-shadow:0 0 0 3px var(--ring) }
+    .ext::after{ content:none !important }
+    .muted{ color:var(--muted); font-weight:500 }
+  
+    /* Details (disclosure) */
+    details{ border:1px solid #ddd; border-radius:8px; padding:10px 12px; background:#fafafa }
+    details[open]{ background:#e3f2fd }
+    summary{
+      cursor:pointer; list-style:none; font-weight:700; display:flex; align-items:center; gap:8px; position:relative; padding-left:20px;
     }
-    .link:hover .arrow{ transform: translateX(2px) }
-    .link:hover::after{ transform: scaleX(1) }
-    .link:focus{ box-shadow: 0 0 0 3px var(--ring) }
-
-    .ext::after {
-      content: none !important;
+    summary::before{
+      content:""; position:absolute; left:0; top:50%; transform:translateY(-50%) rotate(0);
+      border-width:5px 0 5px 7px; border-style:solid; border-color:transparent transparent transparent #555; transition:transform .2s ease;
     }
-    a.link.ext::after { content: "" !important; }
-    .muted{ color: var(--muted); font-weight:500 }
-
-    /* Live Google Calendar card */
-    .layout{
-      display:grid; gap:16px;
-      grid-template-columns: 360px 1fr;   /* sidebar width, then content */
-      align-items:start;
-    }
-    
-    /* keep your existing grid rules for the right column */
-    @media (max-width: 1100px){
-      .layout{ grid-template-columns: 1fr; }
-    }
-    
-    /* Sidebar card: stick to the top so it aligns with first row of cards */
-    .sidebar .card{
-      position: sticky;
-      top: 16px;
-    }
-    
-    /* Calendar card visuals */
-    #live-cal-title{ background:#cfe0ff; }
+    details[open] > summary::before{ transform:translateY(-50%) rotate(90deg) }
+    summary .ms{ font-size:20px; line-height:1; position:relative; top:1px }
+    summary::-webkit-details-marker{ display:none }
+  
+    /* Calendar sidebar */
+    #live-cal-title{ background:#cfe0ff }
     .iframe-wrap{
-      border:1px solid #e0e7ef; border-radius:10px; overflow:hidden;
-      box-shadow: var(--shadow); background:#fff;
+      border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff;
     }
-    .iframe-wrap iframe{
-      width:100%; height: 720px; border:0;
-    }
-
-    .wrap{ max-width: 1300px; }
-
-    /* ===== Layout breathing room ===== */
-
-    /* Wider page so the right grid has space next to the sidebar */
-    .wrap{ max-width: 1440px; }               /* was 1100 / 1300 */
-    
-    /* Slightly slimmer sidebar, more space for cards */
-    .layout{
-      display:grid; gap:20px;
-      grid-template-columns: 340px 1fr;       /* was 360px 1fr */
-      align-items:start;
-    }
-    
-    /* Right-column grid: keep cards from getting too skinny */
-    .grid{
-      display:grid; gap:20px;
-      grid-template-columns: repeat(3, minmax(300px, 1fr));  /* wider minimums */
-    }
-    
-    /* Step down to 2 columns sooner so content isn’t cramped */
-    @media (max-width: 1250px){
-      .grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); }
-    }
-    
-    /* Single column on small screens */
-    @media (max-width: 900px){
-      .layout{ grid-template-columns: 1fr; }
-      .grid{ grid-template-columns: 1fr; }
-      .sidebar .card{ position: static; top:auto; }
-    }
-    
-    /* Calendar visuals: a touch taller so the month view feels roomy */
-    .iframe-wrap iframe{ height: 760px; }      /* was 720px */
-    
-    /* Tiny padding/spacing polish */
-    .card{ padding: 18px; }
-    .card h2{ padding: 14px 18px; }
-    
-    /* keep it sensible on smaller screens */
-    @media (max-width: 960px){
-      .calendar-wide { grid-column: span 1; }
-    }
-
-    /* Calendar view toolbar */
+    .iframe-wrap iframe{ width:100%; height:760px; border:0 }
     .calendar-toolbar{
       display:flex; gap:8px; align-items:center; margin:10px 0 12px;
     }
@@ -274,59 +192,23 @@
       appearance:none; border:1px solid #d6e3ff; background:#f4f8ff; color:#0b3d91;
       padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
     }
-    .calendar-toolbar .btn[aria-pressed="true"]{
-      background:#e6efff; border-color:#bcd0ff;
+    .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
+  
+    /* Announcements sidebar */
+    #ann-title{ background:#ffe3b3 }
+    .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+      margin:10px 0;
     }
-
-
-
-    details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
-    details[open]{ background: #e3f2fd }
-
-    summary {
-      cursor: pointer;
-      list-style: none;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: relative;
-      padding-left: 20px;
-    }
-    
-    /* custom arrow */
-    summary::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%) rotate(0deg);
-      border-width: 5px 0 5px 7px;       /* shape */
-      border-style: solid;
-      border-color: transparent transparent transparent #555; /* dark gray arrow */
-      transition: transform 0.2s ease;
-    }
-    
-    /* rotate arrow when open */
-    details[open] > summary::before {
-      transform: translateY(-50%) rotate(90deg);
-    }
-    
-    summary .ms {
-      font-size: 20px;
-      line-height: 1;
-      vertical-align: middle;
-      position: relative;
-      top: 1px;
-    }
-    
-    summary::-webkit-details-marker {
-      display: none; /* hides default browser arrow */
-    }
-
-    footer{ margin-top: 26px; color: var(--muted); font-size: 12px }
+    .ann-time{ font-size:12px; color:#6b5d3b; font-weight:600; white-space:nowrap }
+    .ann-text{ flex:1 }
+  
+    /* Footer */
+    footer{ margin-top:26px; color:var(--muted); font-size:12px }
     .stack{ display:flex; gap:8px; flex-wrap:wrap }
   </style>
+
 </head>
 <body>
 <div class="wrap">
@@ -386,7 +268,6 @@
     <section class="card" aria-labelledby="cal-title">
       <h2 id="cal-title"><span class="ms" aria-hidden="true">event</span> Calendars/Hood Bookings <span class="badge"><span class="ms" aria-hidden="true">calendar_month</span>Bookings</span></h2>
       <ul class="list" style="margin-top:10px">
-        <li><a class="link ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">today</span> Lab Meeting Calendar <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
         <li><a class="link ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">schedule</span> Fortessa <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
       <details>
@@ -460,6 +341,23 @@
     </section>
 
   </main>
+
+  <!-- RIGHT: announcements sidebar -->
+  <aside class="rightbar" aria-label="Lab announcements">
+    <section class="card" aria-labelledby="ann-title">
+      <h2 id="ann-title"><span class="ms" aria-hidden="true">campaign</span> Lab Announcements</h2>
+
+      <ul id="ann-list" class="list ann-list" style="margin-top:10px">
+        <!-- JS will render items here from NOTICES -->
+      </ul>
+
+      <!-- Optional link to a full announcements doc/page -->
+      <!-- <a class="link ext" href="https://…" target="_blank" rel="noopener">
+        <span class="ms" aria-hidden="true">open_in_new</span> Open full announcements
+      </a> -->
+    </section>
+  </aside>
+  
 </div>
 
   <footer>
@@ -562,9 +460,50 @@
   }
   
   startNotices();
+
+  // ------- ANNOUNCMENTS ---------
+  (function renderAnnouncements(){
+    const list = document.getElementById('ann-list');
+    if(!list || !Array.isArray(window.NOTICES)) return;
+
+    // If you ever want time stamps per notice, allow NOTICES to contain objects:
+    // NOTICES = [{text:"...", when:"2025-10-16T13:05:00Z"}, "plain string", ...]
+    const items = window.NOTICES.map(n => {
+      if (typeof n === "string") return { text: n, when: new Date().toISOString() };
+      return { text: n.text || "", when: n.when || new Date().toISOString() };
+    });
+
+    // newest first
+    items.reverse();
+
+    const frag = document.createDocumentFragment();
+    items.forEach(({text, when})=>{
+      const li = document.createElement('li');
+      const time = document.createElement('div');
+      const body = document.createElement('div');
+      time.className = 'ann-time';
+      body.className = 'ann-text';
+
+      // format time as short date; fallback if Date fails
+      const d = new Date(when);
+      time.textContent = isNaN(d.getTime()) ? "" :
+        d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+
+      body.textContent = text;
+      li.appendChild(time);
+      li.appendChild(body);
+      frag.appendChild(li);
+    });
+    list.innerHTML = "";
+    list.appendChild(frag);
+  })();
+
+  // TIP: to add a dated announcement, push an object:
+  // NOTICES.push({ text: "Freezer maintenance Tue 10am", when: "2025-10-21T10:00:00-04:00" });
 </script>
 </body>
 </html>
+
 
 
 
