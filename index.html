@@ -153,6 +153,23 @@
     details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
     details[open]{ background: #e3f2fd }
 
+    summary {
+      cursor: pointer;
+      list-style: none;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    summary .ms {
+      font-size: 20px;
+      line-height: 1;       
+      vertical-align: middle;  
+      position: relative;
+      top: 1px;     
+    }
+
     footer{ margin-top: 26px; color: var(--muted); font-size: 12px }
     .stack{ display:flex; gap:8px; flex-wrap:wrap }
   </style>
@@ -339,6 +356,7 @@
 </script>
 </body>
 </html>
+
 
 
 
