@@ -356,6 +356,11 @@
       height: 100%;
     }
 
+    /* Calendar card fills the height we assign via JS */
+    #live-cal-card{ display:flex; flex-direction:column; }
+    #live-cal-card .iframe-wrap{ flex:1; min-height:0; }
+    #live-cal-card .iframe-wrap iframe{ height:100%; }
+
     
   </style>
 
@@ -395,7 +400,7 @@
 <div class="layout">
   <!-- LEFT: sidebar calendar -->
   <aside class="sidebar" aria-label="Lab calendar">
-    <section class="card" aria-labelledby="live-cal-title">
+    <section class="card" id="live-cal-card" aria-labelledby="live-cal-title">
       <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Riley Lab Calendar</h2>
 
       <div class="calendar-toolbar" role="toolbar" aria-label="Calendar view">
@@ -422,7 +427,7 @@
 
   <main class="grid" aria-label="Link groups">
 
-    <section class="card" aria-labelledby="cal-title">
+    <section class="card" id="card-calendars-hood" aria-labelledby="...">
       <h2 id="cal-title"><span class="ms" aria-hidden="true">event</span> Calendars/Hood Bookings <span class="badge"><span class="ms" aria-hidden="true">calendar_month</span>Bookings</span></h2>
       <ul class="list" style="margin-top:10px">
         <li><a class="link ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">schedule</span> Fortessa <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
@@ -463,7 +468,7 @@
       </details>
     </section>
 
-    <section class="card" aria-labelledby="cores-title">
+    <section class="card" id="card-upenn-cores" aria-labelledby="cores-title">
       <h2 id="cores-title"><span class="ms" aria-hidden="true">hub</span> UPenn Cores <span class="badge"><span class="ms" aria-hidden="true">category</span>Cores</span></h2>
       <ul class="list">
         <li><a class="link ext" href="https://www.med.upenn.edu/apps/my/index.php?_app_id=5ecffaaf109d6&_display=1&_hist_id=1&_preserve[init_panel]=dnacore%2Fmain&_token=5fb240a6e9f15f8adf144d9632c2fc81&CEALID=6B037AA7C0FFD4D899C03C18B4E98342&_token=3adca2be899805c397f63c7bf0dbfdb8" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">genetics</span> Penn Sequencing Core <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
@@ -626,11 +631,55 @@
 
   // Example:
   // addAnnouncement("Freezer maintenance Tue 10am", "2025-10-21T10:00:00-04:00");
-</script>
 
+  function syncCalendarHeight(){
+    const calCard   = document.getElementById('live-cal-card');
+    const topCard   = document.getElementById('card-calendars-hood');
+    const bottomCard= document.getElementById('card-upenn-cores');
+    if(!calCard || !topCard || !bottomCard) return;
+  
+    // Row gap from the center grid (so spacing matches your CSS)
+    const grid   = topCard.closest('.grid');
+    const rowGap = grid ? parseFloat(getComputedStyle(grid).rowGap || '0') : 0;
+  
+    // Total target = top card + gap + bottom card
+    const target = topCard.offsetHeight + rowGap + bottomCard.offsetHeight;
+  
+    // Apply to the calendar card
+    calCard.style.height = target + 'px';
+  
+    // Make the iframe area consume the remaining space inside the card
+    const head    = calCard.querySelector('h2');
+    const toolbar = calCard.querySelector('.calendar-toolbar');
+    const padding = 18 * 2; // your .card padding (top+bottom)
+    const extra   = (head?.offsetHeight || 0) + (toolbar?.offsetHeight || 0) + padding;
+  
+    const wrap = calCard.querySelector('.iframe-wrap');
+    if (wrap) {
+      wrap.style.height = Math.max(200, target - extra) + 'px';
+      const iframe = wrap.querySelector('iframe');
+      if (iframe) iframe.style.height = '100%';
+    }
+  }
+  
+  // Run on load and on resize (debounced)
+  window.addEventListener('load',  syncCalendarHeight);
+  window.addEventListener('resize', () => {
+    clearTimeout(syncCalendarHeight._t);
+    syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
+  });
+  
+  // If your details/accordions expand/collapse inside those center cards,
+  // re-sync after a short delay:
+  document.addEventListener('toggle', (e) => {
+    if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
+  }, true);
+  
+</script>
 
 </body>
 </html>
+
 
 
 
