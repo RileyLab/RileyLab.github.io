@@ -291,6 +291,29 @@
     .lab-announcements h2 {
       box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
     }
+
+    /* === SPACING BETWEEN ANNOUNCEMENTS AND MAIN LAYOUT === */
+    .lab-announcements {
+      display: block;
+      margin-bottom: 28px;      /* creates visible space before grid */
+    }
+    
+    .lab-announcements + .layout {
+      margin-top: 28px;         /* ensures consistent vertical gap */
+    }
+    
+    /* If announcements span full width, align with content and keep consistent width */
+    .lab-announcements {
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 8px;
+    }
+    
+    /* make the card slightly pop above the grid */
+    .lab-announcements .card {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
     
   </style>
 
@@ -566,6 +589,7 @@
 
 </body>
 </html>
+
 
 
 
