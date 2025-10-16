@@ -195,19 +195,34 @@
     .muted{ color: var(--muted); font-weight:500 }
 
     /* Live Google Calendar card */
-    #live-cal-title { background:#cfe0ff; }
+    .layout{
+      display:grid; gap:16px;
+      grid-template-columns: 360px 1fr;   /* sidebar width, then content */
+      align-items:start;
+    }
     
-    /* make the calendar card span 2 of 3 columns on wide screens */
-    .calendar-wide { grid-column: span 2; }
+    /* keep your existing grid rules for the right column */
+    @media (max-width: 1100px){
+      .layout{ grid-template-columns: 1fr; }
+    }
     
-    /* calendar frame styling */
+    /* Sidebar card: stick to the top so it aligns with first row of cards */
+    .sidebar .card{
+      position: sticky;
+      top: 16px;
+    }
+    
+    /* Calendar card visuals */
+    #live-cal-title{ background:#cfe0ff; }
     .iframe-wrap{
       border:1px solid #e0e7ef; border-radius:10px; overflow:hidden;
       box-shadow: var(--shadow); background:#fff;
     }
     .iframe-wrap iframe{
-      width:100%; height:720px; border:0;
+      width:100%; height: 720px; border:0;
     }
+
+    .wrap{ max-width: 1300px; }
     
     /* keep it sensible on smaller screens */
     @media (max-width: 960px){
@@ -287,6 +302,31 @@
       <span class="pill">v1.1</span>
     </div>
   </header>
+
+<div class="layout">
+  <!-- LEFT: sidebar calendar -->
+  <aside class="sidebar" aria-label="Lab calendar">
+    <section class="card" aria-labelledby="live-cal-title">
+      <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Live Lab Calendar</h2>
+
+      <div class="iframe-wrap" style="margin-top:10px">
+        <iframe
+          title="Riley Lab Google Calendar"
+          loading="lazy"
+          src="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York&mode=MONTH&showPrint=0&showTabs=0&showCalendars=0&showTitle=0&showTz=0&wkst=1&bgcolor=%23ffffff">
+        </iframe>
+      </div>
+
+      <div class="stack" style="margin-top:10px">
+        <a class="link ext" href="https://calendar.google.com/calendar/u/0?cid=j27deqargjjbeg5835162djbl8@group.calendar.google.com" target="_blank" rel="noopener">
+          <span class="ms" aria-hidden="true">add</span> Add to Google Calendar
+        </a>
+        <a class="link ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener">
+          <span class="ms" aria-hidden="true">open_in_new</span> Open full calendar
+        </a>
+      </div>
+    </section>
+  </aside>
 
   <main class="grid" aria-label="Link groups">
 
@@ -389,6 +429,7 @@
     </section>
 
   </main>
+</div>
 
   <footer>
     <div>Riley Lab™</div>
@@ -454,6 +495,7 @@
 </script>
 </body>
 </html>
+
 
 
 
