@@ -144,7 +144,9 @@
     .link:hover::after{ transform: scaleX(1) }
     .link:focus{ box-shadow: 0 0 0 3px var(--ring) }
 
-    .ext::after{ content: "↗"; font-size: 12px; opacity:.85 }
+    .ext::after {
+      content: none !important;
+    }
     .muted{ color: var(--muted); font-weight:500 }
 
     details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
@@ -336,4 +338,5 @@
 </script>
 </body>
 </html>
+
 
