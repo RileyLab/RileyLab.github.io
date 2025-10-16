@@ -469,6 +469,45 @@
 </div>
 
 <script>
+  (() => {
+    const iframe = document.querySelector('.sidebar #live-cal-title') 
+      ? document.querySelector('.sidebar .iframe-wrap iframe') 
+      : null;
+    if(!iframe) return;
+  
+    const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
+  
+    // Build a base URL without the mode (we’ll append it)
+    const params = new URLSearchParams({
+      src: 'j27deqargjjbeg5835162djbl8@group.calendar.google.com',
+      ctz: 'America/New_York',
+      showPrint: '0',
+      showTabs: '0',
+      showCalendars: '0',
+      showTitle: '0',
+      showTz: '0',
+      wkst: '1',
+      bgcolor: '#ffffff'
+    });
+    const BASE = `https://calendar.google.com/calendar/embed?${params.toString()}&mode=`;
+  
+    // Restore last view (default MONTH)
+    const saved = localStorage.getItem('labCalView') || 'MONTH';
+    setView(saved, false);
+  
+    btns.forEach(b => {
+      b.addEventListener('click', () => setView(b.dataset.view || 'MONTH', true));
+    });
+  
+    function setView(view, fromClick){
+      // update buttons’ pressed state
+      btns.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view || '') === view)));
+      // update iframe
+      iframe.src = BASE + encodeURIComponent(view);
+      if(fromClick) localStorage.setItem('labCalView', view);
+    }
+  })();
+  
   // ------- QUICK FIND -------
   const q = document.getElementById('q');
   const linkItems = Array.from(document.querySelectorAll('.list a'));
@@ -526,6 +565,7 @@
 </script>
 </body>
 </html>
+
 
 
 
