@@ -264,6 +264,33 @@
       .grid{ grid-template-columns: 1fr; }
       .sidebar .card{ position: static; top:auto; }
     }
+
+    /* === LAB ANNOUNCEMENTS SPACING + POLISH === */
+    .lab-announcements {
+      margin-bottom: 28px;       /* space between announcements and rest of page */
+      padding-bottom: 4px;
+    }
+    
+    .lab-announcements .card {
+      margin-bottom: 0;
+    }
+    
+    /* If your announcements bar is full-width across top */
+    .lab-announcements + .layout {
+      margin-top: 12px;          /* adds a soft gap before the main grid starts */
+    }
+    
+    /* Keep consistent alignment with page margins */
+    .lab-announcements {
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Optional: slightly enhance background tone */
+    .lab-announcements h2 {
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
     
   </style>
 
@@ -539,6 +566,7 @@
 
 </body>
 </html>
+
 
 
 
