@@ -223,6 +223,43 @@
     }
 
     .wrap{ max-width: 1300px; }
+
+    /* ===== Layout breathing room ===== */
+
+    /* Wider page so the right grid has space next to the sidebar */
+    .wrap{ max-width: 1440px; }               /* was 1100 / 1300 */
+    
+    /* Slightly slimmer sidebar, more space for cards */
+    .layout{
+      display:grid; gap:20px;
+      grid-template-columns: 340px 1fr;       /* was 360px 1fr */
+      align-items:start;
+    }
+    
+    /* Right-column grid: keep cards from getting too skinny */
+    .grid{
+      display:grid; gap:20px;
+      grid-template-columns: repeat(3, minmax(300px, 1fr));  /* wider minimums */
+    }
+    
+    /* Step down to 2 columns sooner so content isn’t cramped */
+    @media (max-width: 1250px){
+      .grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+    }
+    
+    /* Single column on small screens */
+    @media (max-width: 900px){
+      .layout{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .sidebar .card{ position: static; top:auto; }
+    }
+    
+    /* Calendar visuals: a touch taller so the month view feels roomy */
+    .iframe-wrap iframe{ height: 760px; }      /* was 720px */
+    
+    /* Tiny padding/spacing polish */
+    .card{ padding: 18px; }
+    .card h2{ padding: 14px 18px; }
     
     /* keep it sensible on smaller screens */
     @media (max-width: 960px){
@@ -473,6 +510,7 @@
 </script>
 </body>
 </html>
+
 
 
 
