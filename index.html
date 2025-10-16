@@ -351,7 +351,7 @@
   const CLOSED_KEY = 'riley_notice_closed_v1';
 
   function startNotices(){
-    if(localStorage.getItem(CLOSED_KEY) === '1') return;
+    if (sessionStorage.getItem(CLOSED_KEY) === '1') return;
     if(!NOTICES.length) return;
     let i = 0;
     noticeText.textContent = NOTICES[i];
@@ -363,7 +363,7 @@
   }
   noticeClose.addEventListener('click', () => {
     noticeEl.classList.remove('show');
-    localStorage.setItem(CLOSED_KEY, '1');
+    sessionStorage.setItem(CLOSED_KEY, '1');
   });
 
   // Focus search with Cmd/Ctrl+K
@@ -379,6 +379,7 @@
 </script>
 </body>
 </html>
+
 
 
 
