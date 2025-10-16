@@ -207,6 +207,48 @@
     /* Footer */
     footer{ margin-top:26px; color:var(--muted); font-size:12px }
     .stack{ display:flex; gap:8px; flex-wrap:wrap }
+
+    /* ==== Page centering + wider left calendar ==== */
+    /* Tweakable variables */
+    :root{
+      --page-max: 1520px;   /* overall page width */
+      --gap: 22px;          /* space between columns */
+      --left: 440px;        /* LEFT sidebar (calendar) width */
+      --right: 300px;       /* RIGHT sidebar (announcements) width */
+    }
+    
+    /* Center the entire page with comfy margins */
+    .wrap{ max-width: var(--page-max); }
+    
+    /* Three-column layout: left | center | right */
+    .layout{
+      gap: var(--gap);
+      grid-template-columns: var(--left) 1fr var(--right);
+    }
+    
+    /* Keep the center grid roomy so cards don't squish */
+    .grid{
+      gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(320px, 1fr));
+    }
+    
+    /* Make the embedded calendar a touch taller for the wider column */
+    .iframe-wrap iframe{ height: 820px; }
+    
+    /* --- Responsive refinements --- */
+    /* When the screen narrows, slightly reduce the left width and center to 2 cols */
+    @media (max-width: 1350px){
+      :root{ --left: 380px; --page-max: 1400px; }
+      .grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+    }
+    
+    /* Stack everything on small screens */
+    @media (max-width: 900px){
+      .layout{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .sidebar .card, .rightbar .card{ position: static; top:auto; }
+    }
+    
   </style>
 
 </head>
@@ -490,6 +532,7 @@
 
 </body>
 </html>
+
 
 
 
