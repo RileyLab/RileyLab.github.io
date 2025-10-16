@@ -5,107 +5,174 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riley Lab Portal</title>
   <link rel="shortcut icon" href="https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/favicon.ico" />
+
+  <!-- Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg: #f5f7fb;
       --card: #ffffff;
-      --muted: #444;
+      --muted: #495057;
       --text: #111;
       --accent: #0057b7;
-      --accent-2: #198754;
-      --ring: rgba(0,87,183,.3);
-      --link: #0057b7;
-      --warn: #ffc107;
-      --shadow: 0 4px 12px rgba(0,0,0,.08);
+      --ring: rgba(0,87,183,.25);
+      --link: #0b5ed7;
+      --warn-bg: #fff8e1;
+      --warn-border: #ffe082;
+      --shadow: 0 6px 18px rgba(0,0,0,.08);
+      --shadow-hover: 0 10px 26px rgba(0,87,183,.15);
+      --radius: 12px;
+      --underline: linear-gradient(currentColor,currentColor);
     }
+
     html,body{height:100%}
-    /* Full-screen background image with a soft overlay */
     body{
       margin:0;
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      font: 16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
       color: var(--text);
-      background: var(--bg); /* fallback color */
+      background: var(--bg);
     }
     body::before{
-      content:"";
-      position:fixed; inset:0;
-      background: url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center / cover no-repeat fixed;
+      content:""; position:fixed; inset:0;
+      background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center/cover no-repeat fixed;
       z-index:-2;
+      filter: saturate(0.9) contrast(1.02);
     }
     body::after{
-      content:"";
-      position:fixed; inset:0;
-      /* tweaking the alpha to desired level (0 is transparent, 1 is opaque) */
-      background: rgba(245,247,251,.85);
+      content:""; position:fixed; inset:0;
+      background: rgba(245,247,251,.86);
       z-index:-1;
+      backdrop-filter: blur(0.5px);
     }
+
     .wrap{ max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px }
     header{
-      display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 8px 0 24px
+      display:grid; grid-template-columns: 1fr auto; align-items:end; gap:16px; margin: 8px 0 16px;
     }
     .title{ font-size: clamp(24px, 3.5vw, 36px); font-weight: 800; letter-spacing:.2px }
-    .subtitle{ color: var(--muted); font-size: 14px }
-    .note{
-      display:flex; align-items:center; gap:8px; background: #fff8e1;
-      border: 1px dashed #ffe082; color: var(--text); padding: 10px 12px; border-radius: 12px; margin: 0 0 18px 0
+    .subtitle{ color: var(--muted); font-size: 14px; margin-top:4px }
+
+    /* Notices banner */
+    .notice{
+      display:none; align-items:center; gap:10px;
+      background: var(--warn-bg);
+      border: 1px dashed var(--warn-border);
+      color: #3b3b00;
+      padding: 10px 12px; border-radius: var(--radius); margin: 0 0 16px 0;
     }
-    .grid{
-      display:grid; gap: 16px; grid-template-columns: repeat(1, minmax(0,1fr));
+    .notice.show{ display:flex }
+    .notice .close{ margin-left:auto; background:transparent; border:0; cursor:pointer; font-size:18px; line-height:1; color:#6c6c3a }
+    .ms{ font-family: "Material Symbols Rounded"; font-weight: 400; font-style: normal; font-size: 20px; line-height: 1; }
+
+    /* Quick search */
+    .actions{ display:flex; gap:10px; align-items:center; }
+    .pill{ font-size: 12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color: var(--muted) }
+    .search{
+      display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef; border-radius:999px; padding:8px 12px; box-shadow: 0 2px 8px rgba(0,0,0,.04);
     }
+    .search input{
+      border:0; outline:0; font: inherit; background:transparent; min-width: 220px;
+    }
+    .search:focus-within{ box-shadow: 0 0 0 3px var(--ring) }
+
+    .grid{ display:grid; gap: 16px; grid-template-columns: repeat(1, minmax(0,1fr)); }
     @media (min-width:640px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
     @media (min-width:960px){ .grid{ grid-template-columns: repeat(3, minmax(0,1fr)); } }
 
     .card{
-      background: var(--card); border-radius: 12px; box-shadow: var(--shadow);
-      padding: 16px 16px; border: 1px solid #e0e0e0; position: relative;
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 16px; border: 1px solid #e7e7e7; position: relative; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
     }
-    .card h2{ font-size: 20px; letter-spacing:.3px; margin: -16px -16px 12px -16px; padding: 12px 16px; border-radius: 12px 12px 0 0; background: var(--accent); color: #222; display:flex; align-items:center; gap:10px }
-    .card h2 .badge {
-      background: rgba(255, 255, 255, 0.4);
-      color: #222;
-      border: 1px solid rgba(0, 0, 0, 0.05);
+    .card:hover{
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+      border-color: #d6e3ff;
     }
-    .card h2 {
+    @media (prefers-reduced-motion: reduce){
+      .card{ transition: box-shadow .18s ease, border-color .18s ease }
+      .card:hover{ transform:none }
+    }
+
+    .card h2{
+      font-size: 20px; letter-spacing:.3px; margin: -16px -16px 12px -16px; padding: 12px 16px;
+      border-radius: var(--radius) var(--radius) 0 0; color:#222; display:flex; align-items:center; gap:10px;
       box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);
     }
+    .card h2 .badge{ margin-left:auto }
+    .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
 
-    /* Custom colors for specific sections */
-    #cal-title { background: #a8c8ff; }     /* sky blue */
-    #equip-title { background: #a9e5c2; }   /* minty green */
-    #duties-title { background: #ffe69b; }  /* butter yellow */
-    #cores-title { background: #f5a3a3; }   /* lavender violet */
-    #tools-title { background: #9ee5f0; }   /* aqua blue */
-    #misc-title { background: #ffcba4; }    /* peachy coral */
-    
-    .badge{ display:inline-block; font-size:12px; padding:2px 8px; border-radius: 999px; background: #e3f2fd; color: var(--link); border: 1px solid #bbdefb }
+    /* Section header colors */
+    #cal-title { background: #a8c8ff; }
+    #equip-title { background: #a9e5c2; }
+    #duties-title { background: #ffe69b; }
+    #cores-title { background: #f5a3a3; }
+    #tools-title { background: #9ee5f0; }
+    #misc-title { background: #ffcba4; }
+
     .list{ list-style:none; padding:0; margin:0 }
     .list li{ margin: 8px 0 }
-    .list a{
-      text-decoration:none; color: var(--link); font-weight:600; position:relative; padding:6px 10px; display:inline-flex; gap:8px; align-items:center;
-      border-radius:8px; outline: none; border: 1px solid transparent
+
+    /* Upgraded links */
+    .link{
+      --pad: 8px;
+      text-decoration: none;
+      color: var(--link);
+      font-weight: 600;
+      position: relative;
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      outline: none; border: 1px solid transparent;
+      transition: background .15s ease, border-color .15s ease;
     }
-    .list a:hover{ background: #e3f2fd; border-color: #90caf9 }
-    .list a:focus{ box-shadow: 0 0 0 3px var(--ring) }
+    .link .arrow{ transition: transform .2s ease }
+    .link::after{
+      content:""; position:absolute; left:10px; right:10px; bottom:6px; height:2px;
+      background: var(--underline);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .2s ease;
+      opacity:.75;
+    }
+    .link:hover{
+      background: #eaf2ff; border-color: #cfe0ff;
+    }
+    .link:hover .arrow{ transform: translateX(2px) }
+    .link:hover::after{ transform: scaleX(1) }
+    .link:focus{ box-shadow: 0 0 0 3px var(--ring) }
+
     .ext::after{ content: "↗"; font-size: 12px; opacity:.85 }
     .muted{ color: var(--muted); font-weight:500 }
-    .pill{ font-size: 12px; padding:2px 8px; border-radius: 999px; border:1px solid #ddd; color: var(--muted) }
+
+    details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa; }
+    details[open]{ background: #e3f2fd }
+
     footer{ margin-top: 26px; color: var(--muted); font-size: 12px }
     .stack{ display:flex; gap:8px; flex-wrap:wrap }
-
-    details{ border: 1px solid #ddd; border-radius: 8px; padding: 10px 12px; background: #fafafa }
-    details[open]{ background: #e3f2fd }
-    summary{ cursor:pointer; list-style:none; font-weight:700 }
-    summary::-webkit-details-marker{ display:none }
   </style>
 </head>
 <body>
 <div class="wrap">
+
+  <!-- Live Notice Banner -->
+  <div id="notice" class="notice" role="status" aria-live="polite">
+    <span class="ms" aria-hidden="true">campaign</span>
+    <span id="notice-text">Loading…</span>
+    <button id="notice-close" class="close" aria-label="Dismiss notice">✕</button>
+  </div>
+
   <header>
     <div>
       <div class="title">Riley Lab Portal</div>
       <div class="subtitle">Riley Lab essentials all in one place</div>
     </div>
-    <div class="stack">
+
+    <div class="actions">
+      <div class="search" role="search">
+        <span class="ms" aria-hidden="true">search</span>
+        <input id="q" type="search" placeholder="Quick find anything…" aria-label="Search links">
+      </div>
       <span class="pill">Updated</span>
       <span class="pill">v1.1</span>
     </div>
@@ -114,78 +181,78 @@
   <main class="grid" aria-label="Link groups">
 
     <section class="card" aria-labelledby="cal-title">
-      <h2 id="cal-title">Calendars/Hood Bookings <span class="badge">Bookings</span></h2>
+      <h2 id="cal-title"><span class="ms" aria-hidden="true">event</span> Calendars/Hood Bookings <span class="badge"><span class="ms" aria-hidden="true">calendar_month</span>Bookings</span></h2>
       <ul class="list" style="margin-top:10px">
-        <li><a class="ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener">Lab Meeting Calendar</a></li>
-        <li><a class="ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener">Fortessa</a></li>
+        <li><a class="link ext" href="https://calendar.google.com/calendar/embed?src=j27deqargjjbeg5835162djbl8%40group.calendar.google.com&ctz=America%2FNew_York" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">today</span> Lab Meeting Calendar <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">schedule</span> Fortessa <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
       <details>
-        <summary>Riley Lab Hood Bookings</summary>
+        <summary><span class="ms" aria-hidden="true">lab_profile</span> Riley Lab Hood Bookings</summary>
         <ul class="list" aria-label="Riley Lab Hood Bookings list">
-          <li><a class="ext" href="https://www.brownbearsw.com/cal/HIVRoom" target="_blank" rel="noopener">TC1</a></li>
-          <li><a class="ext" href="https://www.brownbearsw.com/cal/CancerRoom" target="_blank" rel="noopener">TC2</a></li>
-          <li><a class="ext" href="https://www.brownbearsw.com/cal/translationalroom" target="_blank" rel="noopener">TC3</a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/cal/HIVRoom" target="_blank" rel="noopener">TC1 <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/cal/CancerRoom" target="_blank" rel="noopener">TC2 <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/cal/translationalroom" target="_blank" rel="noopener">TC3 <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
         </ul>
       </details>
     </section>
 
     <section class="card" aria-labelledby="equip-title">
-      <h2 id="equip-title">Shared Use Equipment <span class="badge">Shared</span></h2>
+      <h2 id="equip-title"><span class="ms" aria-hidden="true">biotech</span> Shared Use Equipment <span class="badge"><span class="ms" aria-hidden="true">group</span>Shared</span></h2>
       <ul class="list">
-        <li><a class="ext" href="https://med-upenn.corefacilities.org/service_center/show_external/5381/small_animal_radiation_core_sarc" target="_blank" rel="noopener">Irradiator</a></li>
-        <li><a class="ext" href="https://med-upenn.corefacilities.org/sc/6469/i3h-service-center?tab=equipment" target="_blank" rel="noopener">3600 CCB Ultra Centrifuge</a></li>
-        <li><a class="ext" href="https://teamup.com/kssvtmecq8agaw4phy" target="_blank" rel="noopener">xCELLigence</a></li>
-        <li><a class="ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home" target="_blank" rel="noopener">Fortessa Flow Core Scheduler <span class="muted">(use only to prevent Bill from turning off LSRFortessa E TRC 8-183)</span></a></li>
+        <li><a class="link ext" href="https://med-upenn.corefacilities.org/service_center/show_external/5381/small_animal_radiation_core_sarc" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">radiology</span> Irradiator <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://med-upenn.corefacilities.org/sc/6469/i3h-service-center?tab=equipment" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">science</span> 3600 CCB Ultra Centrifuge <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://teamup.com/kssvtmecq8agaw4phy" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">monitor_heart</span> xCELLigence <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">waterfall_chart</span> Fortessa Flow Core Scheduler <span class="muted">(use only to prevent Bill from turning off LSRFortessa E TRC 8-183)</span> <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
     </section>
 
     <section class="card" aria-labelledby="duties-title">
-      <h2 id="duties-title">Lab Duties <span class="badge">Rotations</span></h2>
+      <h2 id="duties-title"><span class="ms" aria-hidden="true">assignment_turned_in</span> Lab Duties <span class="badge"><span class="ms" aria-hidden="true">change_circle</span>Rotations</span></h2>
       <ul class="list">
-        <li><a class="ext" href="https://www.brownbearsw.com/cal/293T" target="_blank" rel="noopener">293T Cells</a></li>
+        <li><a class="link ext" href="https://www.brownbearsw.com/cal/293T" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">coronavirus</span> 293T Cells <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
       <details>
-        <summary>Room Maintenance Rotations</summary>
+        <summary><span class="ms" aria-hidden="true">cleaning_services</span> Room Maintenance Rotations</summary>
         <ul class="list" aria-label="Riley Lab Hood Bookings list">
-          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/TC1Restocking" target="_blank" rel="noopener">TC1 Duty</a></li>
-          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/TC2Restocking" target="_blank" rel="noopener">TC2 Duty</a></li>
-          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/TC3Restocking" target="_blank" rel="noopener">TC3 Duty</a></li>
-          <li><a class="ext" href="https://www.brownbearsw.com/mc/Riley/mainlabduty" target="_blank" rel="noopener">Main Lab Duty</a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/mc/Riley/TC1Restocking" target="_blank" rel="noopener">TC1 Duty <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/mc/Riley/TC2Restocking" target="_blank" rel="noopener">TC2 Duty <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/mc/Riley/TC3Restocking" target="_blank" rel="noopener">TC3 Duty <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+          <li><a class="link ext" href="https://www.brownbearsw.com/mc/Riley/mainlabduty" target="_blank" rel="noopener">Main Lab Duty <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
         </ul>
       </details>
     </section>
 
     <section class="card" aria-labelledby="cores-title">
-      <h2 id="cores-title">UPenn Cores <span class="badge">Cores</span></h2>
+      <h2 id="cores-title"><span class="ms" aria-hidden="true">hub</span> UPenn Cores <span class="badge"><span class="ms" aria-hidden="true">category</span>Cores</span></h2>
       <ul class="list">
-        <li><a class="ext" href="https://www.med.upenn.edu/apps/my/index.php?_app_id=5ecffaaf109d6&_display=1&_hist_id=1&_preserve[init_panel]=dnacore%2Fmain&_token=5fb240a6e9f15f8adf144d9632c2fc81&CEALID=6B037AA7C0FFD4D899C03C18B4E98342&_token=3adca2be899805c397f63c7bf0dbfdb8" target="_blank" rel="noopener">Penn Sequencing Core</a></li>
-        <li><a class="ext" href="https://pathbio.med.upenn.edu/hic/hiccell/" target="_blank" rel="noopener">HIC Cell Ordering</a></li>
-        <li><a class="ext" href="https://pathbio.med.upenn.edu/duars/EntreeServer/" target="_blank" rel="noopener">Flow Core Data</a></li>
-        <li><a class="ext" href="https://pathbio.med.upenn.edu/saif/EntreeServer/" target="_blank" rel="noopener">Mouse Imaging Data</a></li>
-        <li><a class="ext" href="https://genetics.med.upenn.edu/cores/cell-center-stockroom/" target="_blank" rel="noopener">Cell Center Stockroom</a></li>
-        <li><a class="ext" href="https://med-upenn.corefacilities.org/homepage/" target="_blank" rel="noopener">iLab (Xenograft Core)</a></li>
+        <li><a class="link ext" href="https://www.med.upenn.edu/apps/my/index.php?_app_id=5ecffaaf109d6&_display=1&_hist_id=1&_preserve[init_panel]=dnacore%2Fmain&_token=5fb240a6e9f15f8adf144d9632c2fc81&CEALID=6B037AA7C0FFD4D899C03C18B4E98342&_token=3adca2be899805c397f63c7bf0dbfdb8" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">genetics</span> Penn Sequencing Core <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/hic/hiccell/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">bloodtype</span> HIC Cell Ordering <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/duars/EntreeServer/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">analytics</span> Flow Core Data <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/saif/EntreeServer/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">pets</span> Mouse Imaging Data <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://genetics.med.upenn.edu/cores/cell-center-stockroom/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">inventory_2</span> Cell Center Stockroom <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://med-upenn.corefacilities.org/homepage/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">lab_research</span> iLab (Xenograft Core) <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
     </section>
 
     <section class="card" aria-labelledby="tools-title">
-      <h2 id="tools-title">Tools & Docs <span class="badge">Essentials</span></h2>
+      <h2 id="tools-title"><span class="ms" aria-hidden="true">construction</span> Tools & Docs <span class="badge"><span class="ms" aria-hidden="true">star</span>Essentials</span></h2>
       <ul class="list">
-        <li><a class="ext" href="https://forms.gle/mNc43ejEpeXRTfYV9" target="_blank" rel="noopener">Riley Lab Ordering Form</a></li>
-        <li><a class="ext" href="https://docs.google.com/spreadsheets/d/1EWxp0SgVXKpk8jPVvy0lLlk8iD1QHOZ_Ocj8JSMj218/edit?usp=sharing" target="_blank" rel="noopener">Order Statuses (Google Sheet)</a></li>
-        <li><a class="ext" href="https://penno365-my.sharepoint.com/:o:/g/personal/rileyj_upenn_edu/EreHrOPLVsBMhp_VD8rdvDwBXswkXTZpRWzQqIWqfsGnzA?e=08zM26" target="_blank" rel="noopener">Riley Lab OneNote</a></li>
-        <li><a class="ext" href="https://lims.pmacs.upenn.edu/limsprod/logon.jsp" target="_blank" rel="noopener">LabVantage</a></li>
-        <li><a class="ext" href="https://upenn.app.box.com/file/878046376947" target="_blank" rel="noopener">Plasmid & Bacterial Stock List.xls <span class="muted">(Box)</span></a></li>
-        <li><a class="ext" href="https://upenn.app.box.com/folder/132773147650" target="_blank" rel="noopener">Plasmid DNA SnapGene Files <span class="muted">(Box)</span></a></li>
+        <li><a class="link ext" href="https://forms.gle/mNc43ejEpeXRTfYV9" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">assignment_add</span> Riley Lab Ordering Form <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://docs.google.com/spreadsheets/d/1EWxp0SgVXKpk8jPVvy0lLlk8iD1QHOZ_Ocj8JSMj218/edit?usp=sharing" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">table_chart</span> Order Statuses (Google Sheet) <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://penno365-my.sharepoint.com/:o:/g/personal/rileyj_upenn_edu/EreHrOPLVsBMhp_VD8rdvDwBXswkXTZpRWzQqIWqfsGnzA?e=08zM26" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">book_4</span> Riley Lab OneNote <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://lims.pmacs.upenn.edu/limsprod/logon.jsp" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">dns</span> LabVantage <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://upenn.app.box.com/file/878046376947" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">inventory</span> Plasmid &amp; Bacterial Stock List.xls <span class="muted">(Box)</span> <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://upenn.app.box.com/folder/132773147650" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">folder_zip</span> Plasmid DNA SnapGene Files <span class="muted">(Box)</span> <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
     </section>
 
     <section class="card" aria-labelledby="misc-title">
-      <h2 id="misc-title">Other Resources <span class="badge">Handy</span></h2>
+      <h2 id="misc-title"><span class="ms" aria-hidden="true">link</span> Other Resources <span class="badge"><span class="ms" aria-hidden="true">handyman</span>Handy</span></h2>
       <ul class="list">
-        <li><a class="ext" href="http://apps.brownbearsw.com/iobee/FlowJo" target="_blank" rel="noopener">FlowJo Dongles</a></li>
-        <li><a class="ext" href="https://rileylabworkspace.slack.com/" target="_blank" rel="noopener">Riley Lab Slack</a></li>
-        <li><a class="ext" href="https://app.quartzy.com/groups/201349/requests?status" target="_blank" rel="noopener">Riley Lab Quartzy</a></li>
-        <li><a class="ext" href="https://calendar.med.upenn.edu/cci/secure/mrbs/index.php" target="_blank" rel="noopener">Smilow Ultra Centrifuge</a></li>
+        <li><a class="link ext" href="http://apps.brownbearsw.com/iobee/FlowJo" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">key</span> FlowJo Dongles <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://rileylabworkspace.slack.com/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">chat</span> Riley Lab Slack <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://app.quartzy.com/groups/201349/requests?status" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">shopping_cart</span> Riley Lab Quartzy <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://calendar.med.upenn.edu/cci/secure/mrbs/index.php" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">speed</span> Smilow Ultra Centrifuge <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
       </ul>
     </section>
 
@@ -195,21 +262,77 @@
     <div>Riley Lab™</div>
   </footer>
 </div>
+
+<script>
+  // ------- QUICK FIND -------
+  const q = document.getElementById('q');
+  const linkItems = Array.from(document.querySelectorAll('.list a'));
+  const sections = Array.from(document.querySelectorAll('section.card'));
+
+  function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
+
+  q.addEventListener('input', () => {
+    const term = normalize(q.value);
+    // Show all if empty
+    if(!term){
+      sections.forEach(sec => sec.style.display = '');
+      linkItems.forEach(a => a.parentElement.style.display = '');
+      return;
+    }
+    // Hide all sections initially
+    sections.forEach(sec => sec.style.display = 'none');
+
+    linkItems.forEach(a => {
+      const text = normalize(a.textContent);
+      const match = text.includes(term);
+      a.parentElement.style.display = match ? '' : 'none';
+      if(match){
+        // reveal the section and any parent details if collapsed
+        const section = a.closest('section.card');
+        if(section) section.style.display = '';
+        const details = a.closest('details');
+        if(details && !details.open) details.open = true;
+      }
+    });
+  });
+
+  // ------- LIVE NOTICES -------
+  const NOTICES = [
+    "Fortessa maintenance Tues 10–12 — expect downtime.",
+    "Please sign up for room maintenance rotations by Friday.",
+    "New: Quick Find added (⌘/Ctrl+K focuses search)."
+  ];
+  const noticeEl = document.getElementById('notice');
+  const noticeText = document.getElementById('notice-text');
+  const noticeClose = document.getElementById('notice-close');
+  const CLOSED_KEY = 'riley_notice_closed_v1';
+
+  function startNotices(){
+    if(localStorage.getItem(CLOSED_KEY) === '1') return;
+    if(!NOTICES.length) return;
+    let i = 0;
+    noticeText.textContent = NOTICES[i];
+    noticeEl.classList.add('show');
+    setInterval(() => {
+      i = (i+1) % NOTICES.length;
+      noticeText.textContent = NOTICES[i];
+    }, 8000);
+  }
+  noticeClose.addEventListener('click', () => {
+    noticeEl.classList.remove('show');
+    localStorage.setItem(CLOSED_KEY, '1');
+  });
+
+  // Focus search with Cmd/Ctrl+K
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      q.focus();
+      q.select();
+    }
+  });
+
+  startNotices();
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
