@@ -432,8 +432,8 @@
 
   // Use window.NOTICES so all components share the same data.
   window.NOTICES = window.NOTICES || [
-    { text: "Label printer is now functional and ready to print!", when: "2025-10-15T09:00:00-04:00" },
-    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-12T12:00:00-04:00" },
+    { text: "Label printer is now functional and ready to print!", when: "2025-10-16T09:00:00-04:00" },
+    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-16T12:00:00-04:00" },
   ];
 
   const noticeEl = document.getElementById('notice');
@@ -448,17 +448,17 @@
   }
 
   // Toast rotator (top-right)
-  function startNotices() {
-    const items = normalizeNotices(window.NOTICES);
-    if (!items.length) return;
-    let i = 0;
-    noticeText.textContent = items[i].text;
-    noticeEl.classList.add('show');
-    setInterval(() => {
-      i = (i + 1) % items.length;
-      noticeText.textContent = items[i].text;
-    }, 10000);
-  }
+  // function startNotices() {
+  //   const items = normalizeNotices(window.NOTICES);
+  //   if (!items.length) return;
+  //   let i = 0;
+  //   noticeText.textContent = items[i].text;
+  //   noticeEl.classList.add('show');
+  //   setInterval(() => {
+  //     i = (i + 1) % items.length;
+  //     noticeText.textContent = items[i].text;
+  //   }, 10000);
+  // }
 
   // Right sidebar list
   function renderAnnouncements(){
@@ -504,6 +504,7 @@
 
 </body>
 </html>
+
 
 
 
