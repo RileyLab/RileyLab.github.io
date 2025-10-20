@@ -436,6 +436,33 @@
       .rot-form .row{ grid-template-columns: 1fr 1fr; }
     }
 
+    /* Hide editor by default; show only in admin mode */
+    .rot-edit { display: none; }
+    body.admin .rot-edit { display: block; }
+    
+    /* Also visually disable inputs when not admin */
+    .room-rot .rot-form input:disabled {
+      background: #f4f6fa;
+      color: #7a869a;
+      cursor: not-allowed;
+    }
+    
+    /* Tiny admin link (optional) */
+    #admin-toggle {
+      position: fixed;
+      bottom: 14px;
+      right: 16px;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #e0e7ef;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      color: #475569;
+      cursor: pointer;
+      opacity: .6;
+    }
+    #admin-toggle:hover { opacity: 1; }
     
   </style>
 
@@ -904,11 +931,104 @@
     });
   })();
 
+  // ===== Admin Mode (front-end gating) =====
+  // 1) Set a passphrase hash below (SHA-256 hex). Generate once in browser console:
+  //    const d=new TextEncoder().encode("YOUR_SECRET"); crypto.subtle.digest("SHA-256", d)
+  //      .then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join(""))
+  const ADMIN_HASH = "454b3e5afda744a41f110c12298e6dddbe094129a3c61be533c7e944b7e8de51"; // <-- replace!
+  
+  const ADMIN_FLAG_KEY = "isAdmin";
+  const $adminToggle = document.getElementById("admin-toggle");
+  
+  function setAdminUI(enabled) {
+    document.body.classList.toggle("admin", !!enabled);
+    // Disable/enable the rotations form inputs & buttons
+    const form = document.getElementById("rot-form");
+    if (form) {
+      const disabled = !enabled;
+      form.querySelectorAll("input,button").forEach(el => {
+        // Keep the "Lock" button enabled when admin is on (we add it below)
+        if (el.id === "admin-lock") return;
+        el.disabled = disabled;
+      });
+    }
+  }
+  
+  async function sha256Hex(text) {
+    const data = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
+  }
+  
+  async function unlockAdmin() {
+    const pass = prompt("Enter admin passphrase:");
+    if (!pass) return;
+    const hash = await sha256Hex(pass);
+    if (hash === ADMIN_HASH) {
+      localStorage.setItem(ADMIN_FLAG_KEY, "1");
+      setAdminUI(true);
+      alert("Admin mode enabled.");
+    } else {
+      alert("Incorrect passphrase.");
+    }
+  }
+  
+  function lockAdmin() {
+    localStorage.removeItem(ADMIN_FLAG_KEY);
+    setAdminUI(false);
+    alert("Admin mode disabled.");
+  }
+  
+  // Init on load
+  (function initAdmin(){
+    const enabled = localStorage.getItem(ADMIN_FLAG_KEY) === "1";
+    setAdminUI(enabled);
+  
+    // Keyboard shortcut: Shift + A
+    document.addEventListener("keydown", (e) => {
+      if (e.shiftKey && (e.key === "A" || e.key === "a")) {
+        if (localStorage.getItem(ADMIN_FLAG_KEY) === "1") {
+          lockAdmin();
+        } else {
+          unlockAdmin();
+        }
+      }
+    });
+  
+    // Toggle button
+    if ($adminToggle) {
+      $adminToggle.addEventListener("click", () => {
+        if (localStorage.getItem(ADMIN_FLAG_KEY) === "1") {
+          lockAdmin();
+        } else {
+          unlockAdmin();
+        }
+      });
+    }
+  
+    // Add a "Lock" button inside the editor when admin is active
+    const form = document.getElementById("rot-form");
+    if (form && !document.getElementById("admin-lock")) {
+      const lockBtn = document.createElement("button");
+      lockBtn.type = "button";
+      lockBtn.id = "admin-lock";
+      lockBtn.className = "btn-ghost";
+      lockBtn.innerHTML = '<span class="ms" aria-hidden="true">lock</span> Lock';
+      const actions = form.querySelector(".actions");
+      if (actions) actions.appendChild(lockBtn);
+      lockBtn.addEventListener("click", lockAdmin);
+    }
+  })();
+
+
   
 </script>
 
+<button id="admin-toggle" type="button" title="Admin mode (Shift+A)">Admin</button>
+
 </body>
 </html>
+
 
 
 
