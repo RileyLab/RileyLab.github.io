@@ -463,6 +463,17 @@
       opacity: .6;
     }
     #admin-toggle:hover { opacity: 1; }
+
+    .card.room-rot {
+      display:block;
+      max-width: var(--page-max);
+      margin: 16px auto 28px;   /* top gap from announcements, bottom gap from grid */
+    }
+    
+    /* Extra safety if it sits directly under the announcements banner */
+    .card.ann-banner + .card.room-rot {
+      margin-top: 18px;
+    }
     
   </style>
 
@@ -1026,6 +1037,7 @@
 
 </body>
 </html>
+
 
 
 
