@@ -1,0 +1,14 @@
+{
+  "announcements": [
+    { "text": "Label printer is now functional and ready to print!", "when": "2025-10-16T09:00:00-04:00" },
+    { "text": "Please check the new Maintenance Rotations links!", "when": "2025-10-16T12:00:00-04:00" }
+  ],
+  "rotations": {
+    "start": "2025-10-20",
+    "end": "2025-10-31",
+    "tc1": "—",
+    "tc2": "—",
+    "tc3": "—",
+    "main": "—"
+  }
+}
