@@ -361,6 +361,81 @@
     #live-cal-card .iframe-wrap{ flex:1; min-height:0; }
     #live-cal-card .iframe-wrap iframe{ height:100%; }
 
+    /* ===== Room Maintenance Rotations ===== */
+    .room-rot #rot-title { background:#e6efff; }   /* light blue header to match your theme */
+    
+    .rot-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    /* Colored headers like your screenshot */
+    .rot-col{
+      border:1px solid #e2e6ee;
+      border-radius:10px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+    
+    .rot-h{
+      font-weight:800;
+      color:#111;
+      text-align:center;
+      padding:8px 10px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      font-size:14px;
+    }
+    
+    .rot-body{
+      padding:10px 12px;
+      text-align:center;
+      font-weight:600;
+    }
+    
+    /* palette */
+    .rot-tc1 { background:#f8bf20; }   /* amber */
+    .rot-tc2 { background:#5a84e8; color:#fff; }
+    .rot-tc3 { background:#74b65a; color:#0f2a0f; }
+    .rot-main{ background:#d32f2f; color:#fff; }
+    
+    /* Editor */
+    .rot-edit{
+      margin-top:12px;
+      border:1px dashed #d8e1ff;
+      border-radius:10px;
+      padding:10px 12px;
+      background:#f8fbff;
+    }
+    .rot-edit[open]{ background:#eef5ff; }
+    
+    .rot-form{ display:grid; gap:12px; }
+    .rot-form .row{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+    }
+    .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; }
+    .rot-form input{
+      border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff;
+    }
+    .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
+    
+    .rot-form .actions{ display:flex; gap:10px; align-items:center; }
+    .btn-primary{
+      appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
+      padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
+    }
+    .btn-ghost{
+      appearance:none; border:1px solid #e0e7ef; background:#fff; color:#333;
+      padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
+    }
+    .hint{ font-size:12px; color:#6b7280; }
+    
+    @media (max-width: 900px){
+      .rot-form .row{ grid-template-columns: 1fr 1fr; }
+    }
+
     
   </style>
 
@@ -395,6 +470,50 @@
     <span class="ms" aria-hidden="true">campaign</span> Lab Announcements
   </h2>
   <ul id="ann-banner-list" class="list ann-list"></ul>
+</section>
+
+<section class="card room-rot" id="rotations-card" aria-labelledby="rot-title">
+  <h2 id="rot-title">
+    <span class="ms" aria-hidden="true">cleaning_services</span>
+    Room Maintenance Rotations
+    <span class="badge" id="rot-dates"></span>
+  </h2>
+
+  <!-- Display grid -->
+  <div class="rot-grid" id="rot-grid">
+    <!-- Filled by JS -->
+  </div>
+
+  <!-- Inline editor (collapsible) -->
+  <details class="rot-edit" id="rot-edit">
+    <summary><span class="ms" aria-hidden="true">edit</span> Update assignments</summary>
+
+    <form id="rot-form" class="rot-form">
+      <div class="row">
+        <label>
+          Start
+          <input type="date" name="start" required>
+        </label>
+        <label>
+          End
+          <input type="date" name="end" required>
+        </label>
+      </div>
+
+      <div class="row">
+        <label>TC1 <input type="text" name="tc1" placeholder="Name"></label>
+        <label>TC2 <input type="text" name="tc2" placeholder="Name"></label>
+        <label>TC3 <input type="text" name="tc3" placeholder="Name"></label>
+        <label>Main Lab <input type="text" name="main" placeholder="Name"></label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary"><span class="ms" aria-hidden="true">save</span> Save</button>
+        <button type="button" id="rot-clear" class="btn-ghost"><span class="ms" aria-hidden="true">restart_alt</span> Clear</button>
+      </div>
+      <div class="hint">Tip: updates are saved in your browser (localStorage).</div>
+    </form>
+  </details>
 </section>
   
 <div class="layout">
@@ -674,11 +793,123 @@
   document.addEventListener('toggle', (e) => {
     if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
   }, true);
+
+  // ===== Room Maintenance Rotations (front-end editable) =====
+  (function initRoomRotations(){
+    const KEY = 'room-maintenance-rotations';
+  
+    // Default content (edit as you like)
+    const DEFAULT = {
+      start: new Date(),                         // today
+      end:   new Date(Date.now() + 7*864e5),     // +7 days
+      tc1:   '—',
+      tc2:   '—',
+      tc3:   '—',
+      main:  '—'
+    };
+  
+    const elDates   = document.getElementById('rot-dates');
+    const elGrid    = document.getElementById('rot-grid');
+    const form      = document.getElementById('rot-form');
+    const btnClear  = document.getElementById('rot-clear');
+    const details   = document.getElementById('rot-edit');
+  
+    if(!elGrid || !form) return;
+  
+    // Helpers
+    const fmt = (d) => new Date(d).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+    function load(){
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return { ...DEFAULT };
+      try{
+        const obj = JSON.parse(raw);
+        obj.start = obj.start || DEFAULT.start;
+        obj.end   = obj.end   || DEFAULT.end;
+        return obj;
+      }catch{ return { ...DEFAULT }; }
+    }
+    function save(state){
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
+  
+    function render(state){
+      // Dates badge
+      const s = new Date(state.start), e = new Date(state.end);
+      elDates.textContent = `${fmt(s)} – ${fmt(e)}`;
+  
+      // Grid html
+      elGrid.innerHTML = `
+        <div class="rot-col">
+          <div class="rot-h rot-tc1">TC1</div>
+          <div class="rot-body">${escapeHtml(state.tc1 || '—')}</div>
+        </div>
+        <div class="rot-col">
+          <div class="rot-h rot-tc2">TC2</div>
+          <div class="rot-body">${escapeHtml(state.tc2 || '—')}</div>
+        </div>
+        <div class="rot-col">
+          <div class="rot-h rot-tc3">TC3</div>
+          <div class="rot-body">${escapeHtml(state.tc3 || '—')}</div>
+        </div>
+        <div class="rot-col">
+          <div class="rot-h rot-main">Main Lab</div>
+          <div class="rot-body">${escapeHtml(state.main || '—')}</div>
+        </div>
+      `;
+  
+      // Form values
+      form.start.value = toInputDate(s);
+      form.end.value   = toInputDate(e);
+      form.tc1.value   = state.tc1 || '';
+      form.tc2.value   = state.tc2 || '';
+      form.tc3.value   = state.tc3 || '';
+      form.main.value  = state.main || '';
+    }
+  
+    function toInputDate(d){
+      const dt = new Date(d);
+      const m = String(dt.getMonth()+1).padStart(2, '0');
+      const da= String(dt.getDate()).padStart(2, '0');
+      return `${dt.getFullYear()}-${m}-${da}`;
+    }
+  
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    }
+  
+    const state = load();
+    render(state);
+  
+    // Save
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      state.start = data.get('start');
+      state.end   = data.get('end');
+      state.tc1   = data.get('tc1')?.trim();
+      state.tc2   = data.get('tc2')?.trim();
+      state.tc3   = data.get('tc3')?.trim();
+      state.main  = data.get('main')?.trim();
+      save(state);
+      render(state);
+      // close editor
+      if(details && details.open) details.open = false;
+    });
+  
+    // Clear
+    btnClear.addEventListener('click', () => {
+      localStorage.removeItem(KEY);
+      Object.assign(state, { ...DEFAULT });
+      render(state);
+    });
+  })();
+
   
 </script>
 
 </body>
 </html>
+
 
 
 
