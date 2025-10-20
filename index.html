@@ -672,48 +672,44 @@
 <a id="admin-toggle" href="/admin" title="Open Admin">Admin</a>
 
 <script>
-  /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
-  (() => {
-    const iframe = document.querySelector('.sidebar .iframe-wrap iframe');
-    if (!iframe) return;
+/* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
+(() => {
+  const iframe = document.querySelector('.sidebar .iframe-wrap iframe');
+  if (!iframe) return;
 
-    const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
+  const btns = Array.from(document.querySelectorAll('.calendar-toolbar .btn'));
 
-    const params = new URLSearchParams({
-      src: 'j27deqargjjbeg5835162djbl8@group.calendar.google.com',
-      ctz: 'America/New_York',
-      showPrint: '0',
-      showTabs: '0',
-      showCalendars: '0',
-      showTitle: '0',
-      showTz: '0',
-      wkst: '1',
-      bgcolor: '#ffffff'
-    });
-    const BASE = `https://calendar.google.com/calendar/embed?${params.toString()}&mode=`;
+  const params = new URLSearchParams({
+    src: 'j27deqargjjbeg5835162djbl8@group.calendar.google.com',
+    ctz: 'America/New_York',
+    showPrint: '0',
+    showTabs: '0',
+    showCalendars: '0',
+    showTitle: '0',
+    showTz: '0',
+    wkst: '1',
+    bgcolor: '#ffffff'
+  });
+  const BASE = `https://calendar.google.com/calendar/embed?${params.toString()}&mode=`;
 
-    const saved = localStorage.getItem('labCalView') || 'MONTH';
-    setView(saved, false);
+  const saved = localStorage.getItem('labCalView') || 'MONTH';
+  setView(saved, false);
 
-    btns.forEach(b => {
-      b.addEventListener('click', () => setView(b.dataset.view || 'MONTH', true));
-    });
+  btns.forEach(b => b.addEventListener('click', () => setView(b.dataset.view || 'MONTH', true)));
 
-    function setView(view, fromClick){
-      btns.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view || '') === view)));
-      iframe.src = BASE + encodeURIComponent(view);
-      if(fromClick) localStorage.setItem('labCalView', view);
-    }
-  })();
+  function setView(view, fromClick){
+    btns.forEach(x => x.setAttribute('aria-pressed', String((x.dataset.view || '') === view)));
+    iframe.src = BASE + encodeURIComponent(view);
+    if (fromClick) localStorage.setItem('labCalView', view);
+  }
+})();
 
-
-  /* === QUICK FIND (limit to center grid ONLY) === */
-  const q = document.getElementById('q');
-  const linkItems = Array.from(document.querySelectorAll('main.grid .list a'));
-  const sections  = Array.from(document.querySelectorAll('main.grid section.card'));
-
-  function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
-
+/* === QUICK FIND (center grid only) === */
+const q = document.getElementById('q');
+const linkItems = Array.from(document.querySelectorAll('main.grid .list a'));
+const sections  = Array.from(document.querySelectorAll('main.grid section.card'));
+function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
+if (q) {
   q.addEventListener('input', () => {
     const term = normalize(q.value);
     if(!term){
@@ -734,245 +730,122 @@
       }
     });
   });
+}
 
+/* === DATA LOAD (Decap JSON) === */
+function portalJsonUrl() {
+  // Works at site root or a subfolder
+  const base = document.querySelector('base')?.getAttribute('href') || location.pathname.replace(/\/[^/]*$/, '/');
+  return new URL('data/lab-portal.json', base).pathname;
+}
 
-  /* === LAB ANNOUNCEMENTS (right sidebar only) === */
-
-  // ---- Load portal data from the JSON Decap CMS edits ----
-  async function fetchPortalData() {
-    try {
-      const res = await fetch(portalJsonUrl(), { cache: 'no-store' });
-      if (!res.ok) throw new Error('fetch failed');
-      return await res.json();
-    } catch (e) {
-      console.error('Failed to load lab-portal.json:', e);
-      return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
-    }
+async function fetchPortalData() {
+  const url = `${portalJsonUrl()}?v=${Date.now()}`; // cache-bust
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error('Failed to load lab-portal.json:', e);
+    return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
   }
+}
 
-  // 1) Announcements renderer (uses items = [{text, when}])
-  function renderAnnouncements(items){
-    const list = document.getElementById('ann-banner-list');
-    if(!list) return;
-    const sorted = (items || []).slice().sort((a,b) => new Date(b.when) - new Date(a.when));
-    const frag = document.createDocumentFragment();
-    sorted.forEach(({text, when})=>{
-      const li = document.createElement('li');
-      const time = document.createElement('div');
-      const body = document.createElement('div');
-      time.className = 'ann-time';
-      body.className = 'ann-text';
-      const d = new Date(when);
-      time.textContent = isNaN(d) ? "" : d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-      body.textContent = text || '';
-      li.appendChild(time); li.appendChild(body);
-      frag.appendChild(li);
-    });
-    list.innerHTML = ''; list.appendChild(frag);
-  }
-
-  // 2) Rotations renderer (uses obj = {start,end,tc1,tc2,tc3,main})
-  function renderRotations(obj){
-    const elDates = document.getElementById('rot-dates');
-    const elGrid  = document.getElementById('rot-grid');
-    if(!elDates || !elGrid) return;
-
-    const badgeDate = (s) => {
-      const d = new Date(s);
-      return isNaN(d) ? '' : d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-    };
-
-    elDates.textContent = `${badgeDate(obj.start)} – ${badgeDate(obj.end)}`;
-    const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
-    elGrid.innerHTML = `
-      <div class="rot-col"><div class="rot-h rot-tc1">TC1</div><div class="rot-body">${esc(obj.tc1||'—')}</div></div>
-      <div class="rot-col"><div class="rot-h rot-tc2">TC2</div><div class="rot-body">${esc(obj.tc2||'—')}</div></div>
-      <div class="rot-col"><div class="rot-h rot-tc3">TC3</div><div class="rot-body">${esc(obj.tc3||'—')}</div></div>
-      <div class="rot-col"><div class="rot-h rot-main">Main Lab</div><div class="rot-body">${esc(obj.main||'—')}</div></div>
-    `;
-
-    // also set the inline editor inputs (so you can copy/paste locally if you still use them)
-    const form = document.getElementById('rot-form');
-    if (form) {
-      const toInput = (s) => {
-        const d = new Date(s);
-        if (isNaN(d)) return '';
-        const m = String(d.getMonth()+1).padStart(2,'0');
-        const da = String(d.getDate()).padStart(2,'0');
-        return `${d.getFullYear()}-${m}-${da}`;
-      };
-      form.start.value = toInput(obj.start);
-      form.end.value   = toInput(obj.end);
-      form.tc1.value   = obj.tc1 || '';
-      form.tc2.value   = obj.tc2 || '';
-      form.tc3.value   = obj.tc3 || '';
-      form.main.value  = obj.main || '';
-    }
-  }
-
-  // 3) Boot
-  (async function initPortal(){
-    const data = await fetchPortalData();
-    renderAnnouncements(data.announcements || []);
-    renderRotations(data.rotations || {});
-    // any height sync you have can run after this:
-    if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
-  })();
-
-  /* Re-pull JSON whenever the tab becomes visible again */
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible') return;
-    (async () => {
-      const data = await fetchPortalData();
-      renderAnnouncements(data.announcements || []);
-      renderRotations(data.rotations || {});
-      if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
-    })();
+/* Renderers */
+function renderAnnouncements(items){
+  const list = document.getElementById('ann-banner-list');
+  if(!list) return;
+  const sorted = (items || []).slice().sort((a,b) => new Date(b.when) - new Date(a.when));
+  const frag = document.createDocumentFragment();
+  sorted.forEach(({text, when})=>{
+    const li = document.createElement('li');
+    const time = document.createElement('div');
+    const body = document.createElement('div');
+    time.className = 'ann-time';
+    body.className = 'ann-text';
+    const d = new Date(when);
+    time.textContent = isNaN(d) ? "" : d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    body.textContent = text || '';
+    li.appendChild(time); li.appendChild(body);
+    frag.appendChild(li);
   });
+  list.innerHTML = ''; list.appendChild(frag);
+}
 
-  function syncCalendarHeight(){
-    const calCard   = document.getElementById('live-cal-card');
-    const topCard   = document.getElementById('card-calendars-hood');
-    const bottomCard= document.getElementById('card-upenn-cores');
-    if(!calCard || !topCard || !bottomCard) return;
-  
-    // Row gap from the center grid (so spacing matches your CSS)
-    const grid   = topCard.closest('.grid');
-    const rowGap = grid ? parseFloat(getComputedStyle(grid).rowGap || '0') : 0;
-  
-    // Total target = top card + gap + bottom card
-    const target = topCard.offsetHeight + rowGap + bottomCard.offsetHeight;
-  
-    // Apply to the calendar card
-    calCard.style.height = target + 'px';
-  
-    // Make the iframe area consume the remaining space inside the card
-    const head    = calCard.querySelector('h2');
-    const toolbar = calCard.querySelector('.calendar-toolbar');
-    const padding = 18 * 2; // your .card padding (top+bottom)
-    const extra   = (head?.offsetHeight || 0) + (toolbar?.offsetHeight || 0) + padding;
-  
-    const wrap = calCard.querySelector('.iframe-wrap');
-    if (wrap) {
-      wrap.style.height = Math.max(200, target - extra) + 'px';
-      const iframe = wrap.querySelector('iframe');
-      if (iframe) iframe.style.height = '100%';
-    }
-  }
-  
-  // Run on load and on resize (debounced)
-  window.addEventListener('load',  syncCalendarHeight);
-  window.addEventListener('resize', () => {
-    clearTimeout(syncCalendarHeight._t);
-    syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
-  });
-  
-  // If your details/accordions expand/collapse inside those center cards,
-  // re-sync after a short delay:
-  document.addEventListener('toggle', (e) => {
-    if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
-  }, true);
+function renderRotations(obj){
+  const elDates = document.getElementById('rot-dates');
+  const elGrid  = document.getElementById('rot-grid');
+  if(!elDates || !elGrid) return;
 
-  function portalJsonUrl() {
-    // If you use user/org GitHub Pages or Netlify at root, this returns /data/lab-portal.json.
-    // If you host at /YOUR_REPO/, it becomes /YOUR_REPO/data/lab-portal.json.
-    const base = document.querySelector('base')?.getAttribute('href') || location.pathname.replace(/\/[^/]*$/, '/');
-    return new URL('data/lab-portal.json', base).pathname;
-  }
+  const badgeDate = (s) => {
+    const d = new Date(s);
+    return isNaN(d) ? '' : d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+  };
+  const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
-  // ===== Admin Mode (front-end gating) =====
-  // 1) Set a passphrase hash below (SHA-256 hex). Generate once in browser console:
-  //    const d=new TextEncoder().encode("YOUR_SECRET"); crypto.subtle.digest("SHA-256", d)
-  //      .then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join(""))
-  const ADMIN_HASH = "454b3e5afda744a41f110c12298e6dddbe094129a3c61be533c7e944b7e8de51"; // <-- replace!
-  
-  const ADMIN_FLAG_KEY = "isAdmin";
-  const $adminToggle = document.getElementById("admin-toggle");
-  
-  function setAdminUI(enabled) {
-    document.body.classList.toggle("admin", !!enabled);
-    // Disable/enable the rotations form inputs & buttons
-    const form = document.getElementById("rot-form");
-    if (form) {
-      const disabled = !enabled;
-      form.querySelectorAll("input,button").forEach(el => {
-        // Keep the "Lock" button enabled when admin is on (we add it below)
-        if (el.id === "admin-lock") return;
-        el.disabled = disabled;
-      });
-    }
-  }
-  
-  async function sha256Hex(text) {
-    const data = new TextEncoder().encode(text);
-    const buf = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,"0")).join("");
-  }
-  
-  async function unlockAdmin() {
-    const pass = prompt("Enter admin passphrase:");
-    if (!pass) return;
-    const hash = await sha256Hex(pass);
-    if (hash === ADMIN_HASH) {
-      localStorage.setItem(ADMIN_FLAG_KEY, "1");
-      setAdminUI(true);
-      alert("Admin mode enabled.");
-    } else {
-      alert("Incorrect passphrase.");
-    }
-  }
-  
-  function lockAdmin() {
-    localStorage.removeItem(ADMIN_FLAG_KEY);
-    setAdminUI(false);
-    alert("Admin mode disabled.");
-  }
-  
-  // Init on load
-  (function initAdmin(){
-    const enabled = localStorage.getItem(ADMIN_FLAG_KEY) === "1";
-    setAdminUI(enabled);
-  
-    // Keyboard shortcut: Shift + A
-    document.addEventListener("keydown", (e) => {
-      if (e.shiftKey && (e.key === "A" || e.key === "a")) {
-        if (localStorage.getItem(ADMIN_FLAG_KEY) === "1") {
-          lockAdmin();
-        } else {
-          unlockAdmin();
-        }
-      }
-    });
-  
-    // Toggle button
-    if ($adminToggle) {
-      $adminToggle.addEventListener("click", () => {
-        if (localStorage.getItem(ADMIN_FLAG_KEY) === "1") {
-          lockAdmin();
-        } else {
-          unlockAdmin();
-        }
-      });
-    }
-  
-    // Add a "Lock" button inside the editor when admin is active
-    const form = document.getElementById("rot-form");
-    if (form && !document.getElementById("admin-lock")) {
-      const lockBtn = document.createElement("button");
-      lockBtn.type = "button";
-      lockBtn.id = "admin-lock";
-      lockBtn.className = "btn-ghost";
-      lockBtn.innerHTML = '<span class="ms" aria-hidden="true">lock</span> Lock';
-      const actions = form.querySelector(".actions");
-      if (actions) actions.appendChild(lockBtn);
-      lockBtn.addEventListener("click", lockAdmin);
-    }
-  })();
+  elDates.textContent = `${badgeDate(obj.start)} – ${badgeDate(obj.end)}`;
+  elGrid.innerHTML = `
+    <div class="rot-col"><div class="rot-h rot-tc1">TC1</div><div class="rot-body">${esc(obj.tc1||'—')}</div></div>
+    <div class="rot-col"><div class="rot-h rot-tc2">TC2</div><div class="rot-body">${esc(obj.tc2||'—')}</div></div>
+    <div class="rot-col"><div class="rot-h rot-tc3">TC3</div><div class="rot-body">${esc(obj.tc3||'—')}</div></div>
+    <div class="rot-col"><div class="rot-h rot-main">Main Lab</div><div class="rot-body">${esc(obj.main||'—')}</div></div>
+  `;
+}
 
+/* Boot + refresh on tab focus */
+(async function initPortal(){
+  const data = await fetchPortalData();
+  renderAnnouncements(data.announcements || []);
+  renderRotations(data.rotations || {});
+  if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
+})();
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState !== 'visible') return;
+  const data = await fetchPortalData();
+  renderAnnouncements(data.announcements || []);
+  renderRotations(data.rotations || {});
+  if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
+});
+
+/* === Calendar height sync === */
+function syncCalendarHeight(){
+  const calCard   = document.getElementById('live-cal-card');
+  const topCard   = document.getElementById('card-calendars-hood');
+  const bottomCard= document.getElementById('card-upenn-cores');
+  if(!calCard || !topCard || !bottomCard) return;
+
+  const grid   = topCard.closest('.grid');
+  const rowGap = grid ? parseFloat(getComputedStyle(grid).rowGap || '0') : 0;
+  const target = topCard.offsetHeight + rowGap + bottomCard.offsetHeight;
+
+  calCard.style.height = target + 'px';
+
+  const head    = calCard.querySelector('h2');
+  const toolbar = calCard.querySelector('.calendar-toolbar');
+  const padding = 18 * 2;
+  const extra   = (head?.offsetHeight || 0) + (toolbar?.offsetHeight || 0) + padding;
+
+  const wrap = calCard.querySelector('.iframe-wrap');
+  if (wrap) {
+    wrap.style.height = Math.max(200, target - extra) + 'px';
+    const iframe = wrap.querySelector('iframe');
+    if (iframe) iframe.style.height = '100%';
+  }
+}
+window.addEventListener('load',  syncCalendarHeight);
+window.addEventListener('resize', () => {
+  clearTimeout(syncCalendarHeight._t);
+  syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
+});
+document.addEventListener('toggle', (e) => {
+  if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
+}, true);
 </script>
+
 
 </body>
 </html>
+
 
 
 
