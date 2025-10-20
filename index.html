@@ -836,113 +836,127 @@
 
   // ===== Room Maintenance Rotations (front-end editable) =====
   (function initRoomRotations(){
-    const KEY = 'room-maintenance-rotations';
-  
-    // Default content (edit as you like)
-    const DEFAULT = {
-      start: new Date(),                         // today
-      end:   new Date(Date.now() + 7*864e5),     // +7 days
-      tc1:   '—',
-      tc2:   '—',
-      tc3:   '—',
-      main:  '—'
-    };
-  
-    const elDates   = document.getElementById('rot-dates');
-    const elGrid    = document.getElementById('rot-grid');
-    const form      = document.getElementById('rot-form');
-    const btnClear  = document.getElementById('rot-clear');
-    const details   = document.getElementById('rot-edit');
-  
-    if(!elGrid || !form) return;
-  
-    // Helpers
-    const fmt = (d) => new Date(d).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
-    function load(){
-      const raw = localStorage.getItem(KEY);
-      if(!raw) return { ...DEFAULT };
-      try{
-        const obj = JSON.parse(raw);
-        obj.start = obj.start || DEFAULT.start;
-        obj.end   = obj.end   || DEFAULT.end;
-        return obj;
-      }catch{ return { ...DEFAULT }; }
-    }
-    function save(state){
-      localStorage.setItem(KEY, JSON.stringify(state));
-    }
-  
-    function render(state){
-      // Dates badge
-      const s = new Date(state.start), e = new Date(state.end);
-      elDates.textContent = `${fmt(s)} – ${fmt(e)}`;
-  
-      // Grid html
-      elGrid.innerHTML = `
-        <div class="rot-col">
-          <div class="rot-h rot-tc1">TC1</div>
-          <div class="rot-body">${escapeHtml(state.tc1 || '—')}</div>
-        </div>
-        <div class="rot-col">
-          <div class="rot-h rot-tc2">TC2</div>
-          <div class="rot-body">${escapeHtml(state.tc2 || '—')}</div>
-        </div>
-        <div class="rot-col">
-          <div class="rot-h rot-tc3">TC3</div>
-          <div class="rot-body">${escapeHtml(state.tc3 || '—')}</div>
-        </div>
-        <div class="rot-col">
-          <div class="rot-h rot-main">Main Lab</div>
-          <div class="rot-body">${escapeHtml(state.main || '—')}</div>
-        </div>
-      `;
-  
-      // Form values
-      form.start.value = toInputDate(s);
-      form.end.value   = toInputDate(e);
-      form.tc1.value   = state.tc1 || '';
-      form.tc2.value   = state.tc2 || '';
-      form.tc3.value   = state.tc3 || '';
-      form.main.value  = state.main || '';
-    }
-  
-    function toInputDate(d){
-      const dt = new Date(d);
-      const m = String(dt.getMonth()+1).padStart(2, '0');
-      const da= String(dt.getDate()).padStart(2, '0');
-      return `${dt.getFullYear()}-${m}-${da}`;
-    }
-  
-    function escapeHtml(s){
-      return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    }
-  
-    const state = load();
+  const KEY = 'room-maintenance-rotations';
+
+  // ---- Local date helpers (no UTC surprises) ----
+  function parseLocalDate(str) {
+    if (!str) return null;
+    if (str instanceof Date) return new Date(str.getFullYear(), str.getMonth(), str.getDate());
+    const [y, m, d] = String(str).split('-').map(Number);
+    return new Date(y, (m || 1) - 1, d || 1); // local midnight
+  }
+
+  function toInputDateString(dLike) {
+    const d = dLike instanceof Date ? dLike : parseLocalDate(dLike);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const da = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${da}`;
+  }
+
+  function badgeDate(dLike) {
+    const d = dLike instanceof Date ? dLike : parseLocalDate(dLike);
+    return d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+  }
+
+  // Defaults as strings (YYYY-MM-DD)
+  const today = new Date();
+  const in7   = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+  const DEFAULT = {
+    start: toInputDateString(today),
+    end:   toInputDateString(in7),
+    tc1:   '—',
+    tc2:   '—',
+    tc3:   '—',
+    main:  '—'
+  };
+
+  const elDates   = document.getElementById('rot-dates');
+  const elGrid    = document.getElementById('rot-grid');
+  const form      = document.getElementById('rot-form');
+  const btnClear  = document.getElementById('rot-clear');
+  const details   = document.getElementById('rot-edit');
+
+  if(!elGrid || !form) return;
+
+  function load(){
+    const raw = localStorage.getItem(KEY);
+    if(!raw) return { ...DEFAULT };
+    try{
+      const obj = JSON.parse(raw);
+      return {
+        start: obj.start || DEFAULT.start,
+        end:   obj.end   || DEFAULT.end,
+        tc1:   obj.tc1 ?? '—',
+        tc2:   obj.tc2 ?? '—',
+        tc3:   obj.tc3 ?? '—',
+        main:  obj.main ?? '—'
+      };
+    }catch{ return { ...DEFAULT }; }
+  }
+  function save(state){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+  function render(state){
+    // Dates badge (local)
+    elDates.textContent = `${badgeDate(state.start)} – ${badgeDate(state.end)}`;
+
+    // Grid
+    elGrid.innerHTML = `
+      <div class="rot-col">
+        <div class="rot-h rot-tc1">TC1</div>
+        <div class="rot-body">${escapeHtml(state.tc1 || '—')}</div>
+      </div>
+      <div class="rot-col">
+        <div class="rot-h rot-tc2">TC2</div>
+        <div class="rot-body">${escapeHtml(state.tc2 || '—')}</div>
+      </div>
+      <div class="rot-col">
+        <div class="rot-h rot-tc3">TC3</div>
+        <div class="rot-body">${escapeHtml(state.tc3 || '—')}</div>
+      </div>
+      <div class="rot-col">
+        <div class="rot-h rot-main">Main Lab</div>
+        <div class="rot-body">${escapeHtml(state.main || '—')}</div>
+      </div>
+    `;
+
+    // Form values as YYYY-MM-DD strings
+    form.start.value = toInputDateString(state.start);
+    form.end.value   = toInputDateString(state.end);
+    form.tc1.value   = state.tc1 || '';
+    form.tc2.value   = state.tc2 || '';
+    form.tc3.value   = state.tc3 || '';
+    form.main.value  = state.main || '';
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  const state = load();
+  render(state);
+
+  // Save (keep strings from <input type="date">)
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = new FormData(form);
+    state.start = data.get('start');  // "YYYY-MM-DD"
+    state.end   = data.get('end');    // "YYYY-MM-DD"
+    state.tc1   = (data.get('tc1') || '').trim();
+    state.tc2   = (data.get('tc2') || '').trim();
+    state.tc3   = (data.get('tc3') || '').trim();
+    state.main  = (data.get('main') || '').trim();
+    save(state);
     render(state);
-  
-    // Save
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const data = new FormData(form);
-      state.start = data.get('start');
-      state.end   = data.get('end');
-      state.tc1   = data.get('tc1')?.trim();
-      state.tc2   = data.get('tc2')?.trim();
-      state.tc3   = data.get('tc3')?.trim();
-      state.main  = data.get('main')?.trim();
-      save(state);
-      render(state);
-      // close editor
-      if(details && details.open) details.open = false;
-    });
-  
-    // Clear
-    btnClear.addEventListener('click', () => {
-      localStorage.removeItem(KEY);
-      Object.assign(state, { ...DEFAULT });
-      render(state);
-    });
-  })();
+    if(details && details.open) details.open = false;
+  });
+
+  btnClear.addEventListener('click', () => {
+    localStorage.removeItem(KEY);
+    Object.assign(state, { ...DEFAULT });
+    render(state);
+  });
+})();
 
   // ===== Admin Mode (front-end gating) =====
   // 1) Set a passphrase hash below (SHA-256 hex). Generate once in browser console:
@@ -1037,6 +1051,7 @@
 
 </body>
 </html>
+
 
 
 
