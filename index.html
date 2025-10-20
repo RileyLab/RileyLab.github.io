@@ -669,7 +669,7 @@
   </footer>
 </div>
 
-<button id="admin-toggle" type="button" title="Admin mode (Shift+A)">Admin</button>
+<a id="admin-toggle" href="/admin" title="Open Admin">Admin</a>
 
 <script>
   /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
@@ -738,58 +738,97 @@
 
   /* === LAB ANNOUNCEMENTS (right sidebar only) === */
 
-  // Use window.NOTICES so it’s editable later
-  window.NOTICES = window.NOTICES || [
-    { text: "Label printer is now functional and ready to print!", when: "2025-10-16T09:00:00-04:00" },
-    { text: "Please check out the new Maintenance Rotations links to view when you are scheduled!", when: "2025-10-16T12:00:00-04:00" },
-  ];
-
-  function normalizeNotices(arr){
-    return (arr || []).map(n =>
-      (typeof n === 'string')
-        ? { text: n, when: new Date().toISOString() }
-        : { text: n.text || '', when: n.when || new Date().toISOString() }
-    );
+  // ---- Load portal data from the JSON Decap CMS edits ----
+  async function fetchPortalData() {
+    try {
+      const res = await fetch(portalJsonUrl(), { cache: 'no-store' });
+      if (!res.ok) throw new Error('fetch failed');
+      return await res.json();
+    } catch (e) {
+      console.error('Failed to load lab-portal.json:', e);
+      return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
+    }
   }
 
-  function renderAnnouncements(){
+  // 1) Announcements renderer (uses items = [{text, when}])
+  function renderAnnouncements(items){
     const list = document.getElementById('ann-banner-list');
     if(!list) return;
-    const items = normalizeNotices(window.NOTICES)
-      .sort((a,b) => new Date(b.when) - new Date(a.when)); // newest first
-
+    const sorted = (items || []).slice().sort((a,b) => new Date(b.when) - new Date(a.when));
     const frag = document.createDocumentFragment();
-    items.forEach(({text, when})=>{
-      const li   = document.createElement('li');
+    sorted.forEach(({text, when})=>{
+      const li = document.createElement('li');
       const time = document.createElement('div');
       const body = document.createElement('div');
       time.className = 'ann-time';
       body.className = 'ann-text';
-
       const d = new Date(when);
-      time.textContent = isNaN(d.getTime()) ? "" :
-        d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
-
-      body.textContent = text;
-      li.appendChild(time);
-      li.appendChild(body);
+      time.textContent = isNaN(d) ? "" : d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+      body.textContent = text || '';
+      li.appendChild(time); li.appendChild(body);
       frag.appendChild(li);
     });
-    list.innerHTML = "";
-    list.appendChild(frag);
+    list.innerHTML = ''; list.appendChild(frag);
   }
 
-  // Helper to add at runtime
-  window.addAnnouncement = function(text, when){
-    window.NOTICES.push({ text, when: when || new Date().toISOString() });
-    renderAnnouncements();
-  };
+  // 2) Rotations renderer (uses obj = {start,end,tc1,tc2,tc3,main})
+  function renderRotations(obj){
+    const elDates = document.getElementById('rot-dates');
+    const elGrid  = document.getElementById('rot-grid');
+    if(!elDates || !elGrid) return;
 
-  // Initialize announcements sidebar
-  renderAnnouncements();
+    const badgeDate = (s) => {
+      const d = new Date(s);
+      return isNaN(d) ? '' : d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
+    };
 
-  // Example:
-  // addAnnouncement("Freezer maintenance Tue 10am", "2025-10-21T10:00:00-04:00");
+    elDates.textContent = `${badgeDate(obj.start)} – ${badgeDate(obj.end)}`;
+    const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+    elGrid.innerHTML = `
+      <div class="rot-col"><div class="rot-h rot-tc1">TC1</div><div class="rot-body">${esc(obj.tc1||'—')}</div></div>
+      <div class="rot-col"><div class="rot-h rot-tc2">TC2</div><div class="rot-body">${esc(obj.tc2||'—')}</div></div>
+      <div class="rot-col"><div class="rot-h rot-tc3">TC3</div><div class="rot-body">${esc(obj.tc3||'—')}</div></div>
+      <div class="rot-col"><div class="rot-h rot-main">Main Lab</div><div class="rot-body">${esc(obj.main||'—')}</div></div>
+    `;
+
+    // also set the inline editor inputs (so you can copy/paste locally if you still use them)
+    const form = document.getElementById('rot-form');
+    if (form) {
+      const toInput = (s) => {
+        const d = new Date(s);
+        if (isNaN(d)) return '';
+        const m = String(d.getMonth()+1).padStart(2,'0');
+        const da = String(d.getDate()).padStart(2,'0');
+        return `${d.getFullYear()}-${m}-${da}`;
+      };
+      form.start.value = toInput(obj.start);
+      form.end.value   = toInput(obj.end);
+      form.tc1.value   = obj.tc1 || '';
+      form.tc2.value   = obj.tc2 || '';
+      form.tc3.value   = obj.tc3 || '';
+      form.main.value  = obj.main || '';
+    }
+  }
+
+  // 3) Boot
+  (async function initPortal(){
+    const data = await fetchPortalData();
+    renderAnnouncements(data.announcements || []);
+    renderRotations(data.rotations || {});
+    // any height sync you have can run after this:
+    if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
+  })();
+
+  /* Re-pull JSON whenever the tab becomes visible again */
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    (async () => {
+      const data = await fetchPortalData();
+      renderAnnouncements(data.announcements || []);
+      renderRotations(data.rotations || {});
+      if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
+    })();
+  });
 
   function syncCalendarHeight(){
     const calCard   = document.getElementById('live-cal-card');
@@ -834,16 +873,19 @@
     if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
   }, true);
 
-  // ===== Room Maintenance Rotations (front-end editable) =====
-  (function initRoomRotations(){
-  const KEY = 'room-maintenance-rotations';
-
   // ---- Local date helpers (no UTC surprises) ----
   function parseLocalDate(str) {
     if (!str) return null;
     if (str instanceof Date) return new Date(str.getFullYear(), str.getMonth(), str.getDate());
     const [y, m, d] = String(str).split('-').map(Number);
     return new Date(y, (m || 1) - 1, d || 1); // local midnight
+  }
+
+  function portalJsonUrl() {
+    // If you use user/org GitHub Pages or Netlify at root, this returns /data/lab-portal.json.
+    // If you host at /YOUR_REPO/, it becomes /YOUR_REPO/data/lab-portal.json.
+    const base = document.querySelector('base')?.getAttribute('href') || location.pathname.replace(/\/[^/]*$/, '/');
+    return new URL('data/lab-portal.json', base).pathname;
   }
 
   function toInputDateString(dLike) {
@@ -1051,6 +1093,7 @@
 
 </body>
 </html>
+
 
 
 
