@@ -734,9 +734,13 @@ if (q) {
 
 /* === DATA LOAD (Decap JSON) === */
 function portalJsonUrl() {
-  // Works at site root or a subfolder
-  const base = document.querySelector('base')?.getAttribute('href') || location.pathname.replace(/\/[^/]*$/, '/');
-  return new URL('data/lab-portal.json', base).pathname;
+  // If a <base href="..."> exists, use it (already absolute)
+  const baseHref = document.querySelector('base')?.href;
+  if (baseHref) return new URL('data/lab-portal.json', baseHref).href;
+
+  // Otherwise build an absolute base from the current page
+  const base = location.origin + location.pathname.replace(/\/[^/]*$/, '/');
+  return new URL('data/lab-portal.json', base).href;
 }
 
 async function fetchPortalData() {
@@ -845,6 +849,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
