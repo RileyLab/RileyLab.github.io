@@ -1,0 +1,34 @@
+backend:
+  name: git-gateway
+  branch: master   # or main
+
+publish_mode: editorial_workflow
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "portal"
+    label: "Lab Portal"
+    files:
+      - file: "data/lab-portal.json"
+        label: "Announcements & Rotations"
+        format: "json"
+        fields:
+          - label: "Announcements"
+            name: "announcements"
+            widget: list
+            label_singular: "Announcement"
+            fields:
+              - {label: "Text", name: "text", widget: "string"}
+              - {label: "When", name: "when", widget: "datetime"}
+          - label: "Rotations"
+            name: "rotations"
+            widget: object
+            fields:
+              - {label: "Start", name: "start", widget: "date"}
+              - {label: "End",   name: "end",   widget: "date"}
+              - {label: "TC1",   name: "tc1",   widget: "string", required: false}
+              - {label: "TC2",   name: "tc2",   widget: "string", required: false}
+              - {label: "TC3",   name: "tc3",   widget: "string", required: false}
+              - {label: "Main",  name: "main",  widget: "string", required: false}
