@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
-  branch: master   # or main
+  name: github
+  repo: RileyLab/RileyLab.github.io   # your repo
+  branch: master                      # or main
+  base_url: https://riley-decap-oauth.rileylabupenn.workers.dev
+  auth_endpoint: /auth
 
 publish_mode: editorial_workflow
 
@@ -8,27 +11,22 @@ media_folder: "assets/uploads"
 public_folder: "/assets/uploads"
 
 collections:
-  - name: "portal"
-    label: "Lab Portal"
+  - name: "data"
+    label: "Site Data"
     files:
-      - file: "data/lab-portal.json"
-        label: "Announcements & Rotations"
-        format: "json"
+      - name: "portal"
+        label: "Lab Portal"
+        file: "data/lab-portal.json"
         fields:
-          - label: "Announcements"
-            name: "announcements"
-            widget: list
-            label_singular: "Announcement"
-            fields:
-              - {label: "Text", name: "text", widget: "string"}
-              - {label: "When", name: "when", widget: "datetime"}
-          - label: "Rotations"
-            name: "rotations"
-            widget: object
-            fields:
-              - {label: "Start", name: "start", widget: "date"}
-              - {label: "End",   name: "end",   widget: "date"}
-              - {label: "TC1",   name: "tc1",   widget: "string", required: false}
-              - {label: "TC2",   name: "tc2",   widget: "string", required: false}
-              - {label: "TC3",   name: "tc3",   widget: "string", required: false}
-              - {label: "Main",  name: "main",  widget: "string", required: false}
+          - { name: "announcements", label: "Announcements", widget: list, fields: [
+            { name: "text", label: "Text", widget: string },
+            { name: "when", label: "When (ISO)", widget: datetime }
+          ] }
+          - { name: "rotations", label: "Rotations", widget: object, fields: [
+            { name: "start", label: "Start", widget: date },
+            { name: "end", label: "End", widget: date },
+            { name: "tc1", label: "TC1", widget: string },
+            { name: "tc2", label: "TC2", widget: string },
+            { name: "tc3", label: "TC3", widget: string },
+            { name: "main", label: "Main Lab", widget: string }
+          ] }
