@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: RileyLab/RileyLab.github.io   # your repo
+  repo: RileyLab.github.io   # your repo
   branch: master                      # or main
   base_url: https://riley-decap-oauth.rileylabupenn.workers.dev
   auth_endpoint: auth
