@@ -3,7 +3,7 @@ backend:
   repo: RileyLab/RileyLab.github.io   # your repo
   branch: master                      # or main
   base_url: https://riley-decap-oauth.rileylabupenn.workers.dev
-  auth_endpoint: /auth
+  auth_endpoint: auth
 
 publish_mode: editorial_workflow
 
