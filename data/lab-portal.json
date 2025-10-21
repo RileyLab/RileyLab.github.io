@@ -1,7 +1,6 @@
 {
   "announcements": [
-    { "text": "Label printer is now functional and ready to print!", "when": "2025-10-16T09:00:00-04:00" },
-    { "text": "Please check the new Maintenance Rotations links!", "when": "2025-10-16T12:00:00-04:00" },
+    { "text": "We are aware of temperature issues and maintenance is working on fixing the issue.", "when": "2025-10-21T09:00:00-04:00" },
     { "text": "New TC1 & TC2 BSCs have been installed, but still need to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00" }
   ],
   "rotations": {
