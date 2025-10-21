@@ -474,6 +474,51 @@
     .card.ann-banner + .card.room-rot {
       margin-top: 18px;
     }
+
+    /* ===== Mobile polish (≤ 480px) ===== */
+    @media (max-width: 480px){
+      .wrap{ padding:16px 12px 40px; }
+    
+      /* Stack header; keep the title readable */
+      header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
+      .title{ font-size: 22px; line-height: 1.15; }
+      .subtitle{ font-size: 12px; }
+    
+      /* Search fills the row */
+      .actions{ width: 100%; gap:8px; }
+      .search{ width: 100%; }
+      .search input{ min-width: 0; width: 100%; }
+    
+      /* Cards/headers a bit tighter */
+      .card{ padding:14px; }
+      .card h2{ font-size: 18px; padding:12px 14px; }
+      .badge{ font-size: 11px; padding: 2px 8px; }
+    
+      /* Rotations: 2 columns on phones */
+      .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .rot-h{ font-size: 13px; padding: 6px 8px; }
+      .rot-body{ padding: 8px 10px; }
+    
+      /* Calendar toolbar buttons smaller */
+      .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
+      .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
+    
+      /* Calendar iframe height cap for phones */
+      .iframe-wrap iframe{ height: 520px; }
+    
+      /* Announcements: single column */
+      .ann-banner .ann-list{ grid-template-columns: 1fr; }
+    
+      /* Admin chip a bit smaller/away from edge */
+      #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px; }
+    }
+    
+    /* Slightly-narrow tablets (≤ 768px) */
+    @media (max-width: 768px){
+      .grid{ grid-template-columns: 1fr; }
+      .iframe-wrap iframe{ height: 600px; }
+    }
+
     
   </style>
 
@@ -875,6 +920,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
