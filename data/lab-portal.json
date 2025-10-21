@@ -1,14 +1,24 @@
 {
   "announcements": [
-    { "text": "We are aware of temperature issues and maintenance is working on fixing the issue.", "when": "2025-10-21T09:00:00-04:00" },
-    { "text": "New TC1 & TC2 BSCs have been installed, but still need to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00" }
+    { "text": "Label printer is now functional and ready to print!", "when": "2025-10-16T09:00:00-04:00" },
+    { "text": "Please check the new Maintenance Rotations links!", "when": "2025-10-16T12:00:00-04:00" }
   ],
   "rotations": {
     "start": "2025-10-20",
-    "end": "2025-10-31",
-    "tc1": "Xiaoling",
-    "tc2": "Kaitlin",
-    "tc3": "Mosha",
-    "main": "Gabby"
+    "end":   "2025-10-31",
+    "tc1":   "Xiaoling",
+    "tc2":   "Kaitlin",
+    "tc3":   "Mosha",
+    "main":  "Gabby"
+  },
+  "rotationPlan": {
+    "start": "2025-10-20",
+    "periodDays": 14,
+    "slots": {
+      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Max", "Divanshu"],
+      "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Justin G.", "Jiayi"],
+      "tc3":  ["Mosha", "Tanishk", "Justin S.", "Gabby", "Meidi"],
+      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Meidi", "Jiayi", "Divanshu", "Max"]
+    }
   }
 }
