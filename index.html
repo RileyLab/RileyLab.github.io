@@ -884,6 +884,10 @@ document.addEventListener('visibilitychange', async () => {
 
 /* === Calendar height sync === */
 function syncCalendarHeight(){
+
+  // On small screens, let the fixed iframe height take over
+  if (window.innerWidth <= 768) return;
+  
   const calCard   = document.getElementById('live-cal-card');
   const topCard   = document.getElementById('card-calendars-hood');
   const bottomCard= document.getElementById('card-upenn-cores');
@@ -920,6 +924,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
