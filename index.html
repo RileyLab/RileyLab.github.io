@@ -871,62 +871,66 @@ function ymd(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0
 function addDays(d,n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()+n); }
 function diffDays(a,b){ return Math.round((a - b) / 86400000); }
 
-// --- compute current rotation from a plan if present ---
-function resolveRotation(data, now = new Date()){
-  const plan = data.rotationPlan;
-  if (!plan) return data.rotations || {};
-
+// Function rotates the plan every periodDays; indefinitely loops through lists
+function computeRotationFromPlan(plan) {
+  // plan = { start: "YYYY-MM-DD", periodDays: 14, slots: { tc1:[], tc2:[], tc3:[], main:[] } }
   const start = parseYMDLocal(plan.start);
   const period = Number(plan.periodDays) || 14;
-  const slots = plan.slots || {};
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (!start || period <= 0) return null;
 
-  // exceptions (optional)
-  if (Array.isArray(plan.exceptions)) {
-    for (const ex of plan.exceptions) {
-      const s = parseYMDLocal(ex.start), e = parseYMDLocal(ex.end);
-      if (s && e && today >= s && today <= e) {
-        return { start: ymd(s), end: ymd(e),
-          tc1: ex.tc1 ?? '—', tc2: ex.tc2 ?? '—', tc3: ex.tc3 ?? '—', main: ex.main ?? '—' };
-      }
-    }
-  }
+  const today = new Date();
+  const MS = 24 * 60 * 60 * 1000;
+  const daysSinceStart = Math.floor((today - start) / MS);
 
-  if (!start) return data.rotations || {};
+  // Which period are we in? Clamp to 0 if we're before the start date
+  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period));
 
-  // which block are we in?
-  const k = Math.floor(diffDays(today, start) / period);
-  const blockStart = addDays(start, k * period);
-  const blockEnd   = addDays(blockStart, period - 1);
+  // Period start/end (local)
+  const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
+  const periodEnd   = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
 
-  const pick = (list)=>{
-    if (!Array.isArray(list) || list.length===0) return '—';
-    const idx = ((k % list.length) + list.length) % list.length;
-    return list[idx];
+  // Pick names per slot, looping each list independently
+  const pick = (arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return '—';
+    const idx = cycleIndex % arr.length;
+    return arr[idx] ?? '—';
+    // If you want independent cadence per slot, use Math.floor(daysSinceStart/period) % arr.length as above (already independent).
   };
 
   return {
-    start: ymd(blockStart),
-    end:   ymd(blockEnd),
-    tc1:   pick(slots.tc1),
-    tc2:   pick(slots.tc2),
-    tc3:   pick(slots.tc3),
-    main:  pick(slots.main)
+    start: toInputDateString(periodStart),
+    end:   toInputDateString(periodEnd),
+    tc1:   pick(plan.slots?.tc1),
+    tc2:   pick(plan.slots?.tc2),
+    tc3:   pick(plan.slots?.tc3),
+    main:  pick(plan.slots?.main),
   };
 }
-
+  
 /* Boot + refresh on tab focus */
 (async function initPortal(){
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
-  renderRotations(resolveRotation(data));
+  
+  let rot = data.rotations || {};
+  if (data.rotationPlan) {
+    const computed = computeRotationFromPlan(data.rotationPlan);
+    if (computed) rot = computed;   // computed period + looped assignees
+  }
+  renderRotations(rot);
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 })();
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible') return;
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
-  renderRotations(resolveRotation(data));
+  
+  let rot = data.rotations || {};
+  if (data.rotationPlan) {
+    const computed = computeRotationFromPlan(data.rotationPlan);
+    if (computed) rot = computed;   // computed period + looped assignees
+  }
+  renderRotations(rot);
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
 
@@ -972,6 +976,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
