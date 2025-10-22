@@ -742,6 +742,21 @@ function badgeDateYMD(s) {
   return d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 }
 
+// Returns "today" at local midnight. Can be overridden via URL ?asof=YYYY-MM-DD
+// or localStorage.debugDate = "YYYY-MM-DD"
+function getTodayLocal() {
+  const qs = new URLSearchParams(location.search);
+  const fromQS = qs.get('asof');
+  const fromLS = localStorage.getItem('debugDate');
+
+  const val = fromQS || fromLS;
+  if (val && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
+    const d = parseYMDLocal(val);
+    if (d) return d;
+  }
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
   
 /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
 (() => {
@@ -873,17 +888,15 @@ function diffDays(a,b){ return Math.round((a - b) / 86400000); }
 
 // Function rotates the plan every periodDays; indefinitely loops through lists
 function computeRotationFromPlan(plan) {
-  // plan = { start: "YYYY-MM-DD", periodDays: 14, slots: { tc1:[], tc2:[], tc3:[], main:[] } }
   const start = parseYMDLocal(plan?.start);
   const period = Number(plan?.periodDays) || 14;
   if (!start || period <= 0) return null;
 
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // local midnight
+  const today = getTodayLocal(); // <— use the override-aware "today"
   const MS = 24 * 60 * 60 * 1000;
 
   const daysSinceStart = Math.floor((today - start) / MS);
-  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period)); // before start -> 0
+  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period));
 
   const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
   const periodEnd   = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
@@ -973,6 +986,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
