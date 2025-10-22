@@ -475,6 +475,41 @@
       margin-top: 18px;
     }
 
+    /* === Calendar Toggle Buttons === */
+    .calendar-toolbar .btn[data-cal] {
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      margin-left: 6px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    
+    /* --- MAIN (Red) --- */
+    .calendar-toolbar .btn[data-cal="MAIN"] {
+      background-color: #d32f2f; /* strong red */
+    }
+    .calendar-toolbar .btn[data-cal="MAIN"]:hover {
+      background-color: #b71c1c; /* darker on hover */
+    }
+    
+    /* --- 293T (Yellow) --- */
+    .calendar-toolbar .btn[data-cal="293T"] {
+      background-color: #fbc02d; /* warm yellow */
+      color: #333; /* darker text for contrast */
+    }
+    .calendar-toolbar .btn[data-cal="293T"]:hover {
+      background-color: #f9a825; /* deeper yellow on hover */
+    }
+    
+    /* --- Active (pressed) state --- */
+    .calendar-toolbar .btn[data-cal][aria-pressed="true"] {
+      box-shadow: 0 0 10px rgba(0,0,0,0.25);
+      transform: scale(1.05);
+    }
+
     /* ===== Mobile polish (≤ 480px) ===== */
     @media (max-width: 480px){
       .wrap{ padding:16px 12px 40px; }
@@ -606,14 +641,14 @@
       <h2 id="live-cal-title"><span class="ms" aria-hidden="true">calendar_month</span> Riley Lab Calendar</h2>
 
       <div class="calendar-toolbar" role="toolbar" aria-label="Calendar view">
+        <button class="btn" data-cal="MAIN" aria-pressed="true">Main</button>
+        <button class="btn" data-cal="293T" aria-pressed="true">293T</button>
+
+        <span style="margin:0 6px;opacity:.5">|</span>
+        
         <button class="btn" data-mode="AGENDA" aria-pressed="false">Agenda</button>
         <button class="btn" data-mode="WEEK"   aria-pressed="false">Week</button>
         <button class="btn" data-mode="MONTH"  aria-pressed="true">Month</button>
-
-        <span style="margin:0 6px;opacity:.5">|</span>
-
-        <button class="btn" data-cal="MAIN" aria-pressed="true">Main</button>
-        <button class="btn" data-cal="293T" aria-pressed="true">293T</button>
       </div>
       
       <div class="iframe-wrap" style="margin-top:10px">
@@ -1016,6 +1051,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
