@@ -874,36 +874,33 @@ function diffDays(a,b){ return Math.round((a - b) / 86400000); }
 // Function rotates the plan every periodDays; indefinitely loops through lists
 function computeRotationFromPlan(plan) {
   // plan = { start: "YYYY-MM-DD", periodDays: 14, slots: { tc1:[], tc2:[], tc3:[], main:[] } }
-  const start = parseYMDLocal(plan.start);
-  const period = Number(plan.periodDays) || 14;
+  const start = parseYMDLocal(plan?.start);
+  const period = Number(plan?.periodDays) || 14;
   if (!start || period <= 0) return null;
 
-  const today = new Date();
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // local midnight
   const MS = 24 * 60 * 60 * 1000;
+
   const daysSinceStart = Math.floor((today - start) / MS);
+  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period)); // before start -> 0
 
-  // Which period are we in? Clamp to 0 if we're before the start date
-  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period));
-
-  // Period start/end (local)
   const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
   const periodEnd   = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
 
-  // Pick names per slot, looping each list independently
   const pick = (arr) => {
     if (!Array.isArray(arr) || arr.length === 0) return '—';
-    const idx = cycleIndex % arr.length;
-    return arr[idx] ?? '—';
-    // If you want independent cadence per slot, use Math.floor(daysSinceStart/period) % arr.length as above (already independent).
+    return arr[cycleIndex % arr.length] ?? '—';
   };
 
+  const slots = plan.slots || {};
   return {
     start: toInputDateString(periodStart),
     end:   toInputDateString(periodEnd),
-    tc1:   pick(plan.slots?.tc1),
-    tc2:   pick(plan.slots?.tc2),
-    tc3:   pick(plan.slots?.tc3),
-    main:  pick(plan.slots?.main),
+    tc1:   pick(slots.tc1),
+    tc2:   pick(slots.tc2),
+    tc3:   pick(slots.tc3),
+    main:  pick(slots.main),
   };
 }
   
@@ -976,6 +973,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
