@@ -601,7 +601,8 @@
     .note-card .note-toolbar {
       position: absolute;
       right: 6px; top: 6px;
-      display: flex; gap: 6px;
+      display: flex; gap: 4px;
+      padding: 2px 4px;
     }
     
     .note-btn {
@@ -609,7 +610,7 @@
       border: 1px solid #ddd4a4;
       background: #fff7c6;
       font-size: 12px;
-      padding: 3px 6px;
+      padding: 2px 6px;
       border-radius: 8px;
       cursor: pointer;
     }
@@ -938,6 +939,63 @@ function getTodayLocal() {
   const now = new Date();
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
+
+function insertAtCursor(ta, text){
+  const { selectionStart: s, selectionEnd: e, value } = ta;
+  ta.value = value.slice(0, s) + text + value.slice(e);
+  const pos = s + text.length;
+  ta.setSelectionRange(pos, pos);
+  ta.dispatchEvent(new Event('input'));
+}
+
+function lineRangeAtCursor(ta){
+  const { value, selectionStart: i } = ta;
+  let a = value.lastIndexOf('\n', i - 1) + 1; // start of line
+  let b = value.indexOf('\n', i);
+  if (b === -1) b = value.length;            // end of last line
+  return [a, b];
+}
+
+function addPrefixAtLine(ta, prefix){
+  const [a, b] = lineRangeAtCursor(ta);
+  const before = ta.value.slice(0, a);
+  const line   = ta.value.slice(a, b);
+  const after  = ta.value.slice(b);
+  if (!line.startsWith(prefix)) {
+    const caret = ta.selectionStart + prefix.length;
+    ta.value = before + prefix + line + after;
+    ta.setSelectionRange(caret, caret);
+    ta.dispatchEvent(new Event('input'));
+  }
+}
+
+function currentLinePrefix(ta){
+  const [a, b] = lineRangeAtCursor(ta);
+  const line = ta.value.slice(a, b);
+  // support bullets "• " or "- " and checklists "- [ ] " or "- [x] "
+  const m = line.match(/^(\s*(?:• |\- |\-\s\[\s\]\s|\-\s\[x\]\s))/i);
+  return m ? m[1] : '';
+}
+
+function toggleCheckboxAtLine(ta){
+  const [a, b] = lineRangeAtCursor(ta);
+  const before = ta.value.slice(0, a);
+  let line     = ta.value.slice(a, b);
+  const after  = ta.value.slice(b);
+
+  if (/^- \[\s\] /i.test(line)) {
+    line = line.replace(/^- \[\s\] /i, '- [x] ');
+  } else if (/^- \[x\] /i.test(line)) {
+    line = line.replace(/^- \[x\] /i, '- [ ] ');
+  } else {
+    // if not a checklist line yet, make it one
+    line = '- [ ] ' + line.replace(/^\s*/, '');
+  }
+  const caretOffset = (before + line).length;
+  ta.value = before + line + after;
+  ta.setSelectionRange(caretOffset, caretOffset);
+  ta.dispatchEvent(new Event('input'));
+}
   
 /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
 (() => {
@@ -1173,6 +1231,8 @@ function positionNotesDock(){
 window.addEventListener('resize', positionNotesDock);
 
 /* ==== Sticky Notes (localStorage) ==== */
+const MAX_NOTES = 6;
+  
 (function stickyNotes(){
   const STORAGE_KEY = 'rileyNotes_v1';
   const MAX_NOTES = 6; // <— hard cap
@@ -1195,11 +1255,15 @@ window.addEventListener('resize', positionNotesDock);
     });
   }
 
+  function sortNotes(a, b) {
+    // pinned first, then newest first
+    return (b.pinned - a.pinned) || (b.createdAt - a.createdAt);
+  }
+  
   function render(){
-    const notes = load();
+    const notes = load().slice().sort(sortNotes);
     dock.innerHTML = '';
     notes.forEach(n => dock.appendChild(noteEl(n)));
-    updateAddButtons(notes);
     positionNotesDock();
   }
 
@@ -1207,30 +1271,64 @@ window.addEventListener('resize', positionNotesDock);
     const el = document.createElement('div');
     el.className = 'note-card';
     el.dataset.id = note.id;
-
+  
     const toolbar = document.createElement('div');
     toolbar.className = 'note-toolbar';
-
-    const del = document.createElement('button');
-    del.className = 'note-btn';
-    del.type = 'button';
-    del.textContent = 'Delete';
-    del.addEventListener('click', () => deleteNote(note.id));
-
+  
+    const bulletBtn = document.createElement('button');
+    bulletBtn.className = 'note-btn';
+    bulletBtn.type = 'button';
+    bulletBtn.title = 'Bullet';
+    bulletBtn.textContent = '•';
+    
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'note-btn';
+    checkBtn.type = 'button';
+    checkBtn.title = 'Checklist item';
+    checkBtn.textContent = '☐';
+  
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'note-btn';
+    toggleBtn.type = 'button';
+    toggleBtn.title = 'Toggle checkbox on this line';
+    toggleBtn.textContent = '✓';
+  
     const pin = document.createElement('button');
     pin.className = 'note-btn';
     pin.type = 'button';
     pin.textContent = note.pinned ? 'Unpin' : 'Pin';
-    pin.addEventListener('click', () => togglePin(note.id));
-
-    toolbar.append(pin, del);
-
+  
+    const del = document.createElement('button');
+    del.className = 'note-btn';
+    del.type = 'button';
+    del.textContent = 'Delete';
+  
     const ta = document.createElement('textarea');
     ta.className = 'note-textarea';
     ta.placeholder = 'Type your reminder…';
     ta.value = note.text || '';
+  
+    // wiring
+    del.addEventListener('click', () => deleteNote(note.id));
+    pin.addEventListener('click', () => togglePin(note.id));
+    bulletBtn.addEventListener('click', () => addPrefixAtLine(ta, '• '));
+    checkBtn.addEventListener('click', () => addPrefixAtLine(ta, '- [ ] '));
+    toggleBtn.addEventListener('click', () => toggleCheckboxAtLine(ta));
+  
     ta.addEventListener('input', debounce(() => updateText(note.id, ta.value), 200));
-
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        // auto-continue bullets/checklists
+        const pfx = currentLinePrefix(ta);
+        if (pfx) {
+          e.preventDefault();
+          insertAtCursor(ta, '\n' + pfx);
+          updateText(note.id, ta.value);
+        }
+      }
+    });
+  
+    toolbar.append(bulletBtn, checkBtn, toggleBtn, pin, del);
     el.append(toolbar, ta);
     return el;
   }
@@ -1245,7 +1343,7 @@ window.addEventListener('resize', positionNotesDock);
   function addNote(){
     const notes = load();
     if (notes.length >= MAX_NOTES) {
-      pulseButtons(); // subtle feedback
+      alert(`You can keep up to ${MAX_NOTES} notes. Delete one to add another.`);
       return;
     }
     notes.unshift({ id: makeId(), text: '', pinned: true, createdAt: Date.now() });
@@ -1266,7 +1364,7 @@ window.addEventListener('resize', positionNotesDock);
     const n = notes.find(x => x.id === id);
     if (!n) return;
     n.pinned = !n.pinned;
-    notes.sort((a,b) => (b.pinned|0) - (a.pinned|0) || (b.createdAt - a.createdAt));
+    notes.sort(sortNotes);
     save(notes);
     render();
   }
@@ -1332,6 +1430,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
