@@ -722,11 +722,6 @@
         <span class="ms" aria-hidden="true">search</span>
         <input id="q" type="search" placeholder="Quick find links…" aria-label="Search links">
       </div>
-
-      <!-- add-note button in header -->
-      <button id="add-note-btn" class="btn-note add-note-trigger" type="button" title="Add sticky note">
-        <span class="ms" aria-hidden="true">note_add</span> Add note
-      </button>
       
       <span class="pill">Updated</span>
       <span class="pill">v1.1</span>
@@ -1311,196 +1306,196 @@ function positionNotesDock(){
 
 window.addEventListener('resize', positionNotesDock);
 
-/* ==== Sticky Notes (localStorage) ==== */
-const MAX_NOTES = 6;
+// /* ==== Sticky Notes (localStorage) ==== */
+// const MAX_NOTES = 6;
   
-(function stickyNotes(){
-  const STORAGE_KEY = 'rileyNotes_v1';
-  const MAX_NOTES = 6; // <— hard cap
-  const dock = document.getElementById('notes-dock');
-  const triggers = document.querySelectorAll('.add-note-trigger'); // header button(s)
+// (function stickyNotes(){
+//   const STORAGE_KEY = 'rileyNotes_v1';
+//   const MAX_NOTES = 6; // <— hard cap
+//   const dock = document.getElementById('notes-dock');
+//   const triggers = document.querySelectorAll('.add-note-trigger'); // header button(s)
 
-  const load = () => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-    catch { return []; }
-  };
-  const save = (notes) => localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-  const makeId = () => Math.random().toString(36).slice(2, 9);
+//   const load = () => {
+//     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+//     catch { return []; }
+//   };
+//   const save = (notes) => localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+//   const makeId = () => Math.random().toString(36).slice(2, 9);
 
-  function updateAddButtons(notes){
-    const atMax = notes.length >= MAX_NOTES;
-    triggers.forEach(btn => {
-      btn.disabled = atMax;
-      btn.setAttribute('aria-disabled', String(atMax));
-      btn.title = atMax ? `Max ${MAX_NOTES} notes reached` : 'Add sticky note';
-    });
-  }
+//   function updateAddButtons(notes){
+//     const atMax = notes.length >= MAX_NOTES;
+//     triggers.forEach(btn => {
+//       btn.disabled = atMax;
+//       btn.setAttribute('aria-disabled', String(atMax));
+//       btn.title = atMax ? `Max ${MAX_NOTES} notes reached` : 'Add sticky note';
+//     });
+//   }
 
-  function sortNotes(a, b) {
-    // pinned first, then newest first
-    return (b.pinned - a.pinned) || (b.createdAt - a.createdAt);
-  }
+//   function sortNotes(a, b) {
+//     // pinned first, then newest first
+//     return (b.pinned - a.pinned) || (b.createdAt - a.createdAt);
+//   }
   
-  function render(){
-    const notes = load().slice().sort(sortNotes);
-    dock.innerHTML = '';
-    notes.forEach(n => dock.appendChild(noteEl(n)));
-    positionNotesDock();
-  }
+//   function render(){
+//     const notes = load().slice().sort(sortNotes);
+//     dock.innerHTML = '';
+//     notes.forEach(n => dock.appendChild(noteEl(n)));
+//     positionNotesDock();
+//   }
 
-  function noteEl(note){
-    const el = document.createElement('div');
-    el.className = 'note-card';
-    el.dataset.id = note.id;
+//   function noteEl(note){
+//     const el = document.createElement('div');
+//     el.className = 'note-card';
+//     el.dataset.id = note.id;
   
-    const toolbar = document.createElement('div');
-    toolbar.className = 'note-toolbar';
+//     const toolbar = document.createElement('div');
+//     toolbar.className = 'note-toolbar';
   
-    // editor (rich text)
-    const editor = document.createElement('div');
-    editor.className = 'note-editor';
-    editor.contentEditable = 'true';
-    editor.innerHTML = note.html ? note.html : escapeHtml(note.text || '');
-    editor.addEventListener('input', debounce(() => updateHtml(note.id, editor.innerHTML), 200));
+//     // editor (rich text)
+//     const editor = document.createElement('div');
+//     editor.className = 'note-editor';
+//     editor.contentEditable = 'true';
+//     editor.innerHTML = note.html ? note.html : escapeHtml(note.text || '');
+//     editor.addEventListener('input', debounce(() => updateHtml(note.id, editor.innerHTML), 200));
   
-    // formatting buttons
-    const bBold = makeBtn('B', 'Bold', () => cmd('bold'));
-    const bItalic = makeBtn('I', 'Italic', () => cmd('italic'));
-    const bUnderline = makeBtn('U', 'Underline', () => cmd('underline'));
-    const bBullet = makeBtn('•', 'Bulleted list', () => cmd('insertUnorderedList'));
-    const bChecklist = makeBtn('☑', 'Insert checklist item', () => insertChecklistItem(editor));
+//     // formatting buttons
+//     const bBold = makeBtn('B', 'Bold', () => cmd('bold'));
+//     const bItalic = makeBtn('I', 'Italic', () => cmd('italic'));
+//     const bUnderline = makeBtn('U', 'Underline', () => cmd('underline'));
+//     const bBullet = makeBtn('•', 'Bulleted list', () => cmd('insertUnorderedList'));
+//     const bChecklist = makeBtn('☑', 'Insert checklist item', () => insertChecklistItem(editor));
   
-    // pin / delete
-    const bPin = makeBtn(note.pinned ? 'Unpin' : 'Pin', 'Pin note', () => togglePin(note.id));
-    const bDel = makeBtn('Delete', 'Delete note', () => deleteNote(note.id));
+//     // pin / delete
+//     const bPin = makeBtn(note.pinned ? 'Unpin' : 'Pin', 'Pin note', () => togglePin(note.id));
+//     const bDel = makeBtn('Delete', 'Delete note', () => deleteNote(note.id));
   
-    toolbar.append(bBold, bItalic, bUnderline, bBullet, bChecklist, bPin, bDel);
-    el.append(toolbar, editor);
-    return el;
+//     toolbar.append(bBold, bItalic, bUnderline, bBullet, bChecklist, bPin, bDel);
+//     el.append(toolbar, editor);
+//     return el;
   
-    function makeBtn(label, title, fn){
-      const btn = document.createElement('button');
-      btn.className = 'note-btn';
-      btn.type = 'button';
-      btn.title = title;
-      btn.textContent = label;
-      btn.addEventListener('click', () => {
-        // keep focus in this note while formatting
-        editor.focus();
-        fn();
-        // persist after a command
-        updateHtml(note.id, editor.innerHTML);
-      });
-      return btn;
-    }
+//     function makeBtn(label, title, fn){
+//       const btn = document.createElement('button');
+//       btn.className = 'note-btn';
+//       btn.type = 'button';
+//       btn.title = title;
+//       btn.textContent = label;
+//       btn.addEventListener('click', () => {
+//         // keep focus in this note while formatting
+//         editor.focus();
+//         fn();
+//         // persist after a command
+//         updateHtml(note.id, editor.innerHTML);
+//       });
+//       return btn;
+//     }
   
-    function cmd(name){
-      // execCommand is deprecated but still works great for simple styling in all major browsers
-      document.execCommand(name, false, null);
-    }
-  }
+//     function cmd(name){
+//       // execCommand is deprecated but still works great for simple styling in all major browsers
+//       document.execCommand(name, false, null);
+//     }
+//   }
   
-  function makeFmtBtn(label, title, fn){
-    const b = document.createElement('button');
-    b.className = 'note-btn';
-    b.type = 'button';
-    b.textContent = label;
-    b.title = title;
-    b.addEventListener('click', fn);
-    return b;
-  }
+//   function makeFmtBtn(label, title, fn){
+//     const b = document.createElement('button');
+//     b.className = 'note-btn';
+//     b.type = 'button';
+//     b.textContent = label;
+//     b.title = title;
+//     b.addEventListener('click', fn);
+//     return b;
+//   }
 
-  function pulseButtons(){
-    triggers.forEach(btn => {
-      btn.classList.add('shake');
-      setTimeout(() => btn.classList.remove('shake'), 300);
-    });
-  }
+//   function pulseButtons(){
+//     triggers.forEach(btn => {
+//       btn.classList.add('shake');
+//       setTimeout(() => btn.classList.remove('shake'), 300);
+//     });
+//   }
 
-  function addNote(){
-    const notes = load();
-    if (notes.length >= MAX_NOTES) {
-      alert(`You can keep up to ${MAX_NOTES} notes. Delete one to add another.`);
-      return;
-    }
-    notes.unshift({ id: makeId(), text: '', pinned: true, createdAt: Date.now() });
-    save(notes);
-    render();
-    const first = dock.querySelector('.note-card .note-textarea');
-    if (first) first.focus();
-  }
+//   function addNote(){
+//     const notes = load();
+//     if (notes.length >= MAX_NOTES) {
+//       alert(`You can keep up to ${MAX_NOTES} notes. Delete one to add another.`);
+//       return;
+//     }
+//     notes.unshift({ id: makeId(), text: '', pinned: true, createdAt: Date.now() });
+//     save(notes);
+//     render();
+//     const first = dock.querySelector('.note-card .note-textarea');
+//     if (first) first.focus();
+//   }
 
-  function deleteNote(id){
-    const notes = load().filter(n => n.id !== id);
-    save(notes);
-    render(); // re-enables Add when dropping below cap
-  }
+//   function deleteNote(id){
+//     const notes = load().filter(n => n.id !== id);
+//     save(notes);
+//     render(); // re-enables Add when dropping below cap
+//   }
 
-  function togglePin(id){
-    const notes = load();
-    const n = notes.find(x => x.id === id);
-    if (!n) return;
-    n.pinned = !n.pinned;
-    notes.sort(sortNotes);
-    save(notes);
-    render();
-  }
+//   function togglePin(id){
+//     const notes = load();
+//     const n = notes.find(x => x.id === id);
+//     if (!n) return;
+//     n.pinned = !n.pinned;
+//     notes.sort(sortNotes);
+//     save(notes);
+//     render();
+//   }
 
-  function updateText(id, text){
-    const notes = load();
-    const n = notes.find(x => x.id === id);
-    if (!n) return;
-    n.text = text;
-    save(notes);
-  }
+//   function updateText(id, text){
+//     const notes = load();
+//     const n = notes.find(x => x.id === id);
+//     if (!n) return;
+//     n.text = text;
+//     save(notes);
+//   }
 
-  function debounce(fn, ms){
-    let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
-  }
+//   function debounce(fn, ms){
+//     let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
+//   }
 
-  function insertChecklistItem(editor){
-    // Ensure there is/starts a checklist UL and add an empty item
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) { editor.focus(); return; }
-    const range = sel.getRangeAt(0);
+//   function insertChecklistItem(editor){
+//     // Ensure there is/starts a checklist UL and add an empty item
+//     const sel = window.getSelection();
+//     if (!sel || sel.rangeCount === 0) { editor.focus(); return; }
+//     const range = sel.getRangeAt(0);
   
-    // find nearest UL.checklist
-    let ul = editor.closest('ul.checklist') || findAncestor(range.commonAncestorContainer, n => n.tagName === 'UL' && n.classList.contains('checklist'));
-    if (!ul) {
-      ul = document.createElement('ul');
-      ul.className = 'checklist';
-      range.surroundContents(document.createTextNode(''));
-      range.insertNode(ul);
-    }
+//     // find nearest UL.checklist
+//     let ul = editor.closest('ul.checklist') || findAncestor(range.commonAncestorContainer, n => n.tagName === 'UL' && n.classList.contains('checklist'));
+//     if (!ul) {
+//       ul = document.createElement('ul');
+//       ul.className = 'checklist';
+//       range.surroundContents(document.createTextNode(''));
+//       range.insertNode(ul);
+//     }
   
-    const li = document.createElement('li');
-    const box = document.createElement('input');
-    box.type = 'checkbox';
-    li.appendChild(box);
-    li.appendChild(document.createTextNode(' '));
-    ul.appendChild(li);
+//     const li = document.createElement('li');
+//     const box = document.createElement('input');
+//     box.type = 'checkbox';
+//     li.appendChild(box);
+//     li.appendChild(document.createTextNode(' '));
+//     ul.appendChild(li);
   
-    // place caret at end of new li
-    const r = document.createRange();
-    r.selectNodeContents(li);
-    r.collapse(false);
-    sel.removeAllRanges();
-    sel.addRange(r);
-  }
+//     // place caret at end of new li
+//     const r = document.createRange();
+//     r.selectNodeContents(li);
+//     r.collapse(false);
+//     sel.removeAllRanges();
+//     sel.addRange(r);
+//   }
   
-  function findAncestor(node, pred){
-    while (node && node.nodeType === 1 || node && node.parentNode){
-      if (node.nodeType === 1 && pred(node)) return node;
-      node = node.parentNode;
-    }
-    return null;
-  }
+//   function findAncestor(node, pred){
+//     while (node && node.nodeType === 1 || node && node.parentNode){
+//       if (node.nodeType === 1 && pred(node)) return node;
+//       node = node.parentNode;
+//     }
+//     return null;
+//   }
 
-  // Wire up all “add note” triggers (your header button has .add-note-trigger)
-  triggers.forEach(btn => btn.addEventListener('click', addNote));
+//   // Wire up all “add note” triggers (your header button has .add-note-trigger)
+//   triggers.forEach(btn => btn.addEventListener('click', addNote));
 
-  render();
-})();
+//   render();
+// })();
 
 /* === Calendar height sync === */
 function syncCalendarHeight(){
@@ -1545,6 +1540,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
