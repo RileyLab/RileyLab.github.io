@@ -642,12 +642,44 @@
       box-shadow:0 2px 8px rgba(0,0,0,.06);
     }
     .btn-note:hover{ background:#dce9ff; }
+
+    /* Disable look + tiny shake hint when at max */
+    .btn-note[disabled] { opacity:.5; cursor:not-allowed; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(2px)} 75%{transform:translateX(-2px)} }
+    .btn-note.shake { animation: shake .25s ease-in-out; }
     
     /* Hide the dock on small screens so it doesn't cover content */
     @media (max-width: 980px){
       .notes-dock, #add-note-fab { display:none; }
     }
 
+    /* Make space for the toolbar so text never sits behind it */
+    .note-card{
+      /* was: padding: 10px 10px 36px 10px; */
+      padding: 42px 12px 40px 12px;  /* ↑ extra top padding */
+      position: relative;
+    }
+    
+    /* Keep the toolbar above the text and visually tidy */
+    .note-card .note-toolbar{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 251, 231, 0.85); /* optional: subtle bg so it reads well */
+      border-radius: 8px;
+      padding: 2px;
+    }
+    
+    /* Ensure the textarea fills the available box without overlapping */
+    .note-textarea{
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 90px;
+    }
     
   </style>
 
@@ -1143,6 +1175,7 @@ window.addEventListener('resize', positionNotesDock);
 /* ==== Sticky Notes (localStorage) ==== */
 (function stickyNotes(){
   const STORAGE_KEY = 'rileyNotes_v1';
+  const MAX_NOTES = 6; // <— hard cap
   const dock = document.getElementById('notes-dock');
   const triggers = document.querySelectorAll('.add-note-trigger'); // header button(s)
 
@@ -1153,11 +1186,20 @@ window.addEventListener('resize', positionNotesDock);
   const save = (notes) => localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   const makeId = () => Math.random().toString(36).slice(2, 9);
 
+  function updateAddButtons(notes){
+    const atMax = notes.length >= MAX_NOTES;
+    triggers.forEach(btn => {
+      btn.disabled = atMax;
+      btn.setAttribute('aria-disabled', String(atMax));
+      btn.title = atMax ? `Max ${MAX_NOTES} notes reached` : 'Add sticky note';
+    });
+  }
+
   function render(){
     const notes = load();
     dock.innerHTML = '';
     notes.forEach(n => dock.appendChild(noteEl(n)));
-    // position after (re)render
+    updateAddButtons(notes);
     positionNotesDock();
   }
 
@@ -1193,8 +1235,19 @@ window.addEventListener('resize', positionNotesDock);
     return el;
   }
 
+  function pulseButtons(){
+    triggers.forEach(btn => {
+      btn.classList.add('shake');
+      setTimeout(() => btn.classList.remove('shake'), 300);
+    });
+  }
+
   function addNote(){
     const notes = load();
+    if (notes.length >= MAX_NOTES) {
+      pulseButtons(); // subtle feedback
+      return;
+    }
     notes.unshift({ id: makeId(), text: '', pinned: true, createdAt: Date.now() });
     save(notes);
     render();
@@ -1205,7 +1258,7 @@ window.addEventListener('resize', positionNotesDock);
   function deleteNote(id){
     const notes = load().filter(n => n.id !== id);
     save(notes);
-    render();
+    render(); // re-enables Add when dropping below cap
   }
 
   function togglePin(id){
@@ -1230,7 +1283,9 @@ window.addEventListener('resize', positionNotesDock);
     let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
   }
 
+  // Wire up all “add note” triggers (your header button has .add-note-trigger)
   triggers.forEach(btn => btn.addEventListener('click', addNote));
+
   render();
 })();
 
@@ -1277,6 +1332,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
