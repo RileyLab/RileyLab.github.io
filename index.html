@@ -681,6 +681,23 @@
       box-sizing: border-box;
       min-height: 90px;
     }
+
+    /* editor inside a note */
+    .note-editor {
+      width: 100%;
+      min-height: 100px;
+      outline: none;
+      background: transparent;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #3d3a2a;
+      padding-top: 24px;          /* keep text clear of toolbar */
+      white-space: pre-wrap;
+    }
+    
+    /* simple checklist look */
+    ul.checklist { list-style: none; padding-left: 0; margin: 0; }
+    ul.checklist li { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    ul.checklist li input[type="checkbox"] { transform: translateY(1px); }
     
   </style>
 
@@ -996,6 +1013,70 @@ function toggleCheckboxAtLine(ta){
   ta.setSelectionRange(caretOffset, caretOffset);
   ta.dispatchEvent(new Event('input'));
 }
+
+function wrapSelection(ta, before, after){
+  const start = ta.selectionStart;
+  const end = ta.selectionEnd;
+  const value = ta.value;
+  const sel = value.slice(start, end);
+
+  const isWrapped = sel.startsWith(before) && sel.endsWith(after);
+
+  let newText;
+  if (isWrapped) {
+    // remove wrapping
+    newText = sel.slice(before.length, sel.length - after.length);
+    ta.value = value.slice(0, start) + newText + value.slice(end);
+    ta.setSelectionRange(start, start + newText.length);
+  } else {
+    newText = before + sel + after;
+    ta.value = value.slice(0, start) + newText + value.slice(end);
+    ta.setSelectionRange(start + before.length, start + before.length + sel.length);
+  }
+
+  ta.focus();
+  ta.dispatchEvent(new Event('input'));
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c])); }
+
+// very small allowlist sanitizer to avoid injecting arbitrary HTML
+function sanitizeHTML(input){
+  const allowed = new Set(['B','I','U','BR','SPAN','DIV','UL','OL','LI','INPUT']); // minimal
+  const tmp = document.createElement('div');
+  tmp.innerHTML = input || '';
+
+  (function walk(node){
+    if (node.nodeType === 1) {
+      if (!allowed.has(node.tagName)) {
+        // unwrap disallowed element but keep its children
+        const parent = node.parentNode;
+        while (node.firstChild) parent.insertBefore(node.firstChild, node);
+        parent.removeChild(node);
+        return;
+      }
+      // strip attributes we don't expect
+      for (const attr of Array.from(node.attributes)) {
+        const t = node.tagName;
+        if (t === 'INPUT' && attr.name === 'type' && node.getAttribute('type') === 'checkbox') continue;
+        else node.removeAttribute(attr.name);
+      }
+    }
+    for (const child of Array.from(node.childNodes)) walk(child);
+  })(tmp);
+
+  return tmp.innerHTML;
+}
+
+function updateHtml(id, html){
+  const notes = load();
+  const n = notes.find(x => x.id === id);
+  if (!n) return;
+  n.html = sanitizeHTML(html);
+  // you can optionally keep a plain-text fallback if you like
+  n.text = undefined;
+  save(notes);
+}
   
 /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
 (() => {
@@ -1275,62 +1356,58 @@ const MAX_NOTES = 6;
     const toolbar = document.createElement('div');
     toolbar.className = 'note-toolbar';
   
-    const bulletBtn = document.createElement('button');
-    bulletBtn.className = 'note-btn';
-    bulletBtn.type = 'button';
-    bulletBtn.title = 'Bullet';
-    bulletBtn.textContent = '•';
-    
-    const checkBtn = document.createElement('button');
-    checkBtn.className = 'note-btn';
-    checkBtn.type = 'button';
-    checkBtn.title = 'Checklist item';
-    checkBtn.textContent = '☐';
+    // editor (rich text)
+    const editor = document.createElement('div');
+    editor.className = 'note-editor';
+    editor.contentEditable = 'true';
+    editor.innerHTML = note.html ? note.html : escapeHtml(note.text || '');
+    editor.addEventListener('input', debounce(() => updateHtml(note.id, editor.innerHTML), 200));
   
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'note-btn';
-    toggleBtn.type = 'button';
-    toggleBtn.title = 'Toggle checkbox on this line';
-    toggleBtn.textContent = '✓';
+    // formatting buttons
+    const bBold = makeBtn('B', 'Bold', () => cmd('bold'));
+    const bItalic = makeBtn('I', 'Italic', () => cmd('italic'));
+    const bUnderline = makeBtn('U', 'Underline', () => cmd('underline'));
+    const bBullet = makeBtn('•', 'Bulleted list', () => cmd('insertUnorderedList'));
+    const bChecklist = makeBtn('☑', 'Insert checklist item', () => insertChecklistItem(editor));
   
-    const pin = document.createElement('button');
-    pin.className = 'note-btn';
-    pin.type = 'button';
-    pin.textContent = note.pinned ? 'Unpin' : 'Pin';
+    // pin / delete
+    const bPin = makeBtn(note.pinned ? 'Unpin' : 'Pin', 'Pin note', () => togglePin(note.id));
+    const bDel = makeBtn('Delete', 'Delete note', () => deleteNote(note.id));
   
-    const del = document.createElement('button');
-    del.className = 'note-btn';
-    del.type = 'button';
-    del.textContent = 'X';
-  
-    const ta = document.createElement('textarea');
-    ta.className = 'note-textarea';
-    ta.placeholder = 'Type your reminder…';
-    ta.value = note.text || '';
-  
-    // wiring
-    del.addEventListener('click', () => deleteNote(note.id));
-    pin.addEventListener('click', () => togglePin(note.id));
-    bulletBtn.addEventListener('click', () => addPrefixAtLine(ta, '• '));
-    checkBtn.addEventListener('click', () => addPrefixAtLine(ta, '- [ ] '));
-    toggleBtn.addEventListener('click', () => toggleCheckboxAtLine(ta));
-  
-    ta.addEventListener('input', debounce(() => updateText(note.id, ta.value), 200));
-    ta.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        // auto-continue bullets/checklists
-        const pfx = currentLinePrefix(ta);
-        if (pfx) {
-          e.preventDefault();
-          insertAtCursor(ta, '\n' + pfx);
-          updateText(note.id, ta.value);
-        }
-      }
-    });
-  
-    toolbar.append(bulletBtn, checkBtn, toggleBtn, pin, del);
-    el.append(toolbar, ta);
+    toolbar.append(bBold, bItalic, bUnderline, bBullet, bChecklist, bPin, bDel);
+    el.append(toolbar, editor);
     return el;
+  
+    function makeBtn(label, title, fn){
+      const btn = document.createElement('button');
+      btn.className = 'note-btn';
+      btn.type = 'button';
+      btn.title = title;
+      btn.textContent = label;
+      btn.addEventListener('click', () => {
+        // keep focus in this note while formatting
+        editor.focus();
+        fn();
+        // persist after a command
+        updateHtml(note.id, editor.innerHTML);
+      });
+      return btn;
+    }
+  
+    function cmd(name){
+      // execCommand is deprecated but still works great for simple styling in all major browsers
+      document.execCommand(name, false, null);
+    }
+  }
+  
+  function makeFmtBtn(label, title, fn){
+    const b = document.createElement('button');
+    b.className = 'note-btn';
+    b.type = 'button';
+    b.textContent = label;
+    b.title = title;
+    b.addEventListener('click', fn);
+    return b;
   }
 
   function pulseButtons(){
@@ -1379,6 +1456,44 @@ const MAX_NOTES = 6;
 
   function debounce(fn, ms){
     let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
+  }
+
+  function insertChecklistItem(editor){
+    // Ensure there is/starts a checklist UL and add an empty item
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) { editor.focus(); return; }
+    const range = sel.getRangeAt(0);
+  
+    // find nearest UL.checklist
+    let ul = editor.closest('ul.checklist') || findAncestor(range.commonAncestorContainer, n => n.tagName === 'UL' && n.classList.contains('checklist'));
+    if (!ul) {
+      ul = document.createElement('ul');
+      ul.className = 'checklist';
+      range.surroundContents(document.createTextNode(''));
+      range.insertNode(ul);
+    }
+  
+    const li = document.createElement('li');
+    const box = document.createElement('input');
+    box.type = 'checkbox';
+    li.appendChild(box);
+    li.appendChild(document.createTextNode(' '));
+    ul.appendChild(li);
+  
+    // place caret at end of new li
+    const r = document.createRange();
+    r.selectNodeContents(li);
+    r.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(r);
+  }
+  
+  function findAncestor(node, pred){
+    while (node && node.nodeType === 1 || node && node.parentNode){
+      if (node.nodeType === 1 && pred(node)) return node;
+      node = node.parentNode;
+    }
+    return null;
   }
 
   // Wire up all “add note” triggers (your header button has .add-note-trigger)
@@ -1430,6 +1545,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
