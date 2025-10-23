@@ -397,13 +397,16 @@
     /* === Rotation Date Range Styling === */
     #rot-dates {
       background-color: #e6efff;
-      font-size: 1.2rem;          /* slightly larger (default ≈ 1rem) */
+      font-size: clamp(0.9rem, 2.2vw, 1.25rem); /* fluid */
       font-weight: 600;           /* make it bolder */
       color: #003366;                /* darker, readable text */
       margin-bottom: 6px;
       display: block;
       background: linear-gradient(to bottom, #fdeaea, #f7e1e1);
       backdrop-filter: blur(4px);
+      line-height: 1.2;
+      white-space: normal;        /* allow wrapping on small screens */
+      padding: 6px 10px;  
     }
     
     /* palette */
@@ -1115,44 +1118,6 @@ document.addEventListener('visibilitychange', async () => {
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
 
-/* === Calendar height sync === */
-function syncCalendarHeight(){
-
-  // On small screens, let the fixed iframe height take over
-  if (window.innerWidth <= 768) return;
-  
-  const calCard   = document.getElementById('live-cal-card');
-  const topCard   = document.getElementById('card-calendars-hood');
-  const bottomCard= document.getElementById('card-upenn-cores');
-  if(!calCard || !topCard || !bottomCard) return;
-
-  const grid   = topCard.closest('.grid');
-  const rowGap = grid ? parseFloat(getComputedStyle(grid).rowGap || '0') : 0;
-  const target = topCard.offsetHeight + rowGap + bottomCard.offsetHeight;
-
-  calCard.style.height = target + 'px';
-
-  const head    = calCard.querySelector('h2');
-  const toolbar = calCard.querySelector('.calendar-toolbar');
-  const padding = 18 * 2;
-  const extra   = (head?.offsetHeight || 0) + (toolbar?.offsetHeight || 0) + padding;
-
-  const wrap = calCard.querySelector('.iframe-wrap');
-  if (wrap) {
-    wrap.style.height = Math.max(200, target - extra) + 'px';
-    const iframe = wrap.querySelector('iframe');
-    if (iframe) iframe.style.height = '100%';
-  }
-}
-window.addEventListener('load',  syncCalendarHeight);
-window.addEventListener('resize', () => {
-  clearTimeout(syncCalendarHeight._t);
-  syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
-});
-document.addEventListener('toggle', (e) => {
-  if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
-}, true);
-
 /* --- Center notes dock in the right gutter --- */
 function positionNotesDock(){
   const dock = document.getElementById('notes-dock');
@@ -1268,12 +1233,51 @@ window.addEventListener('resize', positionNotesDock);
   triggers.forEach(btn => btn.addEventListener('click', addNote));
   render();
 })();
+
+/* === Calendar height sync === */
+function syncCalendarHeight(){
+
+  // On small screens, let the fixed iframe height take over
+  if (window.innerWidth <= 768) return;
+  
+  const calCard   = document.getElementById('live-cal-card');
+  const topCard   = document.getElementById('card-calendars-hood');
+  const bottomCard= document.getElementById('card-upenn-cores');
+  if(!calCard || !topCard || !bottomCard) return;
+
+  const grid   = topCard.closest('.grid');
+  const rowGap = grid ? parseFloat(getComputedStyle(grid).rowGap || '0') : 0;
+  const target = topCard.offsetHeight + rowGap + bottomCard.offsetHeight;
+
+  calCard.style.height = target + 'px';
+
+  const head    = calCard.querySelector('h2');
+  const toolbar = calCard.querySelector('.calendar-toolbar');
+  const padding = 18 * 2;
+  const extra   = (head?.offsetHeight || 0) + (toolbar?.offsetHeight || 0) + padding;
+
+  const wrap = calCard.querySelector('.iframe-wrap');
+  if (wrap) {
+    wrap.style.height = Math.max(200, target - extra) + 'px';
+    const iframe = wrap.querySelector('iframe');
+    if (iframe) iframe.style.height = '100%';
+  }
+}
+window.addEventListener('load',  syncCalendarHeight);
+window.addEventListener('resize', () => {
+  clearTimeout(syncCalendarHeight._t);
+  syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
+});
+document.addEventListener('toggle', (e) => {
+  if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
+}, true);
   
 </script>
 
 
 </body>
 </html>
+
 
 
 
