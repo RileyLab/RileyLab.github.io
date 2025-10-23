@@ -522,6 +522,12 @@
       transform: scale(1.05);
     }
 
+    @media (max-width: 480px){
+      #rot-dates{
+        padding: 4px 8px;
+      }
+    }
+
     /* ===== Mobile polish (≤ 480px) ===== */
     @media (max-width: 480px){
       .wrap{ padding:16px 12px 40px; }
@@ -569,15 +575,14 @@
     /* ==== Sticky Notes ==== */
     .notes-dock {
       position: fixed;
-      right: 14px;
-      top: 120px;            /* tweak to clear your header */
+      top: 120px;
       width: 260px;
       max-height: calc(100vh - 160px);
       display: flex;
       flex-direction: column;
       gap: 10px;
-      z-index: 999;          /* above cards, below menus if needed */
-      pointer-events: none;  /* only notes themselves get events */
+      z-index: 999;
+      pointer-events: none;
     }
     
     .note-card {
@@ -618,21 +623,22 @@
       outline: none;
     }
     
-    #add-note-fab {
-      position: fixed;
-      right: 14px; bottom: 18px;
-      z-index: 1000;
-      appearance: none;
-      border: 1px solid #cfd8ea;
-      background: #eaf2ff;
-      color: #0b3d91;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 10px 14px;
-      box-shadow: 0 8px 20px rgba(0,0,0,.12);
-      cursor: pointer;
+    /* Header 'Add note' button */
+    .btn-note{
+      appearance:none;
+      border:1px solid #cfd8ea;
+      background:#eaf2ff;
+      color:#0b3d91;
+      font-weight:700;
+      border-radius:10px;
+      padding:8px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
     }
-    #add-note-fab:hover { background:#dce9ff; }
+    .btn-note:hover{ background:#dce9ff; }
     
     /* Hide the dock on small screens so it doesn't cover content */
     @media (max-width: 980px){
@@ -663,6 +669,12 @@
         <span class="ms" aria-hidden="true">search</span>
         <input id="q" type="search" placeholder="Quick find links…" aria-label="Search links">
       </div>
+
+      <!-- add-note button in header -->
+      <button id="add-note-btn" class="btn-note add-note-trigger" type="button" title="Add sticky note">
+        <span class="ms" aria-hidden="true">note_add</span> Add note
+      </button>
+      
       <span class="pill">Updated</span>
       <span class="pill">v1.1</span>
     </div>
@@ -842,11 +854,11 @@
   </footer>
 </div>
 
-<a id="admin-toggle" href="/admin" title="Open Admin">Admin</a>
+<!-- <a id="admin-toggle" href="/admin" title="Open Admin">Admin</a> -->
 
 <!-- Sticky Notes -->
-<div id="notes-dock" class="notes-dock" aria-label="Personal sticky notes"></div>
-<button id="add-note-fab" type="button" title="Add sticky note">+ Add Note</button>
+<!-- <div id="notes-dock" class="notes-dock" aria-label="Personal sticky notes"></div> -->
+<!-- <button id="add-note-fab" type="button" title="Add sticky note">+ Add Note</button> -->
 
 <script>
 
@@ -1141,24 +1153,47 @@ document.addEventListener('toggle', (e) => {
   if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
 }, true);
 
+/* --- Center notes dock in the right gutter --- */
+function positionNotesDock(){
+  const dock = document.getElementById('notes-dock');
+  if (!dock) return;
+
+  const docStyle = getComputedStyle(document.documentElement);
+  const pageMaxStr = docStyle.getPropertyValue('--page-max').trim(); // e.g. "1600px"
+  const pageMax = parseFloat(pageMaxStr) || 1600;
+  const vw = window.innerWidth;
+
+  // gutter = (viewport - contentWidth)/2 (only when viewport wider than content)
+  const gutter = Math.max((vw - Math.min(vw, pageMax)) / 2, 0);
+
+  // center the 260px dock inside that gutter; clamp to a minimum 14px from the edge
+  const dockHalf = 260 / 2;
+  const desiredRight = gutter > 0 ? Math.max(gutter / 2 - dockHalf, 14) : 14;
+
+  dock.style.right = `${Math.round(desiredRight)}px`;
+}
+
+window.addEventListener('resize', positionNotesDock);
+
 /* ==== Sticky Notes (localStorage) ==== */
 (function stickyNotes(){
   const STORAGE_KEY = 'rileyNotes_v1';
   const dock = document.getElementById('notes-dock');
-  const addBtn = document.getElementById('add-note-fab');
+  const triggers = document.querySelectorAll('.add-note-trigger'); // header button(s)
 
   const load = () => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
     catch { return []; }
   };
   const save = (notes) => localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
-
   const makeId = () => Math.random().toString(36).slice(2, 9);
 
   function render(){
     const notes = load();
     dock.innerHTML = '';
     notes.forEach(n => dock.appendChild(noteEl(n)));
+    // position after (re)render
+    positionNotesDock();
   }
 
   function noteEl(note){
@@ -1198,7 +1233,6 @@ document.addEventListener('toggle', (e) => {
     notes.unshift({ id: makeId(), text: '', pinned: true, createdAt: Date.now() });
     save(notes);
     render();
-    // focus the new one
     const first = dock.querySelector('.note-card .note-textarea');
     if (first) first.focus();
   }
@@ -1214,7 +1248,6 @@ document.addEventListener('toggle', (e) => {
     const n = notes.find(x => x.id === id);
     if (!n) return;
     n.pinned = !n.pinned;
-    // keep pinned ones on top
     notes.sort((a,b) => (b.pinned|0) - (a.pinned|0) || (b.createdAt - a.createdAt));
     save(notes);
     render();
@@ -1232,7 +1265,7 @@ document.addEventListener('toggle', (e) => {
     let t; return (...args)=>{ clearTimeout(t); t = setTimeout(()=>fn(...args), ms); };
   }
 
-  addBtn.addEventListener('click', addNote);
+  triggers.forEach(btn => btn.addEventListener('click', addNote));
   render();
 })();
   
@@ -1241,6 +1274,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
