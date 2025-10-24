@@ -10,30 +10,53 @@
 </head>
 <body>
   <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScJ4uCFBKiXPZLq0iq4RGXGauqusAgZjv07Z-WmLajisXqjlg/viewform?embedded=true"></iframe>
-    
+
   <iframe id="calendar"
     src="https://calendar.google.com/calendar/embed?src=0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d%40group.calendar.google.com&ctz=America%2FNew_York">
   </iframe>
 
   <script>
-  const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbyOWrrrLCu1T4XZtB0bBe2uM6ht6PlfBwj-xsbGhYerXR-8w1QpSIoMuLWdbO8AiPIV/exec";
-  let lastSeen = "0";
+    const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbyOWrrrLCu1T4XZtB0bBe2uM6ht6PlfBwj-xsbGhYerXR-8w1QpSIoMuLWdbO8AiPIV/exec";
+    let lastSeen = "0";
+    let timer = null;
 
-  async function checkForUpdate() {
-    try {
+    async function fetchLast() {
       const r = await fetch(SIGNAL_URL, { cache: "no-store" });
       const data = await r.json();
-      if (data && data.lastUpdate && data.lastUpdate !== lastSeen) {
-        lastSeen = data.lastUpdate;
-        const cal = document.getElementById('calendar');
-        // cache-bust by changing the hash
-        cal.src = cal.src.split('#')[0] + '#u=' + lastSeen;
-      }
-    } catch (_) { /* ignore transient errors */ }
-  }
+      return (data && data.lastUpdate) ? String(data.lastUpdate) : "0";
+    }
 
-  // Light polling to a few bytes JSON; iframe reload happens only on change.
-  setInterval(checkForUpdate, 5000);
-</script>
+    async function checkForUpdate() {
+      try {
+        const latest = await fetchLast();
+        if (latest !== lastSeen) {
+          lastSeen = latest;
+          const cal = document.getElementById('calendar');
+          cal.src = cal.src.split('#')[0] + '#u=' + lastSeen; // cache-bust on change
+        }
+      } catch (e) {
+        // optional: console.warn('Signal check failed:', e);
+      }
+    }
+
+    async function startPolling() {
+      // Initialize baseline so we don't refresh immediately on first check
+      lastSeen = await fetchLast();
+      timer = setInterval(checkForUpdate, 5000);
+    }
+
+    function stopPolling() {
+      if (timer) { clearInterval(timer); timer = null; }
+    }
+
+    // Pause when tab hidden; resume when visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopPolling();
+      else startPolling();
+    });
+
+    // Kick off on load
+    startPolling();
+  </script>
 </body>
 </html>
