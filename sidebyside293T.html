@@ -43,7 +43,7 @@
   
     async function startPolling() {
       lastSeen = await fetchLast(); // initialize baseline so we don't reload immediately
-      timer = setInterval(checkForUpdate, 2000);
+      timer = setInterval(checkForUpdate, 1000);
     }
   
     function stopPolling() {
