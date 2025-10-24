@@ -1,6 +1,6 @@
 {
   "announcements": [
-    { "text": "Label printer is now functional and ready to print!", "when": "2025-10-16T09:00:00-04:00" },
+    { "text": "Please use the new 293T Request Form to make a request!", "when": "2025-10-24T12:00:00-04:00" },
     { "text": "We are aware of temperature issues in the TC rooms and maintenance is working on a solution.", "when": "2025-10-21T12:00:00-04:00" },
     { "text": "Our two new BSCs are installed and we are waiting for them to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00" }
   ],
