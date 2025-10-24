@@ -16,29 +16,24 @@
   </iframe>
 
   <script>
-    const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbyOWrrrLCu1T4XZtB0bBe2uM6ht6PlfBwj-xsbGhYerXR-8w1QpSIoMuLWdbO8AiPIV/exec";
+  const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbyOWrrrLCu1T4XZtB0bBe2uM6ht6PlfBwj-xsbGhYerXR-8w1QpSIoMuLWdbO8AiPIV/exec";
+  let lastSeen = "0";
 
-    let lastSeen = "0";
-
-    async function checkForUpdate() {
-      try {
-        const r = await fetch(SIGNAL_URL, { cache: "no-store" });
-        const data = await r.json();
-        if (data && data.lastUpdate && data.lastUpdate !== lastSeen) {
-          lastSeen = data.lastUpdate;
-          // Reload only when there's a new submission
-          const cal = document.getElementById('calendar');
-          // Cache-bust without losing settings
-          const base = cal.src.split('#')[0];
-          cal.src = base + '#u=' + lastSeen;
-        }
-      } catch (e) {
-        // ignore transient errors
+  async function checkForUpdate() {
+    try {
+      const r = await fetch(SIGNAL_URL, { cache: "no-store" });
+      const data = await r.json();
+      if (data && data.lastUpdate && data.lastUpdate !== lastSeen) {
+        lastSeen = data.lastUpdate;
+        const cal = document.getElementById('calendar');
+        // cache-bust by changing the hash
+        cal.src = cal.src.split('#')[0] + '#u=' + lastSeen;
       }
-    }
+    } catch (_) { /* ignore transient errors */ }
+  }
 
-    // Light polling (e.g., every 5 seconds). Calendar reloads ONLY on change.
-    setInterval(checkForUpdate, 5000);
-  </script>
+  // Light polling to a few bytes JSON; iframe reload happens only on change.
+  setInterval(checkForUpdate, 5000);
+</script>
 </body>
 </html>
