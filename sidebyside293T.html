@@ -1,26 +1,44 @@
 <!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>293T Request + Calendar</title>
-    <style>
-        body { margin:0; display:flex; height:100vh; }
-        iframe { flex:1; border:none; }
-    </style>
+  <meta charset="utf-8">
+  <title>293T Request + Calendar</title>
+  <style>
+    body { margin:0; display:flex; height:100vh; }
+    iframe { flex:1; border:none; }
+  </style>
 </head>
 <body>
-    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScJ4uCFBKiXPZLq0iq4RGXGauqusAgZjv07Z-WmLajisXqjlg/viewform?embedded=true"></iframe>
-    <iframe 
-        id="calendar"
-        src="https://calendar.google.com/calendar/embed?src=0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d%40group.calendar.google.com&ctz=America%2FNew_York"
-        frameborder="0"
-        scrolling="no">
-    </iframe>
-    <script>
-        setInterval(() => {
-            const cal = document.getElementById('calendar');
-            cal.src = cal.src;
-        }, 10000);
-    </script>
+  <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScJ4uCFBKiXPZLq0iq4RGXGauqusAgZjv07Z-WmLajisXqjlg/viewform?embedded=true"></iframe>
+    
+  <iframe id="calendar"
+    src="https://calendar.google.com/calendar/embed?src=0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d%40group.calendar.google.com&ctz=America%2FNew_York">
+  </iframe>
+
+  <script>
+    const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbyOWrrrLCu1T4XZtB0bBe2uM6ht6PlfBwj-xsbGhYerXR-8w1QpSIoMuLWdbO8AiPIV/exec";
+
+    let lastSeen = "0";
+
+    async function checkForUpdate() {
+      try {
+        const r = await fetch(SIGNAL_URL, { cache: "no-store" });
+        const data = await r.json();
+        if (data && data.lastUpdate && data.lastUpdate !== lastSeen) {
+          lastSeen = data.lastUpdate;
+          // Reload only when there's a new submission
+          const cal = document.getElementById('calendar');
+          // Cache-bust without losing settings
+          const base = cal.src.split('#')[0];
+          cal.src = base + '#u=' + lastSeen;
+        }
+      } catch (e) {
+        // ignore transient errors
+      }
+    }
+
+    // Light polling (e.g., every 5 seconds). Calendar reloads ONLY on change.
+    setInterval(checkForUpdate, 5000);
+  </script>
 </body>
 </html>
