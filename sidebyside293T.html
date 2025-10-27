@@ -22,6 +22,24 @@
       height: 100%;               /* fill viewport height on desktop */
     }
 
+    /* === Desktop-only adjustments === */
+    @media (min-width: 769px) {
+      .form-wrapper {
+        display: flex;
+        justify-content: center;   /* horizontally center form */
+        align-items: center;       /* vertically center form */
+        height: 100vh;
+        background: #fafafa;       /* subtle contrast */
+      }
+
+      .form-wrapper iframe {
+        width: 90%;        /* shrink a bit for visual balance */
+        height: 80vh;      /* "pushed down" and not full height */
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+    }
+
    /* --- mobile view: stack vertically --- */
     @media (max-width: 768px) {
       .layout {
