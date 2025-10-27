@@ -3,29 +3,31 @@
 <head>
   <meta charset="utf-8">
   <title>293T Request + Calendar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      margin: 0;
-      display: flex;
-      flex-direction: row;  /* default desktop layout: left/right */
-      height: 100vh;
-    }
+    :root { --mobile-break: 768px; }
 
-    iframe {
+    html, body { height: 100%; margin: 0; }
+    .layout {
+      display: flex;
+      flex-direction: row;         /* desktop: side-by-side */
+      height: 100vh;
+      width: 100%;
+    }
+    .pane {
       flex: 1;
       border: none;
+      width: 100%;
+      height: 100vh;               /* fill viewport height on desktop */
     }
 
-    /* --- mobile view --- */
+    /* Mobile: stack top/bottom */
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;  /* stack top/bottom on small screens */
-      }
-
-      iframe {
-        height: 50vh; /* each takes half screen height */
-        width: 100%;
-      }
+      .layout { flex-direction: column; }
+      .pane { height: 50vh; }      /* each takes half screen; adjust if you want */
+      /* Example: 60/40 split on mobile */
+      .pane.form { height: 60vh; }
+      .pane.calendar { height: 40vh; }
     }
   </style>
 </head>
