@@ -167,41 +167,40 @@
   // Before creating from built-in popup
   calendar.on('beforeCreateSchedule', async ev => {
     const { start, end } = ev;
+    const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
   
-    // ✅ Use the user's selected hood (calendar) if provided
-    const firstVisible = calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0];
-    const calId = ev.calendarId || firstVisible.id;
-  
-    // local conflict check (same hood)
     if (hasConflict(calId, start, end)) {
       alert('Time overlaps an existing booking on that hood.');
       ev.guide.clearGuideElement(); return;
     }
   
-    // make a temp schedule so user sees something right away
     const tempId = 'tmp-' + Date.now();
     calendar.createSchedules([{
       id: tempId, calendarId: calId, title: ev.title || 'Booking',
       category: 'time', start, end, isReadOnly: false
     }]);
     ev.guide.clearGuideElement();
-    
+  
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{'Content-Type':'text/plain'},
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain' },
         body: JSON.stringify({
           action:'create',
-          event:{ calendarId: calId, title: ev.title || 'Booking',
-                  start: start.toDate().toISOString(), end: end.toDate().toISOString() }
+          event:{
+            calendarId: calId,
+            title: ev.title || 'Booking',
+            start: start.toDate().toISOString(),
+            end:   end.toDate().toISOString()
+          }
         })
       });
       const json = await res.json();
       if (json.ok && json.id) {
-        // ✅ replace temp schedule with real-id schedule
         calendar.deleteSchedule(tempId, calId);
         calendar.createSchedules([{
           id: json.id, calendarId: calId, title: ev.title || 'Booking',
-          category: 'time', start, end, isReadOnly: false
+          category:'time', start, end, isReadOnly:false
         }]);
       } else {
         alert(json.error || 'Failed to save. Reverting.');
@@ -210,9 +209,11 @@
     } catch (e) {
       alert('Network error. Reverting.');
       calendar.deleteSchedule(tempId, calId);
+    } finally {
+      loadFromBackend();
     }
   });
-
+  
   // Editing / moving / resizing
   calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
@@ -226,18 +227,21 @@
       return;
     }
   
-    // optimistic UI
     calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
   
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{'Content-Type':'text/plain'},
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain' },
         body: JSON.stringify({
           action:'update',
-          event:{ id: schedule.id, calendarId: newCalId,
-                  start: newStart.toDate().toISOString(),
-                  end:   newEnd.toDate().toISOString(),
-                  title: newTitle }
+          event:{
+            id: schedule.id,
+            calendarId: newCalId,
+            start: newStart.toDate().toISOString(),
+            end:   newEnd.toDate().toISOString(),
+            title: newTitle
+          }
         })
       });
       const json = await res.json();
@@ -251,13 +255,14 @@
     try {
       const res = await fetch(ENDPOINT, {
         method:'POST',
-        headers:{ 'Content-Type':'text/plain' },  // <= changed
+        headers:{ 'Content-Type':'text/plain' },
         body: JSON.stringify({ action:'delete', event:{ id: schedule.id } })
       });
       const json = await res.json();
-      if (!json.ok) alert(json.error || 'Delete failed');
+      if (!json.ok) { alert(json.error || 'Delete failed'); loadFromBackend(); }
     } catch {
       alert('Network error while deleting');
+      loadFromBackend();
     }
   });
 
