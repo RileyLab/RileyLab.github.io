@@ -152,9 +152,10 @@
   // Before creating from built-in popup
   calendar.on('beforeCreateSchedule', async ev => {
     const { start, end } = ev;
-    // pick first visible hood by default; users can move between hoods later
+  
+    // ✅ Use the user's selected hood (calendar) if provided
     const firstVisible = calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0];
-    const calId = firstVisible.id;
+    const calId = ev.calendarId || firstVisible.id;
   
     // local conflict check (same hood)
     if (hasConflict(calId, start, end)) {
@@ -164,10 +165,12 @@
   
     // make a temp schedule so user sees something right away
     const tempId = 'tmp-' + Date.now();
-    calendar.createSchedules([{ id: tempId, calendarId: calId, title: ev.title || 'Booking',
-                                category:'time', start, end, isReadOnly:false }]);
+    calendar.createSchedules([{
+      id: tempId, calendarId: calId, title: ev.title || 'Booking',
+      category: 'time', start, end, isReadOnly: false
+    }]);
     ev.guide.clearGuideElement();
-  
+    
     try {
       const res = await fetch(ENDPOINT, {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -179,10 +182,14 @@
       });
       const json = await res.json();
       if (json.ok && json.id) {
-        // swap temp id for real id from backend
-        calendar.updateSchedule(tempId, calId, { id: json.id });
+        // ✅ replace temp schedule with real-id schedule
+        calendar.deleteSchedule(tempId, calId);
+        calendar.createSchedules([{
+          id: json.id, calendarId: calId, title: ev.title || 'Booking',
+          category: 'time', start, end, isReadOnly: false
+        }]);
       } else {
-        alert(json.error || 'Failed to save. Reverting.'); 
+        alert(json.error || 'Failed to save. Reverting.');
         calendar.deleteSchedule(tempId, calId);
       }
     } catch (e) {
@@ -222,6 +229,20 @@
       if (!json.ok) { alert(json.error || 'Update failed'); loadFromBackend(); }
     } catch {
       alert('Network error'); loadFromBackend();
+    }
+  });
+
+  calendar.on('beforeDeleteSchedule', async (ev) => {
+    const { schedule } = ev;
+    try {
+      const res = await fetch(ENDPOINT, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ action:'delete', event:{ id: schedule.id } })
+      });
+      const json = await res.json();
+      if (!json.ok) alert(json.error || 'Delete failed');
+    } catch {
+      alert('Network error while deleting');
     }
   });
 
