@@ -75,7 +75,7 @@
 <script>
   // ====== SIMPLE CONFIG ======
   // When you wire the backend, set ENDPOINT to your Apps Script Web App URL.
-  const ENDPOINT = ''; // e.g. 'https://script.google.com/macros/s/XXXX/exec'
+  const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxRoBpjZHW0bCBDmgUbWhBC7Vbyzt-9gXsxcqJqJC5KpIRAcO4V9oRfQS2AOnAMnZ4nCA/exec';
   // ===========================
 
   // 9 calendars: TC1..3 × hood 1..3 with strong room colors
@@ -111,11 +111,12 @@
   setRangeTitle();
 
   // Toolbar
-  document.getElementById('prev').onclick=()=>{calendar.prev(); setRangeTitle();};
-  document.getElementById('today').onclick=()=>{calendar.today(); setRangeTitle();};
-  document.getElementById('next').onclick=()=>{calendar.next(); setRangeTitle();};
-  document.getElementById('week').onclick=()=>{calendar.changeView('week',true); setRangeTitle();};
-  document.getElementById('day').onclick=()=>{calendar.changeView('day',true); setRangeTitle();};
+  document.getElementById('prev').onclick = ()=>{ calendar.prev();  setRangeTitle(); loadFromBackend(); };
+  document.getElementById('today').onclick= ()=>{ calendar.today(); setRangeTitle(); loadFromBackend(); };
+  document.getElementById('next').onclick = ()=>{ calendar.next();  setRangeTitle(); loadFromBackend(); };
+  document.getElementById('week').onclick = ()=>{ calendar.changeView('week', true); setRangeTitle(); loadFromBackend(); };
+  document.getElementById('day').onclick  = ()=>{ calendar.changeView('day',  true); setRangeTitle(); loadFromBackend(); };
+
 
   // Filters by room
   document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
@@ -149,88 +150,96 @@
   }
 
   // Before creating from built-in popup
-  calendar.on('beforeCreateSchedule', ev => {
-    const {start, end} = ev;
-    // Choose room/hood quickly: default to first visible; user can move later in edit popup
-    let visible = calDefs.find(c => calendar.isVisibleCalendar(c.id));
-    const calId = visible ? visible.id : 'TC1-1';
-
+  calendar.on('beforeCreateSchedule', async ev => {
+    const { start, end } = ev;
+    // pick first visible hood by default; users can move between hoods later
+    const firstVisible = calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0];
+    const calId = firstVisible.id;
+  
+    // local conflict check (same hood)
     if (hasConflict(calId, start, end)) {
       alert('Time overlaps an existing booking on that hood.');
-      ev.guide.clearGuideElement();
-      return;
+      ev.guide.clearGuideElement(); return;
     }
-
-    calendar.createSchedules([{
-      id: String(Date.now()),
-      calendarId: calId,
-      title: ev.title || 'Booking',
-      category: 'time',
-      start, end, isReadOnly:false
-    }]);
-
+  
+    // make a temp schedule so user sees something right away
+    const tempId = 'tmp-' + Date.now();
+    calendar.createSchedules([{ id: tempId, calendarId: calId, title: ev.title || 'Booking',
+                                category:'time', start, end, isReadOnly:false }]);
     ev.guide.clearGuideElement();
-
-    // TODO: send to backend when wired
-    if (ENDPOINT) {
-      fetch(ENDPOINT, {
+  
+    try {
+      const res = await fetch(ENDPOINT, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ action:'create', event:{
-          id: String(Date.now()), calendarId: calId, title: ev.title||'Booking',
-          start: start.toDate().toISOString(), end: end.toDate().toISOString()
-        }})
+        body: JSON.stringify({
+          action:'create',
+          event:{ calendarId: calId, title: ev.title || 'Booking',
+                  start: start.toDate().toISOString(), end: end.toDate().toISOString() }
+        })
       });
+      const json = await res.json();
+      if (json.ok && json.id) {
+        // swap temp id for real id from backend
+        calendar.updateSchedule(tempId, calId, { id: json.id });
+      } else {
+        alert(json.error || 'Failed to save. Reverting.'); 
+        calendar.deleteSchedule(tempId, calId);
+      }
+    } catch (e) {
+      alert('Network error. Reverting.');
+      calendar.deleteSchedule(tempId, calId);
     }
   });
 
   // Editing / moving / resizing
-  calendar.on('beforeUpdateSchedule', ev => {
+  calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
-    const newCalId = (changes.calendarId || schedule.calendarId);
-    const newStart = (changes.start || schedule.start);
-    const newEnd   = (changes.end   || schedule.end);
-
+    const newCalId = changes.calendarId || schedule.calendarId;
+    const newStart = changes.start || schedule.start;
+    const newEnd   = changes.end   || schedule.end;
+    const newTitle = (changes.title ?? schedule.title);
+  
     if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
       alert('Conflict: another booking exists on that hood/time.');
       return;
     }
-
+  
+    // optimistic UI
     calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
-
-    if (ENDPOINT) {
-      fetch(ENDPOINT, {
+  
+    try {
+      const res = await fetch(ENDPOINT, {
         method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ action:'update', event:{
-          id: schedule.id, calendarId: newCalId,
-          start: newStart.toDate().toISOString(), end: newEnd.toDate().toISOString(),
-          title: changes.title ?? schedule.title
-        }})
+        body: JSON.stringify({
+          action:'update',
+          event:{ id: schedule.id, calendarId: newCalId,
+                  start: newStart.toDate().toISOString(),
+                  end:   newEnd.toDate().toISOString(),
+                  title: newTitle }
+        })
       });
-    }
-  });
-
-  document.addEventListener('keydown', e=>{
-    if (e.key==='Delete' || e.key==='Backspace') {
-      const sel = calendar.getElement().querySelector('.tui-full-calendar-time-schedule');
-      // simple delete: click an event then press Delete in the UI to select it, or use the popup delete
+      const json = await res.json();
+      if (!json.ok) { alert(json.error || 'Update failed'); loadFromBackend(); }
+    } catch {
+      alert('Network error'); loadFromBackend();
     }
   });
 
   // Load existing events from backend (optional)
   async function loadFromBackend(){
-    if(!ENDPOINT) return;
+    if (!ENDPOINT) return;
     const s = calendar.getDateRangeStart().toDate().toISOString();
     const e = calendar.getDateRangeEnd().toDate().toISOString();
     const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
     const json = await res.json(); // [{id, calendarId, title, start, end}]
     calendar.clear();
-    calendar.createSchedules(json.map(x=>({
-      id:x.id, calendarId:x.calendarId, title:x.title, category:'time',
-      start: new Date(x.start), end: new Date(x.end), isReadOnly:false
+    calendar.createSchedules(json.map(x => ({
+      id: x.id, calendarId: x.calendarId, title: x.title, category: 'time',
+      start: new Date(x.start), end: new Date(x.end), isReadOnly: false
     })));
   }
-  // If you set ENDPOINT, uncomment:
-  // loadFromBackend();
+  loadFromBackend();
+  
 </script>
 </body>
 </html>
