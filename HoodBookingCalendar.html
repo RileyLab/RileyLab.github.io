@@ -2,47 +2,37 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Riley Lab – Hood & Room Booking</title>
+  <title>TC Room & Hood Booking</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Toast UI Calendar (stable CDN set) + required deps -->
+  <!-- TUI Calendar + deps (v1) -->
   <link rel="stylesheet" href="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.min.css" />
   <script src="https://uicdn.toast.com/tui-code-snippet/latest/tui-code-snippet.min.js"></script>
   <script src="https://uicdn.toast.com/tui-dom/latest/tui-dom.min.js"></script>
-  <!-- Moment is REQUIRED for TUI Calendar v1 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js" integrity="sha512-CgKq1YJb6o6m1w0v5sO3lXgV5f0FBkQ+Qk7m9m7eO3Ew0Z0mV2bSx6vFQFfIYkz9zQd0kT2Q4qf7i7F3Gm5sJg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Moment is required by tui-calendar v1 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
   <script src="https://uicdn.toast.com/tui-time-picker/latest/tui-time-picker.min.js"></script>
   <script src="https://uicdn.toast.com/tui-date-picker/latest/tui-date-picker.min.js"></script>
   <script src="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.min.js"></script>
 
   <style>
-    :root {
-      --bg:#f5f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-      /* 9 hood colors */
-      --A1:#2563eb; --A2:#3b82f6; --A3:#60a5fa;
-      --B1:#16a34a; --B2:#22c55e; --B3:#86efac;
-      --C1:#f59e0b; --C2:#fbbf24; --C3:#fde68a;
+    :root{
+      --bg:#f6f7fb; --card:#fff; --border:#e5e7eb; --text:#111827; --muted:#6b7280;
+      /* very distinct room palettes */
+      --TC1-1:#2563eb; --TC1-2:#3b82f6; --TC1-3:#60a5fa;   /* blues */
+      --TC2-1:#16a34a; --TC2-2:#22c55e; --TC2-3:#86efac;   /* greens */
+      --TC3-1:#f59e0b; --TC3-2:#fbbf24; --TC3-3:#fde68a;   /* ambers */
     }
-    html, body {height:100%; margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial;}
-    .wrap {max-width:1200px; margin:24px auto; padding:0 16px;}
-    .toolbar {display:flex; gap:8px; align-items:center; margin-bottom:10px;}
-    .toolbar button {padding:6px 10px; border:1px solid var(--border); background:#fff; border-radius:8px; cursor:pointer;}
-    .title {margin-left:auto; font-weight:600;}
-    .chips {display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 16px;}
-    .chip {display:inline-flex; align-items:center; gap:8px; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:6px 10px;}
-    .dot {width:10px; height:10px; border-radius:999px; display:inline-block;}
-    #calendar {height:72vh; background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden;}
-    .legend {margin-top:8px; color:var(--muted);}
-    /* simple modal for create dialog */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;}
-    .modal{background:#fff;border-radius:12px;min-width:320px;max-width:380px;padding:16px;border:1px solid var(--border);}
-    .modal h3{margin:0 0 8px 0}
-    .row{display:flex;gap:8px;margin-bottom:10px;}
-    .row label{flex:0 0 90px;color:var(--muted)}
-    .row input,.row select{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:8px;}
-    .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;}
-    .btn{padding:6px 10px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer;}
-    .btn.primary{background:#111827;color:#fff;border-color:#111827;}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    .toolbar button{padding:6px 10px;border:1px solid var(--border);background:#fff;border-radius:8px;cursor:pointer}
+    .title{margin-left:auto;font-weight:600}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 10px}
+    .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+    #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .legend{margin-top:8px;color:var(--muted)}
   </style>
 </head>
 <body>
@@ -56,196 +46,128 @@
       <div class="title" id="range"></div>
     </div>
 
-    <!-- Room-level filters -->
+    <!-- Room filters -->
     <div class="chips" id="roomFilters">
-      <label class="chip"><input type="checkbox" data-room="A" checked> <span class="dot" style="background:var(--A1)"></span> TC1</label>
-      <label class="chip"><input type="checkbox" data-room="B" checked> <span class="dot" style="background:var(--B1)"></span> TC2</label>
-      <label class="chip"><input type="checkbox" data-room="C" checked> <span class="dot" style="background:var(--C1)"></span> TC3</label>
+      <label class="chip"><input type="checkbox" data-room="TC1" checked> <span class="dot" style="background:var(--TC1-1)"></span> TC1</label>
+      <label class="chip"><input type="checkbox" data-room="TC2" checked> <span class="dot" style="background:var(--TC2-1)"></span> TC2</label>
+      <label class="chip"><input type="checkbox" data-room="TC3" checked> <span class="dot" style="background:var(--TC3-1)"></span> TC3</label>
     </div>
 
-    <!-- Hood-level filters -->
+    <!-- Hood filters -->
     <div class="chips" id="hoodFilters">
-      <label class="chip"><input type="checkbox" data-cal="A-1" checked> <span class="dot" style="background:var(--A1)"></span> TC1 / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="A-2" checked> <span class="dot" style="background:var(--A2)"></span> TC1 / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="A-3" checked> <span class="dot" style="background:var(--A3)"></span> TC1 / Hood 3</label>
-      <label class="chip"><input type="checkbox" data-cal="B-1" checked> <span class="dot" style="background:var(--B1)"></span> TC2 / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="B-2" checked> <span class="dot" style="background:var(--B2)"></span> TC2 / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="B-3" checked> <span class="dot" style="background:var(--B3)"></span> TC2 / Hood 3</label>
-      <label class="chip"><input type="checkbox" data-cal="C-1" checked> <span class="dot" style="background:var(--C1)"></span> TC3 / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="C-2" checked> <span class="dot" style="background:var(--C2)"></span> TC3 / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="C-3" checked> <span class="dot" style="background:var(--C3)"></span> TC3 / Hood 3</label>
+      <label class="chip"><input type="checkbox" data-cal="TC1-1" checked> <span class="dot" style="background:var(--TC1-1)"></span> TC1 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="TC1-2" checked> <span class="dot" style="background:var(--TC1-2)"></span> TC1 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="TC1-3" checked> <span class="dot" style="background:var(--TC1-3)"></span> TC1 / Hood 3</label>
+
+      <label class="chip"><input type="checkbox" data-cal="TC2-1" checked> <span class="dot" style="background:var(--TC2-1)"></span> TC2 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="TC2-2" checked> <span class="dot" style="background:var(--TC2-2)"></span> TC2 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="TC2-3" checked> <span class="dot" style="background:var(--TC2-3)"></span> TC2 / Hood 3</label>
+
+      <label class="chip"><input type="checkbox" data-cal="TC3-1" checked> <span class="dot" style="background:var(--TC3-1)"></span> TC3 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="TC3-2" checked> <span class="dot" style="background:var(--TC3-2)"></span> TC3 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="TC3-3" checked> <span class="dot" style="background:var(--TC3-3)"></span> TC3 / Hood 3</label>
     </div>
 
     <div id="calendar"></div>
-    <div class="legend">Drag to create, click to edit, press Delete to remove.</div>
-  </div>
-
-  <!-- Create / Edit modal -->
-  <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal">
-      <h3 id="modalTitle">New Booking</h3>
-      <div class="row">
-        <label>Room</label>
-        <select id="roomSel">
-          <option value="TC1">TC1</option>
-          <option value="TC2">TC2</option>
-          <option value="TC3">TC3</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>Hood</label>
-        <select id="hoodSel">
-          <option value="1">Hood 1</option>
-          <option value="2">Hood 2</option>
-          <option value="3">Hood 3</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>Title</label>
-        <input id="titleInp" placeholder="Brief title">
-      </div>
-      <div class="actions">
-        <button class="btn" id="cancelBtn">Cancel</button>
-        <button class="btn primary" id="saveBtn">Save</button>
-      </div>
-    </div>
+    <div class="legend">Drag to create (or click a slot), click an event to edit, Delete key to remove.</div>
   </div>
 
   <script>
-    // --- 9 calendars: Room A/B/C × Hood 1/2/3 ---
+    // === 9 calendars: TC1/TC2/TC3 × Hood 1/2/3 ===
     const calDefs = [
-      ['TC1','1','var(--A1)'], ['TC1','2','var(--A2)'], ['TC1','3','var(--A3)'],
-      ['TC2','1','var(--B1)'], ['TC2','2','var(--B2)'], ['TC2','3','var(--B3)'],
-      ['TC3','1','var(--C1)'], ['TC3','2','var(--C2)'], ['TC3','3','var(--C3)'],
-    ].map(([room,hood,color]) => ({
-      id: `${room}-${hood}`,
-      name: `${room}/Hood ${hood}`,
-      color: '#fff',
-      bgColor: getComputedStyle(document.documentElement).getPropertyValue(color).trim()
+      ['TC1','1','var(--TC1-1)'],['TC1','2','var(--TC1-2)'],['TC1','3','var(--TC1-3)'],
+      ['TC2','1','var(--TC2-1)'],['TC2','2','var(--TC2-2)'],['TC2','3','var(--TC2-3)'],
+      ['TC3','1','var(--TC3-1)'],['TC3','2','var(--TC3-2)'],['TC3','3','var(--TC3-3)'],
+    ].map(([room,hood,color])=>({
+      id:`${room}-${hood}`,
+      name:`${room} / Hood ${hood}`,
+      color:'#fff',
+      bgColor:getComputedStyle(document.documentElement).getPropertyValue(color).trim()
     }));
 
-    // Init calendar
     const el = document.getElementById('calendar');
     const calendar = new tui.Calendar(el, {
-      defaultView: 'week',
-      taskView: false,
-      scheduleView: ['time'],
-      useCreationPopup: false,
-      useDetailPopup: true,
-      isReadOnly: false,
-      week: { hourStart: 8, hourEnd: 20, workweek: true, narrowWeekend: true, startDayOfWeek: 1 },
-      template: {
-        popupDetailDate: (s, e) => `${s.format('MMM D, YYYY')} ${s.format('HH:mm')}–${e.format('HH:mm')}`,
-        time(schedule) {
-          const c = calDefs.find(x => x.id === schedule.calendarId);
+      defaultView:'week',
+      taskView:false,
+      scheduleView:['time'],
+      useCreationPopup:true,   // enable built-in create popup (more reliable)
+      useDetailPopup:true,
+      isReadOnly:false,
+      week:{hourStart:8,hourEnd:20,workweek:true,narrowWeekend:true,startDayOfWeek:1},
+      template:{
+        popupDetailDate:(s,e)=>`${s.format('MMM D, YYYY')} ${s.format('HH:mm')}–${e.format('HH:mm')}`,
+        time(schedule){
+          const c=calDefs.find(x=>x.id===schedule.calendarId);
           const tag = `<span style="background:${c?.bgColor||'#000'};color:#fff;border-radius:6px;padding:2px 6px;margin-right:6px;">${c?.name||''}</span>`;
-          return `${tag}${schedule.title || ''}`;
+          return `${tag}${schedule.title||''}`;
         }
       },
       calendars: calDefs
     });
 
+    // Range title
     function setRangeTitle(){
-      const s = calendar.getDateRangeStart().toDate();
-      const e = calendar.getDateRangeEnd().toDate();
+      const s=calendar.getDateRangeStart().toDate(), e=calendar.getDateRangeEnd().toDate();
       document.getElementById('range').textContent =
         `${s.toLocaleDateString(undefined,{month:'short',day:'numeric'})} – ${e.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`;
     }
     setRangeTitle();
 
-    // Toolbar
-    document.getElementById('prev').onclick = () => { calendar.prev(); setRangeTitle(); };
-    document.getElementById('today').onclick = () => { calendar.today(); setRangeTitle(); };
-    document.getElementById('next').onclick = () => { calendar.next(); setRangeTitle(); };
-    document.getElementById('week').onclick = () => { calendar.changeView('week', true); setRangeTitle(); };
-    document.getElementById('day').onclick = () => { calendar.changeView('day', true); setRangeTitle(); };
+    // Toolbar controls
+    document.getElementById('prev').onclick = ()=>{calendar.prev();setRangeTitle();};
+    document.getElementById('today').onclick= ()=>{calendar.today();setRangeTitle();};
+    document.getElementById('next').onclick = ()=>{calendar.next();setRangeTitle();};
+    document.getElementById('week').onclick = ()=>{calendar.changeView('week',true);setRangeTitle();};
+    document.getElementById('day').onclick  = ()=>{calendar.changeView('day',true);setRangeTitle();};
 
-    // Room filter toggles (hide/show 3 hoods at once)
-    document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb => {
-      cb.addEventListener('change', e => {
-        const room = e.target.dataset.room;
-        ['1','2','3'].forEach(h => calendar.setCalendarVisibility(`${room}-${h}`, e.target.checked));
-        // sync hood checkboxes too
-        document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb => { hcb.checked = e.target.checked; });
+    // Room filters (toggle all 3 hoods)
+    document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change',e=>{
+        const room=e.target.dataset.room;
+        ['1','2','3'].forEach(h=>calendar.setCalendarVisibility(`${room}-${h}`, e.target.checked));
+        document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb=>hcb.checked=e.target.checked);
       });
     });
 
-    // Hood-level filters
-    document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb => {
-      cb.addEventListener('change', e => {
+    // Hood filters (individual)
+    document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change',e=>{
         calendar.setCalendarVisibility(e.target.dataset.cal, e.target.checked);
-        // keep room chip checked if any of its hoods are visible
-        const room = e.target.dataset.cal.split('-')[0];
-        const hoodChecks = Array.from(document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`));
-        const any = hoodChecks.some(h => h.checked);
-        const roomCb = document.querySelector(`#roomFilters input[data-room="${room}"]`);
-        roomCb.checked = any;
+        const room=e.target.dataset.cal.split('-')[0];
+        const any=Array.from(document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)).some(x=>x.checked);
+        document.querySelector(`#roomFilters input[data-room="${room}"]`).checked=any;
       });
     });
 
-    // Simple modal helpers
-    const modal = document.getElementById('modalBackdrop');
-    const openModal = () => modal.style.display = 'flex';
-    const closeModal = () => modal.style.display = 'none';
-
-    let pendingCreate = null; // {start, end}
-    let editing = null;       // schedule being edited
-
-    // Drag to create -> open modal to pick Room/Hood/Title
-    calendar.on('beforeCreateSchedule', e => {
-      pendingCreate = { start: e.start, end: e.end };
-      editing = null;
-      document.getElementById('modalTitle').textContent = 'New Booking';
-      document.getElementById('titleInp').value = '';
-      document.getElementById('roomSel').value = 'A';
-      document.getElementById('hoodSel').value = '1';
-      openModal();
+    // Fallback: if drag doesn't open popup in your browser, also open on simple click in empty grid
+    calendar.on('selectDateTime', (e) => {
+      // TUI will open its creation popup automatically when useCreationPopup=true,
+      // but on some setups 'beforeCreateSchedule' is not fired; this ensures UI appears.
+      // No code needed here; just keeping the hook in case we want to customize later.
     });
 
-    // Click to edit
-    calendar.on('clickSchedule', e => {
-      const s = e.schedule;
-      editing = s;
-      pendingCreate = null;
-      const [room, hood] = s.calendarId.split('-');
-      document.getElementById('modalTitle').textContent = 'Edit Booking';
-      document.getElementById('titleInp').value = s.title || '';
-      document.getElementById('roomSel').value = room;
-      document.getElementById('hoodSel').value = hood;
-      openModal();
+    // When user saves from the built-in popup, create a schedule with chosen calendar
+    calendar.on('beforeCreateSchedule', (e) => {
+      // TUI popup returns title, start, end, and a default calendarId; we’ll default to TC1-1
+      const calendarId = e.calendarId || 'TC1-1';
+      calendar.createSchedules([{
+        id:String(Date.now()),
+        calendarId,
+        title:e.title || 'Booking',
+        category:'time',
+        start:e.start,
+        end:e.end,
+        isReadOnly:false
+      }]);
     });
 
-    // Delete with keyboard
-    document.addEventListener('keydown', (ev) => {
-      if (ev.key === 'Delete' && editing) {
-        calendar.deleteSchedule(editing.id, editing.calendarId);
-        editing = null;
-        closeModal();
-      }
+    // Edit/delete handlers (basic for now)
+    calendar.on('beforeUpdateSchedule', ({schedule,changes})=>{
+      calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
     });
-
-    // Modal buttons
-    document.getElementById('cancelBtn').onclick = () => { pendingCreate = null; editing = null; closeModal(); };
-    document.getElementById('saveBtn').onclick = () => {
-      const title = document.getElementById('titleInp').value.trim() || 'Booking';
-      const calId = `${document.getElementById('roomSel').value}-${document.getElementById('hoodSel').value}`;
-
-      if (pendingCreate) {
-        calendar.createSchedules([{
-          id: String(Date.now()),
-          calendarId: calId,
-          title,
-          category: 'time',
-          start: pendingCreate.start,
-          end: pendingCreate.end,
-          isReadOnly: false
-        }]);
-      } else if (editing) {
-        // if room/hood changed, we must update schedule with new calendarId
-        calendar.updateSchedule(editing.id, editing.calendarId, { title, calendarId: calId });
-      }
-      pendingCreate = null; editing = null; closeModal();
-    };
+    calendar.on('beforeDeleteSchedule', ({schedule})=>{
+      calendar.deleteSchedule(schedule.id, schedule.calendarId);
+    });
   </script>
 </body>
 </html>
