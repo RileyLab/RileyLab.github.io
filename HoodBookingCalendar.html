@@ -58,22 +58,22 @@
 
     <!-- Room-level filters -->
     <div class="chips" id="roomFilters">
-      <label class="chip"><input type="checkbox" data-room="A" checked> <span class="dot" style="background:var(--A1)"></span> Room A</label>
-      <label class="chip"><input type="checkbox" data-room="B" checked> <span class="dot" style="background:var(--B1)"></span> Room B</label>
-      <label class="chip"><input type="checkbox" data-room="C" checked> <span class="dot" style="background:var(--C1)"></span> Room C</label>
+      <label class="chip"><input type="checkbox" data-room="A" checked> <span class="dot" style="background:var(--A1)"></span> TC1</label>
+      <label class="chip"><input type="checkbox" data-room="B" checked> <span class="dot" style="background:var(--B1)"></span> TC2</label>
+      <label class="chip"><input type="checkbox" data-room="C" checked> <span class="dot" style="background:var(--C1)"></span> TC3</label>
     </div>
 
     <!-- Hood-level filters -->
     <div class="chips" id="hoodFilters">
-      <label class="chip"><input type="checkbox" data-cal="A-1" checked> <span class="dot" style="background:var(--A1)"></span> A / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="A-2" checked> <span class="dot" style="background:var(--A2)"></span> A / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="A-3" checked> <span class="dot" style="background:var(--A3)"></span> A / Hood 3</label>
-      <label class="chip"><input type="checkbox" data-cal="B-1" checked> <span class="dot" style="background:var(--B1)"></span> B / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="B-2" checked> <span class="dot" style="background:var(--B2)"></span> B / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="B-3" checked> <span class="dot" style="background:var(--B3)"></span> B / Hood 3</label>
-      <label class="chip"><input type="checkbox" data-cal="C-1" checked> <span class="dot" style="background:var(--C1)"></span> C / Hood 1</label>
-      <label class="chip"><input type="checkbox" data-cal="C-2" checked> <span class="dot" style="background:var(--C2)"></span> C / Hood 2</label>
-      <label class="chip"><input type="checkbox" data-cal="C-3" checked> <span class="dot" style="background:var(--C3)"></span> C / Hood 3</label>
+      <label class="chip"><input type="checkbox" data-cal="A-1" checked> <span class="dot" style="background:var(--A1)"></span> TC1 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="A-2" checked> <span class="dot" style="background:var(--A2)"></span> TC1 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="A-3" checked> <span class="dot" style="background:var(--A3)"></span> TC1 / Hood 3</label>
+      <label class="chip"><input type="checkbox" data-cal="B-1" checked> <span class="dot" style="background:var(--B1)"></span> TC2 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="B-2" checked> <span class="dot" style="background:var(--B2)"></span> TC2 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="B-3" checked> <span class="dot" style="background:var(--B3)"></span> TC2 / Hood 3</label>
+      <label class="chip"><input type="checkbox" data-cal="C-1" checked> <span class="dot" style="background:var(--C1)"></span> TC3 / Hood 1</label>
+      <label class="chip"><input type="checkbox" data-cal="C-2" checked> <span class="dot" style="background:var(--C2)"></span> TC3 / Hood 2</label>
+      <label class="chip"><input type="checkbox" data-cal="C-3" checked> <span class="dot" style="background:var(--C3)"></span> TC3 / Hood 3</label>
     </div>
 
     <div id="calendar"></div>
@@ -87,9 +87,9 @@
       <div class="row">
         <label>Room</label>
         <select id="roomSel">
-          <option value="A">Room A</option>
-          <option value="B">Room B</option>
-          <option value="C">Room C</option>
+          <option value="TC1">TC1</option>
+          <option value="TC2">TC2</option>
+          <option value="TC3">TC3</option>
         </select>
       </div>
       <div class="row">
@@ -114,9 +114,9 @@
   <script>
     // --- 9 calendars: Room A/B/C × Hood 1/2/3 ---
     const calDefs = [
-      ['A','1','var(--A1)'], ['A','2','var(--A2)'], ['A','3','var(--A3)'],
-      ['B','1','var(--B1)'], ['B','2','var(--B2)'], ['B','3','var(--B3)'],
-      ['C','1','var(--C1)'], ['C','2','var(--C2)'], ['C','3','var(--C3)'],
+      ['TC1','1','var(--A1)'], ['TC1','2','var(--A2)'], ['TC1','3','var(--A3)'],
+      ['TC2','1','var(--B1)'], ['TC2','2','var(--B2)'], ['TC2','3','var(--B3)'],
+      ['TC3','1','var(--C1)'], ['TC3','2','var(--C2)'], ['TC3','3','var(--C3)'],
     ].map(([room,hood,color]) => ({
       id: `${room}-${hood}`,
       name: `${room}/Hood ${hood}`,
