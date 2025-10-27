@@ -4,8 +4,19 @@
   <meta charset="utf-8">
   <title>293T Request + Calendar</title>
   <style>
-    body { margin:0; display:flex; height:100vh; }
+    body { margin:0; display:flex; flex-direction: row; height:100vh; }
     iframe { flex:1; border:none; }
+    /* --- mobile view --- */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;  /* stack top/bottom on small screens */
+      }
+
+      iframe {
+        height: 50vh; /* each takes half screen height */
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
