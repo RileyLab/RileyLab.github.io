@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>TUI v1 Minimal Test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Toast UI Calendar (v1.12.14) stable CDN bundle -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/tui-code-snippet@1.5.2/dist/tui-code-snippet.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.js"></script>
+
+
+
+    <style>
+        html, body { height: 100%; margin: 0; background: #f6f7fb; }
+        #calwrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+        #cal { height: 80vh; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .row { margin: 12px 0; font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    </style>
+</head>
+<body>
+<div id="calwrap">
+    <div class="row">If you don’t see a time grid below (with hours), the scripts didn’t load. Open DevTools → Console.</div>
+    <div id="cal"></div>
+</div>
+
+<script>
+    console.log('tui available?', !!window.tui, 'calendar ctor?', !!(window.tui && window.tui.Calendar));
+    console.log('moment version', (window.moment && window.moment.version));
+
+    const cal = new tui.Calendar(document.getElementById('cal'), {
+        defaultView: 'week',
+        taskView: false,
+        scheduleView: ['time'],
+        useCreationPopup: true,
+        useDetailPopup: true,
+        week: { hourStart: 8, hourEnd: 20, workweek: true, narrowWeekend: true, startDayOfWeek: 1 },
+        calendars: [{ id: 'TC1-1', name: 'TC1/Hood1', color: '#fff', bgColor: '#2563eb' }]
+    });
+
+    // Add a visible 1-hour event "now"
+    const now = new Date();
+    const later = new Date(now.getTime() + 60*60*1000);
+    cal.createSchedules([{
+        id: 'test-1',
+        calendarId: 'TC1-1',
+        title: 'Test booking',
+        category: 'time',
+        start: now,
+        end: later,
+        isReadOnly: false
+    }]);
+</script>
+</body>
+</html>
