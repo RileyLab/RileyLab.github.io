@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Hood Booking – Riley Lab</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Toast UI Calendar (TUI) CDN -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.min.css" />
+    <script src="https://uicdn.toast.com/tui-code-snippet/latest/tui-code-snippet.min.js"></script>
+    <script src="https://uicdn.toast.com/tui-dom/latest/tui-dom.min.js"></script>
+    <script src="https://uicdn.toast.com/tui-time-picker/latest/tui-time-picker.min.js"></script>
+    <script src="https://uicdn.toast.com/tui-date-picker/latest/tui-date-picker.min.js"></script>
+    <script src="https://uicdn.toast.com/tui-calendar/latest/tui-calendar.min.js"></script>
+    <style>
+        :root {
+            --bg: #f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280;
+            --hood1:#2563eb; --hood2:#16a34a; --hood3:#f59e0b;
+        }
+        html, body { height:100%; margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;}
+        .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
+        .toolbar { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+        .toolbar button { padding:6px 10px; border:1px solid #e5e7eb; background:#fff; border-radius:8px; cursor:pointer; }
+        .toolbar .title { margin-left:auto; font-weight:600; }
+        .filters { display:flex; gap:8px; margin:12px 0 16px 0; }
+        .chip { display:inline-flex; align-items:center; gap:6px; background:var(--card); border:1px solid #e5e7eb; border-radius:999px; padding:6px 10px; cursor:pointer; }
+        .chip input { accent-color:#111827; }
+        #calendar { height: 72vh; background:var(--card); border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+        .legend { display:flex; gap:12px; margin-top:10px; color:var(--muted); }
+        .dot { width:10px; height:10px; border-radius:999px; display:inline-block; margin-right:6px; }
+        .dot.h1{ background:var(--hood1);} .dot.h2{ background:var(--hood2);} .dot.h3{ background:var(--hood3);}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="toolbar">
+        <button id="prev">‹</button>
+        <button id="today">Today</button>
+        <button id="next">›</button>
+        <button id="week">Week</button>
+        <button id="day">Day</button>
+        <div class="title" id="range"></div>
+    </div>
+
+    <div class="filters">
+        <label class="chip"><input type="checkbox" id="f-hood1" checked> <span class="dot h1"></span> Hood #1</label>
+        <label class="chip"><input type="checkbox" id="f-hood2" checked> <span class="dot h2"></span> Hood #2</label>
+        <label class="chip"><input type="checkbox" id="f-hood3" checked> <span class="dot h3"></span> Hood #3</label>
+    </div>
+
+    <div id="calendar"></div>
+    <div class="legend">Drag to create, click to edit, press Delete to remove.</div>
+</div>
+
+<script>
+    // === Config ===
+    const ENDPOINT = 'YOUR_APPS_SCRIPT_URL'; // optional: store events to Sheets/DB; leave empty to keep in-memory only
+    const calendars = [
+        { id: 'hood1', name: 'Hood #1', color: '#fff', bgColor: getComputedStyle(document.documentElement).getPropertyValue('--hood1').trim() },
+        { id: 'hood2', name: 'Hood #2', color: '#fff', bgColor: getComputedStyle(document.documentElement).getPropertyValue('--hood2').trim() },
+        { id: 'hood3', name: 'Hood #3', color: '#fff', bgColor: getComputedStyle(document.documentElement).getPropertyValue('--hood3').trim() },
+    ];
+
+    // === Calendar init ===
+    const el = document.getElementById('calendar');
+    const cal = new tui.Calendar(el, {
+        defaultView: 'week',
+        taskView: false,
+        scheduleView: ['time'],
+        useCreationPopup: true,
+        useDetailPopup: true,
+        isReadOnly: false,
+        week: { hourStart: 8, hourEnd: 20, workweek: true, narrowWeekend: true, startDayOfWeek: 1 },
+        template: {
+            popupDetailDate: (m1, m2) => `${m1.format('MMM D, YYYY')} ${m1.format('HH:mm')}–${m2.format('HH:mm')}`,
+            popupSave: () => 'Save', popupUpdate: () => 'Update', popupEdit: () => 'Edit', popupDelete: () => 'Delete',
+            time: (schedule) => {
+                const c = calendars.find(c=>c.id===schedule.calendarId);
+                return `<span style="background:${c?.bgColor||'#000'};color:#fff;border-radius:6px;padding:2px 6px;margin-right:6px;">${c?.name||''}</span>${schedule.title}`;
+            }
+        },
+        calendars
+    });
+
+    // Show current range
+    function setRange() {
+        const v = cal.getDateRangeStart();
+        const end = cal.getDateRangeEnd();
+        document.getElementById('range').textContent =
+            `${v.toDate().toLocaleDateString(undefined, { month:'short', day:'numeric' })} – ${end.toDate().toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })}`;
+    }
+    setRange();
+
+    // Toolbar
+    document.getElementById('prev').onclick = ()=>{ cal.prev(); setRange(); };
+    document.getElementById('next').onclick = ()=>{ cal.next(); setRange(); };
+    document.getElementById('today').onclick= ()=>{ cal.today(); setRange(); };
+    document.getElementById('week').onclick = ()=>{ cal.changeView('week', true); setRange(); };
+    document.getElementById('day').onclick  = ()=>{ cal.changeView('day', true); setRange(); };
+
+    // Filters
+    ['hood1','hood2','hood3'].forEach((id,i)=>{
+        document.getElementById(`f-${id}`).addEventListener('change', (e)=>{
+            cal.setCalendarVisibility(id, e.target.checked);
+        });
+    });
+
+    // Create / Update / Delete hooks
+    cal.on('beforeCreateSchedule', async (e) => {
+        const hood = prompt('Which hood? (1/2/3)', '1'); if (!hood) return;
+        const calendarId = `hood${hood}`;
+        const title = prompt('Event title', '') || `Hood #${hood} booking`;
+        cal.createSchedules([{
+            id: String(Date.now()),
+            calendarId,
+            title,
+            category: 'time',
+            start: e.start, end: e.end,
+            isReadOnly: false
+        }]);
+        if (ENDPOINT) postChange('create', {calendarId, title, start:e.start.toDate(), end:e.end.toDate()});
+    });
+
+    cal.on('beforeUpdateSchedule', async (e) => {
+        const { schedule, changes } = e;
+        cal.updateSchedule(schedule.id, schedule.calendarId, changes);
+        if (ENDPOINT) postChange('update', {id:schedule.id, calendarId:schedule.calendarId, changes});
+    });
+
+    cal.on('beforeDeleteSchedule', async (e) => {
+        const { schedule } = e;
+        cal.deleteSchedule(schedule.id, schedule.calendarId);
+        if (ENDPOINT) postChange('delete', {id:schedule.id, calendarId:schedule.calendarId});
+    });
+
+    async function postChange(type, payload){
+        try{
+            await fetch(ENDPOINT, {
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ type, payload })
+            });
+        }catch(_){ /* optional: show a toast */ }
+    }
+</script>
+</body>
+</html>
