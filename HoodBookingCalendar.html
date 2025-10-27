@@ -188,7 +188,7 @@
     
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers:{'Content-Type':'text/plain'},
         body: JSON.stringify({
           action:'create',
           event:{ calendarId: calId, title: ev.title || 'Booking',
@@ -231,7 +231,7 @@
   
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST', headers:{'Content-Type':'text/plain'},
         body: JSON.stringify({
           action:'update',
           event:{ id: schedule.id, calendarId: newCalId,
@@ -247,11 +247,11 @@
     }
   });
 
-  calendar.on('beforeDeleteSchedule', async (ev) => {
-    const { schedule } = ev;
+  calendar.on('beforeDeleteSchedule', async ({ schedule }) => {
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{'Content-Type':'application/json'},
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain' },  // <= changed
         body: JSON.stringify({ action:'delete', event:{ id: schedule.id } })
       });
       const json = await res.json();
