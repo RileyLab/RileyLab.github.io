@@ -103,6 +103,21 @@
     calendars: calDefs
   });
 
+  console.log('tui version check', !!tui && !!tui.Calendar); // should be true
+
+  // Add a 1-hour test block “now”
+  const now = new Date();
+  const later = new Date(now.getTime() + 60*60*1000);
+  calendar.createSchedules([{
+    id: 'test-1',
+    calendarId: 'TC1-1',       // one of your defined calendars
+    title: 'Test booking',
+    category: 'time',
+    start: now,
+    end: later,
+    isReadOnly: false
+  }]);
+
   function setRangeTitle(){
     const s = calendar.getDateRangeStart().toDate();
     const e = calendar.getDateRangeEnd().toDate();
