@@ -4,8 +4,18 @@
   <meta charset="utf-8">
   <title>293T Request + Calendar</title>
   <style>
-    body { margin:0; display:flex; flex-direction: row; height:100vh; }
-    iframe { flex:1; border:none; }
+    body {
+      margin: 0;
+      display: flex;
+      flex-direction: row;  /* default desktop layout: left/right */
+      height: 100vh;
+    }
+
+    iframe {
+      flex: 1;
+      border: none;
+    }
+
     /* --- mobile view --- */
     @media (max-width: 768px) {
       body {
@@ -30,41 +40,41 @@
     const SIGNAL_URL = "https://script.google.com/macros/s/AKfycbzoo-bY7ejoH9CuZYAak1sxZXMR5vOOlSCyMsV1GGLIBhDmW0rARAV-rcYMPU9Zwet6/exec";
     let lastSeen = "0";
     let timer = null;
-  
+
     const cal = document.getElementById('calendar');
-    const baseCalSrc = cal.src.split('#')[0]; // keep original query intact
-  
+    const baseCalSrc = cal.src.split('#')[0];
+
     async function fetchLast() {
       const r = await fetch(SIGNAL_URL, { cache: "no-store" });
       const data = await r.json();
       return (data && data.lastUpdate) ? String(data.lastUpdate) : "0";
     }
-  
+
     async function checkForUpdate() {
       try {
         const latest = await fetchLast();
         if (latest !== lastSeen) {
           lastSeen = latest;
-          // Add/replace a cache-busting param to force a real reload
           const join = baseCalSrc.includes('?') ? '&' : '?';
           cal.src = baseCalSrc + join + 'cb=' + encodeURIComponent(lastSeen);
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) {}
     }
-  
+
     async function startPolling() {
-      lastSeen = await fetchLast(); // initialize baseline so we don't reload immediately
+      lastSeen = await fetchLast();
       timer = setInterval(checkForUpdate, 1000);
     }
-  
+
     function stopPolling() {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) clearInterval(timer);
+      timer = null;
     }
-  
+
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stopPolling(); else startPolling();
     });
-  
+
     startPolling();
   </script>
 </body>
