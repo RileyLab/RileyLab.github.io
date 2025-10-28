@@ -102,12 +102,12 @@
     return [];
   }
   
-  const calendar = new tui.Calendar(calEl, {
+  const calendar = new tui.Calendar(document.getElementById('calendar'), {
     defaultView: 'week',
     taskView: false,
     scheduleView: ['time'],
-    useCreationPopup: true,     // built-in popup for new events
-    useDetailPopup: true,       // built-in view/edit popup
+    useCreationPopup: true,
+    useDetailPopup: true,
     isReadOnly: false,
     week: { hourStart: 8, hourEnd: 20, workweek: true, narrowWeekend: true, startDayOfWeek: 1 },
     calendars: calDefs
@@ -128,6 +128,7 @@
     isReadOnly: false
   }]);
 
+  // --- Title bar ---
   function setRangeTitle(){
     const s = calendar.getDateRangeStart().toDate();
     const e = calendar.getDateRangeEnd().toDate();
@@ -136,86 +137,76 @@
   }
   setRangeTitle();
 
-  // Toolbar
-  document.getElementById('prev').onclick = ()=>{ calendar.prev();  setRangeTitle(); loadFromBackend(); };
-  document.getElementById('today').onclick= ()=>{ calendar.today(); setRangeTitle(); loadFromBackend(); };
-  document.getElementById('next').onclick = ()=>{ calendar.next();  setRangeTitle(); loadFromBackend(); };
-  document.getElementById('week').onclick = ()=>{ calendar.changeView('week', true); setRangeTitle(); loadFromBackend(); };
-  document.getElementById('day').onclick  = ()=>{ calendar.changeView('day',  true); setRangeTitle(); loadFromBackend(); };
+  // --- Toolbar wiring ---
+  document.getElementById('prev').onclick  = () => { calendar.prev();  setRangeTitle(); loadFromBackend(); };
+  document.getElementById('today').onclick = () => { calendar.today(); setRangeTitle(); loadFromBackend(); };
+  document.getElementById('next').onclick  = () => { calendar.next();  setRangeTitle(); loadFromBackend(); };
+  document.getElementById('week').onclick  = () => { calendar.changeView('week', true); setRangeTitle(); loadFromBackend(); };
+  document.getElementById('day').onclick   = () => { calendar.changeView('day',  true); setRangeTitle(); loadFromBackend(); };
 
 
-  // Filters by room
+  // --- Filters (v1 visibility APIs) ---
   document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change',e=>{
-      const room=e.target.dataset.room;
-      ['1','2','3'].forEach(h=>calendar.setCalendarVisibility(`${room}-${h}`, e.target.checked));
-      document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb=>{hcb.checked=e.target.checked;});
+    cb.addEventListener('change', e=>{
+      const room = e.target.dataset.room;
+      ['1','2','3'].forEach(h => calendar.setCalendarVisibility(`${room}-${h}`, e.target.checked));
+      document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb => { hcb.checked = e.target.checked; });
     });
   });
-  // Filters by hood
   document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change',e=>{
+    cb.addEventListener('change', e=>{
       calendar.setCalendarVisibility(e.target.dataset.cal, e.target.checked);
-      const room=e.target.dataset.cal.split('-')[0];
-      const any=[...document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)].some(x=>x.checked);
-      document.querySelector(`#roomFilters input[data-room="${room}"]`).checked=any;
+      const room = e.target.dataset.cal.split('-')[0];
+      const any  = [...document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)].some(x => x.checked);
+      document.querySelector(`#roomFilters input[data-room="${room}"]`).checked = any;
     });
   });
 
-  // ---- Local conflict check (same Room/Hood overlap) ----
-  function overlaps(aStart,aEnd,bStart,bEnd){
-    return aStart < bEnd && bStart < aEnd;
+  // --- Helper: conflict detection on the same hood (calendarId) ---
+  function overlaps(aStart, aEnd, bStart, bEnd) {
+    // all are moment() in v1
+    return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
   }
-  function hasConflict(calId, start, end, ignoreId){
-    const evts = getAllEvents();
-    return evts.some(s=>{
-      const thisCal = (isV1 ? s.calendarId : s.calendarId); // same field you set on create
-      if (thisCal !== calId) return false;
+  function hasConflict(calId, start, end, ignoreId) {
+    const schedules = calendar.getSchedules();
+    return schedules.some(s => {
+      if (s.calendarId !== calId) return false;
       if (ignoreId && s.id === ignoreId) return false;
-      const sStart = (isV1 ? s.start.toDate() : s.start.toDate());
-      const sEnd   = (isV1 ? s.end.toDate()   : s.end.toDate());
-      return (start.toDate() < sEnd && sStart < end.toDate());
+      return overlaps(s.start, s.end, start, end);
     });
   }
 
-  // Before creating from built-in popup
+  // --- Create from popup (v1 event name) ---
   calendar.on('beforeCreateSchedule', async ev => {
-    const { start, end } = ev;
-    const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
-  
+    const { start, end } = ev;      // moment() objects
+    const calId = ev.calendarId || 'TC1-1';  // simple safe default
+
     if (hasConflict(calId, start, end)) {
       alert('Time overlaps an existing booking on that hood.');
-      ev.guide.clearGuideElement(); return;
+      ev.guide.clearGuideElement(); 
+      return;
     }
-  
+
     const tempId = 'tmp-' + Date.now();
-    calendar.createSchedules([{
-      id: tempId, calendarId: calId, title: ev.title || 'Booking',
-      category: 'time', start, end, isReadOnly: false
-    }]);
+    calendar.createSchedules([{ id: tempId, calendarId: calId, title: ev.title || 'Booking',
+                                category:'time', start, end, isReadOnly:false }]);
     ev.guide.clearGuideElement();
-  
+
     try {
       const res = await fetch(ENDPOINT, {
         method:'POST',
-        headers:{ 'Content-Type':'text/plain' },
+        headers:{ 'Content-Type':'text/plain' }, // avoids preflight, Apps Script still gets JSON
         body: JSON.stringify({
           action:'create',
-          event:{
-            calendarId: calId,
-            title: ev.title || 'Booking',
-            start: start.toDate().toISOString(),
-            end:   end.toDate().toISOString()
-          }
+          event:{ calendarId: calId, title: ev.title || 'Booking',
+                  start: start.toDate().toISOString(), end: end.toDate().toISOString() }
         })
       });
       const json = await res.json();
       if (json.ok && json.id) {
         calendar.deleteSchedule(tempId, calId);
-        calendar.createSchedules([{
-          id: json.id, calendarId: calId, title: ev.title || 'Booking',
-          category:'time', start, end, isReadOnly:false
-        }]);
+        calendar.createSchedules([{ id: json.id, calendarId: calId, title: ev.title || 'Booking',
+                                    category:'time', start, end, isReadOnly:false }]);
       } else {
         alert(json.error || 'Failed to save. Reverting.');
         calendar.deleteSchedule(tempId, calId);
@@ -228,34 +219,29 @@
     }
   });
   
-  // Editing / moving / resizing
+  // --- Update / move / resize ---
   calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
     const newCalId = changes.calendarId || schedule.calendarId;
-    const newStart = changes.start || schedule.start;
+    const newStart = changes.start || schedule.start;  // moment()
     const newEnd   = changes.end   || schedule.end;
-    const newTitle = (changes.title ?? schedule.title);
-  
+
     if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
       alert('Conflict: another booking exists on that hood/time.');
       return;
     }
-  
+
     calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
-  
+
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' },
+        method:'POST', headers:{ 'Content-Type':'text/plain' },
         body: JSON.stringify({
           action:'update',
-          event:{
-            id: schedule.id,
-            calendarId: newCalId,
-            start: newStart.toDate().toISOString(),
-            end:   newEnd.toDate().toISOString(),
-            title: newTitle
-          }
+          event:{ id: schedule.id, calendarId: newCalId,
+                  start: newStart.toDate().toISOString(),
+                  end:   newEnd.toDate().toISOString(),
+                  title: (changes.title ?? schedule.title) }
         })
       });
       const json = await res.json();
@@ -265,40 +251,39 @@
     }
   });
 
+  // --- Delete ---
   calendar.on('beforeDeleteSchedule', async ({ schedule }) => {
     try {
       const res = await fetch(ENDPOINT, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' },
+        method:'POST', headers:{ 'Content-Type':'text/plain' },
         body: JSON.stringify({ action:'delete', event:{ id: schedule.id } })
       });
       const json = await res.json();
       if (!json.ok) { alert(json.error || 'Delete failed'); loadFromBackend(); }
     } catch {
-      alert('Network error while deleting');
-      loadFromBackend();
+      alert('Network error while deleting'); loadFromBackend();
     }
   });
 
-  // Load existing events from backend (optional)
+  // --- Load from backend ---
   async function loadFromBackend(){
-    const s = calendar.getDateRangeStart().toDate().toISOString();
-    const e = calendar.getDateRangeEnd().toDate().toISOString();
-    const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
-    const json = await res.json();
-  
-    // Accept array (final) or {events:[...]} (older) and ignore diagnostic objects
-    const arr = Array.isArray(json) ? json : (Array.isArray(json?.events) ? json.events : []);
-    calendar.clear();
-    calendar.createSchedules(arr.map(x => ({
-      id: x.id,
-      calendarId: x.calendarId,
-      title: x.title,
-      category: 'time',
-      start: new Date(x.start),
-      end: new Date(x.end),
-      isReadOnly: false
-    })));
+    try {
+      const s = calendar.getDateRangeStart().toDate().toISOString();
+      const e = calendar.getDateRangeEnd().toDate().toISOString();
+      const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
+      const json = await res.json();
+      if (!Array.isArray(json)) {
+        console.warn('Backend returned non-array:', json);
+        return;
+      }
+      calendar.clear();
+      calendar.createSchedules(json.map(x => ({
+        id: x.id, calendarId: x.calendarId, title: x.title, category: 'time',
+        start: new Date(x.start), end: new Date(x.end), isReadOnly: false
+      })));
+    } catch (err) {
+      console.error('loadFromBackend failed:', err);
+    }
   }
   loadFromBackend();
   
