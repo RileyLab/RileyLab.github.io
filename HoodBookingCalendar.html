@@ -5,7 +5,7 @@
   <title>Riley Lab – TC Hood Booking</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- TUI Calendar v1 + deps (include exactly in this order) -->
+  <!-- TUI Calendar v1 (explicit) + deps, in the required order -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.css">
@@ -19,7 +19,6 @@
   <style>
     :root{
       --bg:#f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
-      /* big room hues so they’re obviously different */
       --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
       --TC1b:#60a5fa; --TC1c:#93c5fd; 
       --TC2b:#22c55e; --TC2c:#86efac;
@@ -73,11 +72,12 @@
 </div>
 
 <script>
-  // When you wire the backend, set ENDPOINT to your Apps Script Web App URL.
-  const ENDPOINT = 'https://script.googleusercontent.com/macros/exec?service=AKfycbwzkzB0tuX-1jtCrF0byVzWGhKkH_4Sko6RYImOQ48LSnZwuy7SCVgkC01_t_Ja2otS';
-  // ===========================
+  /******* CHANGE THIS ONE LINE *******/
+  const ENDPOINT =
+    'https://script.googleusercontent.com/macros/exec?service=AKfycbwzkzB0tuX-1jtCrF0byVzWGhKkH_4Sko6RYImOQ48LSnZwuy7SCVgkC01_t_Ja2otS';
+  /************************************/
 
-  // 9 calendars: TC1..3 × hood 1..3 with strong room colors
+  // Calendar definitions (9 hoods)
   const calDefs = [
     ['TC1','1','var(--TC1)'], ['TC1','2','var(--TC1b)'], ['TC1','3','var(--TC1c)'],
     ['TC2','1','var(--TC2)'], ['TC2','2','var(--TC2b)'], ['TC2','3','var(--TC2c)'],
@@ -89,19 +89,7 @@
     bgColor: getComputedStyle(document.documentElement).getPropertyValue(color).trim()
   }));
 
-  const calEl = document.getElementById('calendar');
-
-  // Detect API surface once
-  const isV1 = !!(tui?.Calendar?.prototype?.getSchedules);
-  const isV2 = !!(tui?.Calendar?.prototype?.getEvents);
-  
-  // Uniform getters so our logic works on either version
-  function getAllEvents() {
-    if (isV1) return calendar.getSchedules();
-    if (isV2) return calendar.getEvents();
-    return [];
-  }
-  
+  // Build calendar
   const calendar = new tui.Calendar(document.getElementById('calendar'), {
     defaultView: 'week',
     taskView: false,
@@ -113,23 +101,60 @@
     calendars: calDefs
   });
 
-  console.log('tui version check', !!tui && !!tui.Calendar); // should be true
+  // --- Cross-version helpers (v1/v2) ---
+  const hasGetSchedules = !!calendar.getSchedules;   // v1
+  const hasGetEvents    = !!calendar.getEvents;      // v2 style
 
-  // Add a 1-hour test block “now”
-  const now = new Date();
-  const later = new Date(now.getTime() + 60*60*1000);
-  calendar.createSchedules([{
-    id: 'test-1',
-    calendarId: 'TC1-1',       // one of your defined calendars
-    title: 'Test booking',
-    category: 'time',
-    start: now,
-    end: later,
-    isReadOnly: false
-  }]);
+  const Cal = {
+    getAll() {
+      if (hasGetSchedules) return calendar.getSchedules();
+      if (hasGetEvents)    return calendar.getEvents();
+      return [];
+    },
+    clear() {
+      if (calendar.clear) return calendar.clear();
+      // v2 fallback if needed
+      const all = this.getAll();
+      for (const ev of all) this.remove(ev.id, ev.calendarId);
+    },
+    add(arr) {
+      if (calendar.createSchedules) return calendar.createSchedules(arr); // v1
+      if (calendar.createEvents)    return calendar.createEvents(arr);    // v2
+    },
+    update(id, calId, changes) {
+      if (calendar.updateSchedule)  return calendar.updateSchedule(id, calId, changes); // v1
+      if (calendar.updateEvent)     return calendar.updateEvent(id, calId, changes);    // v2
+    },
+    remove(id, calId) {
+      if (calendar.deleteSchedule)  return calendar.deleteSchedule(id, calId); // v1
+      if (calendar.deleteEvent)     return calendar.deleteEvent(id, calId);    // v2
+    },
+    visible(calId, vis) {
+      if (calendar.setCalendarVisibility) return calendar.setCalendarVisibility(calId, vis);
+      if (calendar.toggleSchedules)       return calendar.toggleSchedules(calId, vis); // rare v2
+    }
+  };
 
-  // --- Title bar ---
-  function setRangeTitle(){
+  // Date coercion that works for v1 moment-like and v2 Date/Dayjs
+  function toJSDate(x) {
+    if (x && typeof x.toDate === 'function') return x.toDate();
+    return x instanceof Date ? x : new Date(x);
+  }
+  function overlaps(aStart,aEnd,bStart,bEnd) {
+    return aStart < bEnd && bStart < aEnd;
+  }
+  function hasConflict(calendarId, startLike, endLike, ignoreId) {
+    const start = toJSDate(startLike);
+    const end   = toJSDate(endLike);
+    return Cal.getAll().some(ev => {
+      if (ev.calendarId !== calendarId) return false;
+      if (ignoreId && ev.id === ignoreId) return false;
+      return overlaps(start, end, toJSDate(ev.start), toJSDate(ev.end));
+    });
+  }
+
+  // UI helpers
+  function setRangeTitle() {
     const s = calendar.getDateRangeStart().toDate();
     const e = calendar.getDateRangeEnd().toDate();
     document.getElementById('range').textContent =
@@ -137,171 +162,128 @@
   }
   setRangeTitle();
 
-  // --- Toolbar wiring ---
+  // Toolbar
   document.getElementById('prev').onclick  = () => { calendar.prev();  setRangeTitle(); loadFromBackend(); };
   document.getElementById('today').onclick = () => { calendar.today(); setRangeTitle(); loadFromBackend(); };
   document.getElementById('next').onclick  = () => { calendar.next();  setRangeTitle(); loadFromBackend(); };
   document.getElementById('week').onclick  = () => { calendar.changeView('week', true); setRangeTitle(); loadFromBackend(); };
   document.getElementById('day').onclick   = () => { calendar.changeView('day',  true); setRangeTitle(); loadFromBackend(); };
 
-
-  // --- Filters (v1 visibility APIs) ---
+  // Filters
   document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
     cb.addEventListener('change', e=>{
       const room = e.target.dataset.room;
-      ['1','2','3'].forEach(h => calendar.setCalendarVisibility(`${room}-${h}`, e.target.checked));
+      ['1','2','3'].forEach(h => Cal.visible(`${room}-${h}`, e.target.checked));
       document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb => { hcb.checked = e.target.checked; });
     });
   });
   document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb=>{
     cb.addEventListener('change', e=>{
-      calendar.setCalendarVisibility(e.target.dataset.cal, e.target.checked);
+      Cal.visible(e.target.dataset.cal, e.target.checked);
       const room = e.target.dataset.cal.split('-')[0];
       const any  = [...document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)].some(x => x.checked);
       document.querySelector(`#roomFilters input[data-room="${room}"]`).checked = any;
     });
   });
 
-  // --- Helper: conflict detection on the same hood (calendarId) ---
-  function overlaps(aStart, aEnd, bStart, bEnd) {
-    // all are moment() in v1
-    return aStart.isBefore(bEnd) && bStart.isBefore(aEnd);
-  }
-  function hasConflict(calId, start, end, ignoreId) {
-    const schedules = calendar.getSchedules();
-    return schedules.some(s => {
-      if (s.calendarId !== calId) return false;
-      if (ignoreId && s.id === ignoreId) return false;
-      return overlaps(s.start, s.end, start, end);
-    });
-  }
-
-  // a tiny helper that keeps requests "simple"
-  function postSimple(payload) {
+  // Networking (simple, no preflight)
+  function postSimple(payload){
     return fetch(ENDPOINT, {
       method: 'POST',
-      // keep it “simple” so browsers skip preflight:
-      headers: { 'Content-Type': 'text/plain' },
-      // make sure no cookies are sent (can trigger preflight/redirects)
+      headers: { 'Content-Type': 'text/plain' }, // stays “simple”
       credentials: 'omit',
-      // IMPORTANT: do not set any custom headers or authorization
       body: JSON.stringify(payload)
     });
   }
-
-  function uuid() {
-    // tiny uuid that’s good enough for our ids
+  function uuid(){
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
       const r=Math.random()*16|0, v=c==='x'?r:(r&0x3|0x8); return v.toString(16);
     });
   }
 
-  
-
-  // --- Create from popup (v1 event name) ---
+  // Create
   calendar.on('beforeCreateSchedule', async ev => {
     const { start, end } = ev;
     const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
-  
+
     if (hasConflict(calId, start, end)) {
       alert('Time overlaps an existing booking on that hood.');
-      ev.guide.clearGuideElement();
+      ev.guide?.clearGuideElement?.();
       return;
     }
-  
-    const newId = uuid(); // ✅ we provide the id
-    calendar.createSchedules([{
-      id: newId, calendarId: calId, title: ev.title || 'Booking',
-      category: 'time', start, end, isReadOnly: false
-    }]);
-    ev.guide.clearGuideElement();
-  
-    try {
-      await postSimple({
-        action: 'create',
-        event: {
-          id: newId,                      // ✅ server will keep this id
-          calendarId: calId,
-          title: ev.title || 'Booking',
-          start: start.toDate().toISOString(),
-          end:   end.toDate().toISOString()
-        }
-      });
-    } catch(_) {
-      alert('Network/CORS error while creating');
-    } finally {
-      // refresh from the backend so UI always reflects the source of truth
-      loadFromBackend();
-    }
+
+    const newId = uuid();
+    Cal.add([{ id:newId, calendarId:calId, title: ev.title || 'Booking',
+               category:'time', start, end, isReadOnly:false }]);
+    ev.guide?.clearGuideElement?.();
+
+    try{
+      await postSimple({ action:'create', event:{
+        id:newId, calendarId:calId, title: ev.title || 'Booking',
+        start: toJSDate(start).toISOString(), end: toJSDate(end).toISOString()
+      }});
+    }catch(_){ alert('Network/CORS error while creating'); }
+    finally{ loadFromBackend(); }
   });
-    
-  // --- Update / move / resize ---
+
+  // Update
   calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
     const newCalId = changes.calendarId || schedule.calendarId;
     const newStart = changes.start || schedule.start;
     const newEnd   = changes.end   || schedule.end;
     const newTitle = (changes.title ?? schedule.title);
-  
+
     if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
       alert('Conflict: another booking exists on that hood/time.');
       return;
     }
-  
-    // optimistic UI
-    calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
-  
-    try {
-      await postSimple({
-        action: 'update',
-        event: {
-          id: schedule.id,
-          calendarId: newCalId,
-          start: newStart.toDate().toISOString(),
-          end:   newEnd.toDate().toISOString(),
-          title: newTitle
-        }
-      });
-    } catch(_) {
-      alert('Network/CORS error while updating');
-    } finally {
-      loadFromBackend();
-    }
+
+    Cal.update(schedule.id, schedule.calendarId, changes);
+
+    try{
+      await postSimple({ action:'update', event:{
+        id:schedule.id, calendarId:newCalId,
+        start: toJSDate(newStart).toISOString(),
+        end:   toJSDate(newEnd).toISOString(),
+        title: newTitle
+      }});
+    }catch(_){ alert('Network/CORS error while updating'); }
+    finally{ loadFromBackend(); }
   });
 
-  // --- Delete ---
+  // Delete
   calendar.on('beforeDeleteSchedule', async ({ schedule }) => {
-    try {
-      await postSimple({ action:'delete', event:{ id: schedule.id } });
-    } catch(_) {
-      alert('Network/CORS error while deleting');
-    } finally {
-      loadFromBackend();
-    }
+    Cal.remove(schedule.id, schedule.calendarId);
+    try{
+      await postSimple({ action:'delete', event:{ id:schedule.id }});
+    }catch(_){ alert('Network/CORS error while deleting'); }
+    finally{ loadFromBackend(); }
   });
 
-  // --- Load from backend ---
+  // Load from backend
   async function loadFromBackend(){
-    try {
+    try{
       const s = calendar.getDateRangeStart().toDate().toISOString();
       const e = calendar.getDateRangeEnd().toDate().toISOString();
       const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
       const json = await res.json();
-      if (!Array.isArray(json)) {
-        console.warn('Backend returned non-array:', json);
-        return;
-      }
-      calendar.clear();
-      calendar.createSchedules(json.map(x => ({
-        id: x.id, calendarId: x.calendarId, title: x.title, category: 'time',
-        start: new Date(x.start), end: new Date(x.end), isReadOnly: false
+
+      if (!Array.isArray(json)) { console.warn('Backend returned', json); return; }
+
+      Cal.clear();
+      Cal.add(json.map(x => ({
+        id: x.id, calendarId: x.calendarId, title: x.title,
+        category:'time', start: new Date(x.start), end: new Date(x.end),
+        isReadOnly:false
       })));
-    } catch (err) {
+    }catch(err){
       console.error('loadFromBackend failed:', err);
     }
   }
-  loadFromBackend();
-  
+
+  // Kick off
+  setTimeout(loadFromBackend, 0);
 </script>
 </body>
 </html>
