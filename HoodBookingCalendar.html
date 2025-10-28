@@ -243,7 +243,7 @@
     try{
       const res = await fetch(ENDPOINT, {
         method:'POST',
-        headers:{ 'Content-Type':'text/plain' },
+        headers:{ 'Content-Type':'application/json' },
         credentials:'omit',
         body: JSON.stringify(payload)
       });
@@ -255,9 +255,10 @@
     try{
       const s = calendar.getDateRangeStart().toDate().toISOString();
       const e = calendar.getDateRangeEnd().toDate().toISOString();
-      const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
+      const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&timeMin=${encodeURIComponent(s)}&timeMax=${encodeURIComponent(e)}`);
       const json = await res.json();
-      if (!Array.isArray(json)) { console.warn('Backend returned', json); return; }
+      if (!Array.isArray(json)) { console.warn('Backend returned non-array; keeping current UI. Got:', json); return; }
+      if (json.length === 0) { console.warn('Backend returned empty range; keeping current UI to avoid disappearing events.'); return; }
       Cal.clear();
       Cal.add(json.map(x=>({
         id:x.id, calendarId:x.calendarId, title:x.title,
@@ -369,7 +370,7 @@
       Cal.remove(editing.id, editing.calendarId);
       await postSimple({ action:'delete', event:{ id: editing.id } });
     } finally{
-      BUSY = false; editing=null; closeModal(); loadFromBackend();
+      BUSY = false; editing=null; closeModal(); setTimeout(loadFromBackend, 500);
     }
   };
 
@@ -431,7 +432,7 @@
         });
       }
     } finally{
-      BUSY = false; editing=null; closeModal(); loadFromBackend();
+      BUSY = false; editing=null; closeModal(); setTimeout(loadFromBackend, 500);
     }
   };
 
