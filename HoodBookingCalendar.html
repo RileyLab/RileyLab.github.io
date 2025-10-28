@@ -51,6 +51,37 @@
     .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
     .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
     #spinner{position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);background:#fff;border-radius:10px;box-shadow:var(--shadow);display:none}
+
+    .room-tabs {
+      display:flex; gap:10px; align-items:center; margin:8px 0 16px;
+    }
+    
+    .tab {
+      position:relative;
+      appearance:none; border:none; cursor:pointer;
+      padding:10px 16px; border-radius:12px;
+      background:#fff; color:var(--text);
+      box-shadow:0 2px 6px rgba(0,0,0,.06), inset 0 0 0 1px var(--border);
+      font-weight:600; letter-spacing:.2px;
+      transition:transform .05s ease, box-shadow .15s ease, background .15s ease;
+    }
+    
+    .tab:hover { box-shadow:0 3px 10px rgba(0,0,0,.09), inset 0 0 0 1px #d8dbe1; }
+    .tab:active { transform:translateY(1px); }
+    
+    .tab.is-active {
+      background:var(--card);
+      box-shadow:0 6px 16px rgba(0,0,0,.12), inset 0 0 0 2px #a9b4ff;
+    }
+    
+    .tab .dot { width:10px; height:10px; border-radius:999px; display:inline-block; margin-right:8px; }
+    .tab .dot.tc1 { background: var(--TC1); }
+    .tab .dot.tc2 { background: var(--TC2); }
+    .tab .dot.tc3 { background: var(--TC3); }
+    .tab .dot.all {
+      background: linear-gradient(90deg, var(--TC1) 0 33%, var(--TC2) 33% 66%, var(--TC3) 66% 100%);
+    }
+    
   </style>
 </head>
 <body>
@@ -64,24 +95,20 @@
     <div class="title" id="range"></div>
   </div>
 
-  <!-- Room filters -->
-  <div class="chips" id="roomFilters">
-    <label class="chip"><input type="checkbox" data-room="TC1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1</label>
-    <label class="chip"><input type="checkbox" data-room="TC2" checked> <span class="dot" style="background:var(--TC2)"></span> TC2</label>
-    <label class="chip"><input type="checkbox" data-room="TC3" checked> <span class="dot" style="background:var(--TC3)"></span> TC3</label>
-  </div>
-
-  <!-- Hood filters -->
-  <div class="chips" id="hoodFilters">
-    <label class="chip"><input type="checkbox" data-cal="TC1-1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC1-2" checked> <span class="dot" style="background:var(--TC1b)"></span> TC1 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC1-3" checked> <span class="dot" style="background:var(--TC1c)"></span> TC1 / Hood 3</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-1" checked> <span class="dot" style="background:var(--TC2)"></span> TC2 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-2" checked> <span class="dot" style="background:var(--TC2b)"></span> TC2 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-3" checked> <span class="dot" style="background:var(--TC2c)"></span> TC2 / Hood 3</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-1" checked> <span class="dot" style="background:var(--TC3)"></span> TC3 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-2" checked> <span class="dot" style="background:var(--TC3b)"></span> TC3 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-3" checked> <span class="dot" style="background:var(--TC3c)"></span> TC3 / Hood 3</label>
+  <!-- Room tabs -->
+  <div class="room-tabs" id="roomTabs" role="tablist" aria-label="Rooms">
+    <button class="tab is-active" role="tab" aria-selected="true" data-room="ALL">
+      <span class="dot all"></span> All
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-room="TC1">
+      <span class="dot tc1"></span> TC1
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-room="TC2">
+      <span class="dot tc2"></span> TC2
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-room="TC3">
+      <span class="dot tc3"></span> TC3
+    </button>
   </div>
 
   <div id="calendar"></div>
@@ -284,20 +311,54 @@
   document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); setRangeTitle(); loadFromBackend(); };
   document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); setRangeTitle(); loadFromBackend(); };
 
-  document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change', e=>{
-      const room=e.target.dataset.room;
-      ['1','2','3'].forEach(h=>Cal.visible(`${room}-${h}`, e.target.checked));
-      document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb=>hcb.checked=e.target.checked);
+  // helper to toggle visibility for whole rooms
+  function setRoomVisibility(room){  // room = 'ALL' | 'TC1' | 'TC2' | 'TC3'
+    const rooms = ['TC1','TC2','TC3'];
+    const showAll = (room === 'ALL');
+
+    rooms.forEach(r => {
+      const visible = showAll || (r === room);
+      // each room has 3 hoods: r-1, r-2, r-3
+      ['1','2','3'].forEach(h => {
+        if (calendar.setCalendarVisibility) {
+          calendar.setCalendarVisibility(`${r}-${h}`, visible);
+        } else if (calendar.toggleSchedules) {
+          calendar.toggleSchedules(`${r}-${h}`, visible);
+        }
+      });
     });
+  }
+
+  // initial state: "All" visible
+  setRoomVisibility('ALL');
+
+  // click/keyboard handlers for tabs
+  document.getElementById('roomTabs').addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    const room = btn.dataset.room;
+
+    // update active state
+    document.querySelectorAll('#roomTabs .tab').forEach(t => {
+      const isActive = (t === btn);
+      t.classList.toggle('is-active', isActive);
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    setRoomVisibility(room);
+    // optional: refresh events scoped to the current view window
+    loadFromBackend();
   });
-  document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change', e=>{
-      Cal.visible(e.target.dataset.cal, e.target.checked);
-      const room=e.target.dataset.cal.split('-')[0];
-      const any=[...document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)].some(x=>x.checked);
-      document.querySelector(`#roomFilters input[data-room="${room}"]`).checked=any;
-    });
+
+  // optional keyboard nav (←/→ to move between tabs)
+  document.getElementById('roomTabs').addEventListener('keydown', (e) => {
+    if (!['ArrowLeft','ArrowRight'].includes(e.key)) return;
+    const tabs = [...document.querySelectorAll('#roomTabs .tab')];
+    const idx = tabs.findIndex(t => t.classList.contains('is-active'));
+    const next = e.key === 'ArrowRight' ? (idx + 1) % tabs.length : (idx - 1 + tabs.length) % tabs.length;
+    tabs[next].focus();
+    tabs[next].click();
+    e.preventDefault();
   });
 
   /* ---------- Create (drag-select triggers our modal) ---------- */
