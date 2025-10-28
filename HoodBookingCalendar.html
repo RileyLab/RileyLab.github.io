@@ -81,6 +81,12 @@
     .tab .dot.all {
       background: linear-gradient(90deg, var(--TC1) 0 33%, var(--TC2) 33% 66%, var(--TC3) 66% 100%);
     }
+
+    /* Double-click hint on the grid */
+    .tui-full-calendar-timegrid-container,
+    .tui-full-calendar-month-week-item {
+      cursor: cell; /* shows it's interactive */
+    }
     
   </style>
 </head>
@@ -189,9 +195,14 @@
     defaultView: 'week',
     taskView: false,
     scheduleView: ['time'],
-    useCreationPopup: false,
-    useDetailPopup: false,
+    useCreationPopup: true,
+    useDetailPopup: true,
     isReadOnly: false,
+  
+    // NEW: creation behavior
+    disableClick: true,     // block single-click creation
+    disableDblClick: false, // allow double-click creation
+  
     week: { hourStart: 8, hourEnd: 20, workweek: true, narrowWeekend: true, startDayOfWeek: 1 },
     calendars: calDefs
   });
@@ -363,35 +374,74 @@
 
   /* ---------- Create (drag-select triggers our modal) ---------- */
   calendar.on('beforeCreateSchedule', async ev => {
-    const { start, end } = ev;
-    const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
+    // Only allow true double-click; block drag or single click
+    if (ev.triggerEventName !== 'dblclick') {
+      ev.guide?.clearGuideElement?.();
+      return;
+    }
   
-    // (optional) conflict check...
+    // Pick the first visible hood under the active room
+    const visible = calDefs.filter(c => {
+      try { return calendar.isVisibleCalendar ? calendar.isVisibleCalendar(c.id) : true; }
+      catch { return true; }
+    });
+    if (!visible.length) {
+      alert('Pick a room tab first (TC1/TC2/TC3).');
+      ev.guide?.clearGuideElement?.();
+      return;
+    }
+    const calId = visible[0].id;
+  
+    const { start, end } = ev;
+  
+    // (optional) client conflict check; safe to keep
+    if (hasConflict(calId, start, end)) {
+      alert('Time overlaps an existing booking on that hood.');
+      ev.guide?.clearGuideElement?.();
+      return;
+    }
   
     const newId = uuid();
-    calendar.createSchedules([{ id:newId, calendarId:calId, title: ev.title || 'Booking',
-      category:'time', start, end, isReadOnly:false }]);
+  
+    // Optimistic add in UI
+    Cal.add([{
+      id: newId,
+      calendarId: calId,
+      title: ev.title || 'Booking',
+      category: 'time',
+      start,
+      end,
+      isReadOnly: false
+    }]);
+  
     ev.guide?.clearGuideElement?.();
   
+    // Persist
     try {
-      const res  = await postSimple({ action:'create', event:{
-        id:newId, calendarId:calId,
-        title: ev.title || 'Booking',
-        start: toJSDate(start).toISOString(),
-        end:   toJSDate(end).toISOString()
-      }});
+      const res  = await postSimple({
+        action: 'create',
+        event: {
+          id: newId,
+          calendarId: calId,
+          title: ev.title || 'Booking',
+          start: toJSDate(start).toISOString(),
+          end:   toJSDate(end).toISOString()
+        }
+      });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'create failed');
   
-      // If backend rewrote the id (it shouldn't, but be robust)
+      // If server normalized the id (shouldn’t, but be robust)
       if (json.id && json.id !== newId) {
-        calendar.deleteSchedule(newId, calId);
-        calendar.createSchedules([{ id:json.id, calendarId:calId, title: ev.title || 'Booking',
-          category:'time', start, end, isReadOnly:false }]);
+        Cal.remove(newId, calId);
+        Cal.add([{
+          id: json.id, calendarId: calId, title: ev.title || 'Booking',
+          category: 'time', start, end, isReadOnly: false
+        }]);
       }
     } catch (e) {
       alert('Create failed: ' + e.message);
-      calendar.deleteSchedule(newId, calId);
+      Cal.remove(newId, calId);
     } finally {
       loadFromBackend();
     }
