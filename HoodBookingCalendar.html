@@ -254,14 +254,29 @@
   // --- Delete ---
   calendar.on('beforeDeleteSchedule', async ({ schedule }) => {
     try {
+      // send JSON (we’ll allow preflight on the backend)
       const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{ 'Content-Type':'text/plain' },
-        body: JSON.stringify({ action:'delete', event:{ id: schedule.id } })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', event: { id: schedule.id } })
       });
-      const json = await res.json();
-      if (!json.ok) { alert(json.error || 'Delete failed'); loadFromBackend(); }
-    } catch {
-      alert('Network error while deleting'); loadFromBackend();
+  
+      // Important: Apps Script sometimes returns 200 with an HTML error
+      // so force JSON parse inside try/catch:
+      let json;
+      try { json = await res.json(); } catch (e) { throw new Error('Non-JSON response from server'); }
+  
+      if (json.ok) {
+        calendar.deleteSchedule(schedule.id, schedule.calendarId); // immediate UI update
+      } else {
+        alert(json.error || 'Delete failed on server');
+        // optional: reload calendar to stay consistent
+        loadFromBackend();
+      }
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert('Network/CORS error while deleting');
+      loadFromBackend();
     }
   });
 
