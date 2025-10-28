@@ -214,7 +214,6 @@
   function openModal(title, preset){
     modalTitle.textContent = title;
     modalBg.style.display = 'flex';
-    // preset fields
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
     startEl.value = preset?.start || '';
@@ -243,7 +242,6 @@
 
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
   function overlaps(aStart,aEnd,bStart,bEnd){ return aStart < bEnd && bStart < aEnd; }
-
   function hasConflict(calendarId, start, end, ignoreId){
     return Cal.all().some(s=>{
       if (s.calendarId !== calendarId) return false;
@@ -252,28 +250,22 @@
     });
   }
 
-  // Live conflict UI: shows a banner and disables Save if overlap/time invalid
+  // Live conflict UI
   function checkConflictUI(){
     if (!conflictMsg) return;
     if (!dateEl.value || !startEl.value || !endEl.value) { conflictMsg.style.display='none'; saveBtn.disabled=false; return; }
-
     const start = buildDate(dateEl.value, startEl.value);
     const end   = buildDate(dateEl.value, endEl.value);
-    if (!(start instanceof Date) || isNaN(start) || !(end instanceof Date) || isNaN(end)) {
-      conflictMsg.style.display='none'; saveBtn.disabled=false; return;
-    }
-
+    if (isNaN(start) || isNaN(end)) { conflictMsg.style.display='none'; saveBtn.disabled=false; return; }
     if (end <= start){
       conflictMsg.textContent = 'End time must be after start time.';
       conflictMsg.style.display = 'block';
       saveBtn.disabled = true;
       return;
     }
-
     const calendarId = `${roomEl.value}-${hoodEl.value}`;
     const ignoreId   = editing?.id || null;
     const clash = hasConflict(calendarId, start, end, ignoreId);
-
     if (clash){
       conflictMsg.textContent = `Another booking already exists on ${roomEl.value} / Hood ${hoodEl.value} during this time.`;
       conflictMsg.style.display = 'block';
@@ -322,11 +314,9 @@
   /* ---------- Room Tabs (one room visible) ---------- */
   function setActiveRoom(room){
     ACTIVE_ROOM = room;
-    // update tab aria
     document.querySelectorAll('#roomTabs [role=tab]').forEach(btn=>{
       btn.setAttribute('aria-selected', btn.dataset.room === room ? 'true' : 'false');
     });
-    // show only selected room's hoods
     ['TC1','TC2','TC3'].forEach(r=>{
       ['1','2','3'].forEach(h=>Cal.visible(`${r}-${h}`, r===room));
     });
@@ -380,7 +370,6 @@
   deleteBtn.onclick = async ()=>{
     if (!editing?.id || BUSY) return;
     BUSY = true;
-    // close immediately for UX
     const tmp = editing; editing=null; closeModal();
     try{
       Cal.remove(tmp.id, tmp.calendarId);
@@ -413,16 +402,13 @@
     }
 
     BUSY = true;
-    // close immediately for UX
     const prev = editing; editing=null; closeModal();
 
     try{
       if (prev && prev.id){
-        // EDIT
         Cal.update(prev.id, prev.calendarId, { title, start, end, calendarId });
         await postSimple({ action:'update', event:{ id: prev.id, calendarId, title, start: start.toISOString(), end: end.toISOString() } });
       } else {
-        // CREATE
         const id = uuid();
         Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
         await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() } });
