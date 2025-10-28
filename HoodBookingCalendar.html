@@ -362,17 +362,39 @@
   });
 
   /* ---------- Create (drag-select triggers our modal) ---------- */
-  calendar.on('beforeCreateSchedule', ev=>{
-    // Pre-fill modal with the dragged range
-    openModal('New Booking', {
-      mode:'create',
-      name:'',
-      date: toLocalDateInputValue(ev.start.toDate()),
-      start: toLocalTimeInputValue(ev.start.toDate()),
-      end: toLocalTimeInputValue(ev.end.toDate()),
-      room: 'TC1', hood: '1'
-    });
-    editing = { id:null, start:ev.start, end:ev.end, calendarId:null, raw:{} };
+  calendar.on('beforeCreateSchedule', async ev => {
+    const { start, end } = ev;
+    const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
+  
+    // (optional) conflict check...
+  
+    const newId = uuid();
+    calendar.createSchedules([{ id:newId, calendarId:calId, title: ev.title || 'Booking',
+      category:'time', start, end, isReadOnly:false }]);
+    ev.guide?.clearGuideElement?.();
+  
+    try {
+      const res  = await postSimple({ action:'create', event:{
+        id:newId, calendarId:calId,
+        title: ev.title || 'Booking',
+        start: toJSDate(start).toISOString(),
+        end:   toJSDate(end).toISOString()
+      }});
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'create failed');
+  
+      // If backend rewrote the id (it shouldn't, but be robust)
+      if (json.id && json.id !== newId) {
+        calendar.deleteSchedule(newId, calId);
+        calendar.createSchedules([{ id:json.id, calendarId:calId, title: ev.title || 'Booking',
+          category:'time', start, end, isReadOnly:false }]);
+      }
+    } catch (e) {
+      alert('Create failed: ' + e.message);
+      calendar.deleteSchedule(newId, calId);
+    } finally {
+      loadFromBackend();
+    }
   });
 
   /* ---------- Click to Edit ---------- */
@@ -393,48 +415,33 @@
   });
 
   /* ---------- Drag / move / resize existing event ---------- */
-  calendar.on('beforeUpdateSchedule', async (ev) => {
+  calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
-  
-    // Compute new values (changes may contain start/end/calendarId/title)
     const newCalId = changes.calendarId || schedule.calendarId;
-    const newStart = changes.start ? changes.start.toDate() : schedule.start.toDate();
-    const newEnd   = changes.end   ? changes.end.toDate()   : schedule.end.toDate();
+    const newStart = changes.start || schedule.start;
+    const newEnd   = changes.end   || schedule.end;
     const newTitle = (changes.title ?? schedule.title);
   
-    // Prevent overlapping on the same hood (ignore this event's own id)
-    if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
-      // Revert by doing nothing; TUI will snap back
-      alert('Conflict: another booking exists on that hood/time.');
-      return;
-    }
-  
-    // Optimistic UI update so it *sticks* right away
-    Cal.update(schedule.id, schedule.calendarId, {
+    // optimistic UI
+    calendar.updateSchedule(schedule.id, schedule.calendarId, {
       ...changes,
-      calendarId: newCalId,
-      start: newStart,
-      end: newEnd,
-      title: newTitle
+      calendarId: newCalId   // <- be explicit
     });
   
-    // Persist to Apps Script (updates the same Google Calendar event)
     try {
-      await postSimple({
-        action: 'update',
-        event: {
-          id: schedule.id,
-          calendarId: newCalId,
-          title: newTitle,
-          start: newStart.toISOString(),
-          end:   newEnd.toISOString()
-        }
-      });
-    } catch {
-      alert('Network/CORS error while updating');
+      const res = await postSimple({ action:'update', event:{
+        id: schedule.id,
+        calendarId: newCalId,
+        start: toJSDate(newStart).toISOString(),
+        end:   toJSDate(newEnd).toISOString(),
+        title: newTitle
+      }});
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error || 'update failed');
+    } catch (e) {
+      alert('Update failed: ' + e.message);
     } finally {
-      // Pull truth from the backend (sheet/Calendar) in case anything changed
-      loadFromBackend();
+      loadFromBackend(); // re-sync with server truth
     }
   });
 
