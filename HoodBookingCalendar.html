@@ -193,13 +193,14 @@
     ev.guide.clearGuideElement();
 
     try {
-      const res = await fetch(ENDPOINT, {
-        method:'POST',
-        headers:{ 'Content-Type':'text/plain' }, // avoids preflight, Apps Script still gets JSON
+      await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },   // <- important: no preflight
         body: JSON.stringify({
-          action:'create',
-          event:{ calendarId: calId, title: ev.title || 'Booking',
-                  start: start.toDate().toISOString(), end: end.toDate().toISOString() }
+          action: 'create',
+          event: { calendarId: calId, title: ev.title || 'Booking',
+                   start: start.toDate().toISOString(),
+                   end:   end.toDate().toISOString() }
         })
       });
       const json = await res.json();
@@ -234,14 +235,14 @@
     calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
 
     try {
-      const res = await fetch(ENDPOINT, {
-        method:'POST', headers:{ 'Content-Type':'text/plain' },
+      await fetch(ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },   // <- important: no preflight
         body: JSON.stringify({
-          action:'update',
-          event:{ id: schedule.id, calendarId: newCalId,
-                  start: newStart.toDate().toISOString(),
-                  end:   newEnd.toDate().toISOString(),
-                  title: (changes.title ?? schedule.title) }
+          action: 'create',
+          event: { calendarId: calId, title: ev.title || 'Booking',
+                   start: start.toDate().toISOString(),
+                   end:   end.toDate().toISOString() }
         })
       });
       const json = await res.json();
@@ -257,7 +258,7 @@
       // send JSON (we’ll allow preflight on the backend)
       const res = await fetch(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },   // <- important
         body: JSON.stringify({ action: 'delete', event: { id: schedule.id } })
       });
   
