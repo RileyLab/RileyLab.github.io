@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Riley Lab – TC Hood Booking</title>
+  <title>Riley Lab – TC Hood Booking (Fixed)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- TUI Calendar v1 + deps (fixed versions, correct order) -->
@@ -19,7 +19,7 @@
     :root{
       --bg:#f6f7fb; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
       --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
-      --TC1b:#60a5fa; --TC1c:#93c5fd;
+      --TC1b:#60a5fa; --TC1c:#93c5fd; 
       --TC2b:#22c55e; --TC2c:#86efac;
       --TC3b:#fbbf24; --TC3c:#fde68a;
       --shadow:0 10px 30px rgba(0,0,0,.08);
@@ -28,36 +28,30 @@
     html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
     .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    .btn{padding:8px 12px;border:1px solid var(--border);background:#fff;border-radius:10px;cursor:pointer}
+    .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
     .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .title{margin-left:auto;font-weight:600}
-
-    /* Tabs */
-    .chips{display:flex;gap:8px;margin:12px 0 16px}
-    .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 14px;cursor:pointer}
-    .chip[role=tab][aria-selected="true"]{border-color:#111827; box-shadow:var(--shadow)}
+    .btn.ghost{background:transparent;border-color:transparent}
+    .title{margin-left:auto;font-weight:700;font-size:16px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 16px}
+    .chip{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--border);border-radius:999px;padding:8px 12px;font-weight:600;box-shadow:var(--shadow)}
+    .chip input{transform:scale(1.2)}
     .dot{width:12px;height:12px;border-radius:999px;display:inline-block;box-shadow:0 0 0 2px #fff,inset 0 0 0 1px #0001}
-
     #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
     .legend{margin-top:8px;color:var(--muted)}
 
     /* Modal */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9999}
-    .modal{width:min(560px,92vw);background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:22px;border:1px solid var(--border)}
-    .modal h3{margin:0 0 16px 0;font-size:20px;font-weight:700}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .row{display:flex;gap:12px}
-    .field{display:flex;flex-direction:column;gap:6px}
-    label{font-size:12px;color:#374151}
+    .modal{width:min(520px,92vw);background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:18px}
+    .modal h3{margin:0 0 12px 0;font-size:18px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row{display:flex;gap:10px}
+    label{font-size:12px;color:#374151;margin-bottom:4px;display:block}
     input[type="text"], input[type="date"], input[type="time"], select{
-      width:100%;padding:10px;border:1px solid var(--border);border-radius:12px;background:#fff;font-size:14px;height:42px
+      width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff
     }
-    .banner{border-radius:10px;padding:10px 12px;margin-top:10px;font-weight:600}
-    .banner.error{background:#FEF2F2;color:#991B1B;border:1px solid #FECACA}
-    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
     .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
     .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
-
     #spinner{position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);background:#fff;border-radius:10px;box-shadow:var(--shadow);display:none}
   </style>
 </head>
@@ -70,17 +64,18 @@
     <button class="btn" id="week">Week</button>
     <button class="btn" id="day">Day</button>
     <div class="title" id="range"></div>
+    <button class="btn primary" id="newBooking">+ New booking</button>
   </div>
 
-  <!-- Room tabs (one room visible at a time) -->
-  <div class="chips" id="roomTabs" role="tablist" aria-label="Rooms">
-    <button class="chip" role="tab" data-room="TC1" aria-selected="true"><span class="dot" style="background:var(--TC1)"></span> TC1</button>
-    <button class="chip" role="tab" data-room="TC2" aria-selected="false"><span class="dot" style="background:var(--TC2)"></span> TC2</button>
-    <button class="chip" role="tab" data-room="TC3" aria-selected="false"><span class="dot" style="background:var(--TC3)"></span> TC3</button>
+  <!-- Room filters only (hood-level toggles removed) -->
+  <div class="chips" id="roomFilters">
+    <label class="chip"><input type="checkbox" data-room="TC1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1 (all hoods)</label>
+    <label class="chip"><input type="checkbox" data-room="TC2" checked> <span class="dot" style="background:var(--TC2)"></span> TC2 (all hoods)</label>
+    <label class="chip"><input type="checkbox" data-room="TC3" checked> <span class="dot" style="background:var(--TC3)"></span> TC3 (all hoods)</label>
   </div>
 
   <div id="calendar"></div>
-  <div class="legend">Drag to select a time range; release to open the form. Click an event to edit. Delete is in the edit dialog.</div>
+  <div class="legend">Drag to select a time range to create. Drag/resize an event to edit times. Click an event to edit details. Delete is in the edit dialog.</div>
 </div>
 
 <!-- Spinner -->
@@ -90,33 +85,26 @@
 <div class="modal-backdrop" id="modalBg" role="dialog" aria-modal="true">
   <div class="modal" id="modalCard">
     <h3 id="modalTitle">New Booking</h3>
-
     <div class="grid">
-      <div class="field">
+      <div>
         <label for="name">Name</label>
         <input id="name" type="text" placeholder="Your name">
       </div>
-      <div class="field">
+      <div>
         <label for="date">Date</label>
         <input id="date" type="date">
       </div>
-      <div class="field">
+      <div>
         <label for="start">Start time</label>
         <input id="start" type="time" step="900">
       </div>
-      <div class="field">
+      <div>
         <label for="end">End time</label>
         <input id="end" type="time" step="900">
       </div>
     </div>
-
-    <!-- Inline validation banner -->
-    <div id="conflictMsg" class="banner error" style="display:none">
-      This overlaps an existing booking on this hood. Adjust time or hood.
-    </div>
-
     <div class="row" style="margin-top:10px">
-      <div style="flex:1" class="field">
+      <div style="flex:1">
         <label for="room">Room</label>
         <select id="room">
           <option value="TC1">TC1</option>
@@ -124,7 +112,7 @@
           <option value="TC3">TC3</option>
         </select>
       </div>
-      <div style="flex:1" class="field">
+      <div style="flex:1">
         <label for="hood">Hood</label>
         <select id="hood">
           <option value="1">Hood 1</option>
@@ -202,11 +190,10 @@
   const cancelBtn = document.getElementById('cancelBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   const spinner = document.getElementById('spinner');
-  const conflictMsg = document.getElementById('conflictMsg');
+  const newBtn = document.getElementById('newBooking');
 
   let BUSY = false;
   let editing = null; // {id, calendarId, start, end, raw:{name,room,hood}}
-  let ACTIVE_ROOM = 'TC1';
 
   function showSpin(v){ spinner.style.display = v ? 'block' : 'none'; }
   function uuid(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)}) }
@@ -214,15 +201,15 @@
   function openModal(title, preset){
     modalTitle.textContent = title;
     modalBg.style.display = 'flex';
+    // preset fields
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
     startEl.value = preset?.start || '';
     endEl.value   = preset?.end || '';
-    roomEl.value  = preset?.room || ACTIVE_ROOM || 'TC1';
+    roomEl.value  = preset?.room || 'TC1';
     hoodEl.value  = preset?.hood || '1';
     deleteBtn.style.display = preset?.mode === 'edit' ? 'inline-block' : 'none';
     setTimeout(()=>nameEl.focus(), 0);
-    checkConflictUI();
   }
   function closeModal(){ modalBg.style.display = 'none'; }
 
@@ -241,6 +228,7 @@
   }
 
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
+
   function overlaps(aStart,aEnd,bStart,bEnd){ return aStart < bEnd && bStart < aEnd; }
   function hasConflict(calendarId, start, end, ignoreId){
     return Cal.all().some(s=>{
@@ -250,39 +238,14 @@
     });
   }
 
-  // Live conflict UI
-  function checkConflictUI(){
-    if (!conflictMsg) return;
-    if (!dateEl.value || !startEl.value || !endEl.value) { conflictMsg.style.display='none'; saveBtn.disabled=false; return; }
-    const start = buildDate(dateEl.value, startEl.value);
-    const end   = buildDate(dateEl.value, endEl.value);
-    if (isNaN(start) || isNaN(end)) { conflictMsg.style.display='none'; saveBtn.disabled=false; return; }
-    if (end <= start){
-      conflictMsg.textContent = 'End time must be after start time.';
-      conflictMsg.style.display = 'block';
-      saveBtn.disabled = true;
-      return;
-    }
-    const calendarId = `${roomEl.value}-${hoodEl.value}`;
-    const ignoreId   = editing?.id || null;
-    const clash = hasConflict(calendarId, start, end, ignoreId);
-    if (clash){
-      conflictMsg.textContent = `Another booking already exists on ${roomEl.value} / Hood ${hoodEl.value} during this time.`;
-      conflictMsg.style.display = 'block';
-      saveBtn.disabled = true;
-    } else {
-      conflictMsg.style.display = 'none';
-      saveBtn.disabled = false;
-    }
-  }
-
   async function postSimple(payload){
     showSpin(true);
     try{
       const res = await fetch(ENDPOINT, {
         method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(payload)
+        headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+        credentials:'omit',
+        body: new URLSearchParams({ payload: JSON.stringify(payload), action: payload.action }).toString()
       });
       try { return await res.json(); } catch { return {}; }
     } finally { showSpin(false); }
@@ -292,9 +255,10 @@
     try{
       const s = calendar.getDateRangeStart().toDate().toISOString();
       const e = calendar.getDateRangeEnd().toDate().toISOString();
-      const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
+      const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&timeMin=${encodeURIComponent(s)}&timeMax=${encodeURIComponent(e)}`);
       const json = await res.json();
-      if (!Array.isArray(json)) { console.warn('Backend returned', json); return; }
+      if (!Array.isArray(json)) { console.warn('Backend returned non-array; keeping current UI. Got:', json); return; }
+      if (json.length === 0) { console.warn('Backend returned empty range; keeping current UI to avoid disappearing events.'); return; }
       Cal.clear();
       Cal.add(json.map(x=>({
         id:x.id, calendarId:x.calendarId, title:x.title,
@@ -304,49 +268,50 @@
     }catch(err){ console.error('loadFromBackend failed:', err); }
   }
 
-  /* ---------- Toolbar ---------- */
+  /* ---------- Toolbar / Filters ---------- */
   document.getElementById('prev').onclick  = ()=>{ calendar.prev();  setRangeTitle(); loadFromBackend(); };
   document.getElementById('today').onclick = ()=>{ calendar.today(); setRangeTitle(); loadFromBackend(); };
   document.getElementById('next').onclick  = ()=>{ calendar.next();  setRangeTitle(); loadFromBackend(); };
   document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); setRangeTitle(); loadFromBackend(); };
   document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); setRangeTitle(); loadFromBackend(); };
 
-  /* ---------- Room Tabs (one room visible) ---------- */
-  function setActiveRoom(room){
-    ACTIVE_ROOM = room;
-    document.querySelectorAll('#roomTabs [role=tab]').forEach(btn=>{
-      btn.setAttribute('aria-selected', btn.dataset.room === room ? 'true' : 'false');
-    });
-    ['TC1','TC2','TC3'].forEach(r=>{
-      ['1','2','3'].forEach(h=>Cal.visible(`${r}-${h}`, r===room));
-    });
-  }
-  document.querySelectorAll('#roomTabs [role=tab]').forEach(btn=>{
-    btn.addEventListener('click', ()=> setActiveRoom(btn.dataset.room));
-    btn.addEventListener('keydown', (e)=>{
-      if(e.key==='ArrowRight' || e.key==='ArrowLeft'){
-        const tabs = [...document.querySelectorAll('#roomTabs [role=tab]')];
-        const i = tabs.indexOf(btn);
-        const next = e.key==='ArrowRight' ? (i+1)%tabs.length : (i-1+tabs.length)%tabs.length;
-        tabs[next].focus();
-      }
-      if(e.key==='Enter' || e.key===' '){ setActiveRoom(btn.dataset.room); }
+  // Room-level visibility only (hood toggles removed)
+  document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', e=>{
+      const room=e.target.dataset.room;
+      ['1','2','3'].forEach(h=>Cal.visible(`${room}-${h}`, e.target.checked));
     });
   });
-  setTimeout(()=>setActiveRoom('TC1'), 0);
 
-  /* ---------- Create (drag-select opens modal) ---------- */
+  /* ---------- Create (drag-select triggers our modal) ---------- */
   calendar.on('beforeCreateSchedule', ev=>{
+    // Pre-fill modal with the dragged range
     openModal('New Booking', {
       mode:'create',
       name:'',
       date: toLocalDateInputValue(ev.start.toDate()),
       start: toLocalTimeInputValue(ev.start.toDate()),
       end: toLocalTimeInputValue(ev.end.toDate()),
-      room: ACTIVE_ROOM, hood: '1'
+      room: 'TC1', hood: '1'
     });
     editing = { id:null, start:ev.start, end:ev.end, calendarId:null, raw:{} };
   });
+
+  // Convenience: manual "+ New booking" button uses current view start, next 30-min slot
+  newBtn.onclick = ()=>{
+    const now = new Date();
+    const floor = new Date(now);
+    floor.setMinutes(Math.ceil(floor.getMinutes()/30)*30,0,0);
+    openModal('New Booking', {
+      mode:'create',
+      name:'',
+      date: toLocalDateInputValue(floor),
+      start: toLocalTimeInputValue(floor),
+      end: toLocalTimeInputValue(new Date(floor.getTime()+60*60*1000)),
+      room:'TC1', hood:'1'
+    });
+    editing = { id:null, start:null, end:null, calendarId:null, raw:{} };
+  };
 
   /* ---------- Click to Edit ---------- */
   calendar.on('clickSchedule', ({ schedule })=>{
@@ -364,18 +329,48 @@
     editing = { id:schedule.id, calendarId:schedule.calendarId, start:schedule.start, end:schedule.end, raw:{name:nameGuess,room,hood} };
   });
 
+  /* ---------- Drag/Resize Edit (fixes the "snaps back" problem) ---------- */
+  calendar.on('beforeUpdateSchedule', async (ev)=>{
+    const { schedule, changes } = ev;
+    const newStart = (changes.start ? changes.start.toDate() : schedule.start.toDate());
+    const newEnd   = (changes.end   ? changes.end.toDate()   : schedule.end.toDate());
+    const newCalId = changes.calendarId || schedule.calendarId;
+
+    if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
+      // prevent overlapping move/resize
+      return;
+    }
+
+    // Update UI immediately
+    Cal.update(schedule.id, schedule.calendarId, changes);
+
+    // Persist
+    await postSimple({
+      action:'update',
+      event:{
+        id: schedule.id,
+        calendarId: newCalId,
+        title: changes.title || schedule.title,
+        start: newStart.toISOString(),
+        end:   newEnd.toISOString()
+      }
+    });
+
+    // reload to align with server truth
+    loadFromBackend();
+  });
+
   /* ---------- Modal buttons ---------- */
   cancelBtn.onclick = ()=>{ editing=null; closeModal(); };
 
   deleteBtn.onclick = async ()=>{
     if (!editing?.id || BUSY) return;
     BUSY = true;
-    const tmp = editing; editing=null; closeModal();
     try{
-      Cal.remove(tmp.id, tmp.calendarId);
-      await postSimple({ action:'delete', event:{ id: tmp.id } });
+      Cal.remove(editing.id, editing.calendarId);
+      await postSimple({ action:'delete', event:{ id: editing.id } });
     } finally{
-      BUSY = false; loadFromBackend();
+      BUSY = false; editing=null; closeModal(); setTimeout(loadFromBackend, 500);
     }
   };
 
@@ -387,40 +382,59 @@
     const date = dateEl.value;
     const sTime = startEl.value;
     const eTime = endEl.value;
+
+    if (!name) { alert('Please enter your name.'); return; }
     if (!date || !sTime || !eTime) { alert('Please pick a date and start/end times.'); return; }
 
     const start = buildDate(date, sTime);
     const end   = buildDate(date, eTime);
+    const now   = new Date();
     const calendarId = `${room}-${hood}`;
     const title = titleFor(name, room, hood);
 
     if (end <= start) { alert('End time must be after start time.'); return; }
+    if (end - start < 15*60*1000) { alert('Minimum booking is 15 minutes.'); return; }
+    if (end <= now) { if(!confirm('This is in the past. Save anyway?')) return; }
+
     const ignoreId = editing?.id || null;
-    if (hasConflict(calendarId, start, end, ignoreId)) {
-      alert('There is already a booking on that hood during this time.');
-      return;
-    }
+    if (hasConflict(calendarId, start, end, ignoreId)) { alert('There is already a booking on that hood during this time.'); return; }
 
     BUSY = true;
-    const prev = editing; editing=null; closeModal();
-
     try{
-      if (prev && prev.id){
-        Cal.update(prev.id, prev.calendarId, { title, start, end, calendarId });
-        await postSimple({ action:'update', event:{ id: prev.id, calendarId, title, start: start.toISOString(), end: end.toISOString() } });
+      if (editing && editing.id){
+        // EDIT
+        Cal.update(editing.id, editing.calendarId, {
+          title, start, end, calendarId
+        });
+        await postSimple({
+          action:'update',
+          event:{
+            id: editing.id,
+            calendarId,
+            title,
+            start: start.toISOString(),
+            end:   end.toISOString()
+          }
+        });
       } else {
+        // CREATE
         const id = uuid();
         Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
-        await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() } });
+        await postSimple({
+          action:'create',
+          event:{
+            id,
+            calendarId,
+            title,
+            start: start.toISOString(),
+            end:   end.toISOString()
+          }
+        });
       }
     } finally{
-      BUSY = false; loadFromBackend();
+      BUSY = false; editing=null; closeModal(); setTimeout(loadFromBackend, 500);
     }
   };
-
-  // Live conflict listeners
-  [dateEl, startEl, endEl, roomEl, hoodEl].forEach(el => el.addEventListener('change', checkConflictUI));
-  [startEl, endEl].forEach(el => el.addEventListener('input', checkConflictUI));
 
   // Initial load
   setTimeout(loadFromBackend, 0);
