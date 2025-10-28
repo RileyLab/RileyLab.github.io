@@ -331,6 +331,52 @@
     editing = { id:schedule.id, calendarId:schedule.calendarId, start:schedule.start, end:schedule.end, raw:{name:nameGuess,room,hood} };
   });
 
+  /* ---------- Drag / move / resize existing event ---------- */
+  calendar.on('beforeUpdateSchedule', async (ev) => {
+    const { schedule, changes } = ev;
+  
+    // Compute new values (changes may contain start/end/calendarId/title)
+    const newCalId = changes.calendarId || schedule.calendarId;
+    const newStart = changes.start ? changes.start.toDate() : schedule.start.toDate();
+    const newEnd   = changes.end   ? changes.end.toDate()   : schedule.end.toDate();
+    const newTitle = (changes.title ?? schedule.title);
+  
+    // Prevent overlapping on the same hood (ignore this event's own id)
+    if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
+      // Revert by doing nothing; TUI will snap back
+      alert('Conflict: another booking exists on that hood/time.');
+      return;
+    }
+  
+    // Optimistic UI update so it *sticks* right away
+    Cal.update(schedule.id, schedule.calendarId, {
+      ...changes,
+      calendarId: newCalId,
+      start: newStart,
+      end: newEnd,
+      title: newTitle
+    });
+  
+    // Persist to Apps Script (updates the same Google Calendar event)
+    try {
+      await postSimple({
+        action: 'update',
+        event: {
+          id: schedule.id,
+          calendarId: newCalId,
+          title: newTitle,
+          start: newStart.toISOString(),
+          end:   newEnd.toISOString()
+        }
+      });
+    } catch {
+      alert('Network/CORS error while updating');
+    } finally {
+      // Pull truth from the backend (sheet/Calendar) in case anything changed
+      loadFromBackend();
+    }
+  });
+
   /* ---------- Modal buttons ---------- */
   cancelBtn.onclick = ()=>{ editing=null; closeModal(); };
 
