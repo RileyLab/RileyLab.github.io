@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Riley Lab – TC Hood Booking</title>
+  <title>Riley Lab – TC Hood Booking (Fixed)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- TUI Calendar v1 + deps (fixed versions, correct order) -->
@@ -28,11 +28,13 @@
     html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
     .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    .btn{padding:8px 12px;border:1px solid var(--border);background:#fff;border-radius:10px;cursor:pointer}
+    .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
     .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .title{margin-left:auto;font-weight:600}
-    .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
-    .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:6px 10px}
+    .btn.ghost{background:transparent;border-color:transparent}
+    .title{margin-left:auto;font-weight:700;font-size:16px}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 16px}
+    .chip{display:inline-flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--border);border-radius:999px;padding:8px 12px;font-weight:600;box-shadow:var(--shadow)}
+    .chip input{transform:scale(1.2)}
     .dot{width:12px;height:12px;border-radius:999px;display:inline-block;box-shadow:0 0 0 2px #fff,inset 0 0 0 1px #0001}
     #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
     .legend{margin-top:8px;color:var(--muted)}
@@ -62,30 +64,18 @@
     <button class="btn" id="week">Week</button>
     <button class="btn" id="day">Day</button>
     <div class="title" id="range"></div>
+    <button class="btn primary" id="newBooking">+ New booking</button>
   </div>
 
-  <!-- Room filters -->
+  <!-- Room filters only (hood-level toggles removed) -->
   <div class="chips" id="roomFilters">
-    <label class="chip"><input type="checkbox" data-room="TC1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1</label>
-    <label class="chip"><input type="checkbox" data-room="TC2" checked> <span class="dot" style="background:var(--TC2)"></span> TC2</label>
-    <label class="chip"><input type="checkbox" data-room="TC3" checked> <span class="dot" style="background:var(--TC3)"></span> TC3</label>
-  </div>
-
-  <!-- Hood filters -->
-  <div class="chips" id="hoodFilters">
-    <label class="chip"><input type="checkbox" data-cal="TC1-1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC1-2" checked> <span class="dot" style="background:var(--TC1b)"></span> TC1 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC1-3" checked> <span class="dot" style="background:var(--TC1c)"></span> TC1 / Hood 3</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-1" checked> <span class="dot" style="background:var(--TC2)"></span> TC2 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-2" checked> <span class="dot" style="background:var(--TC2b)"></span> TC2 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC2-3" checked> <span class="dot" style="background:var(--TC2c)"></span> TC2 / Hood 3</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-1" checked> <span class="dot" style="background:var(--TC3)"></span> TC3 / Hood 1</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-2" checked> <span class="dot" style="background:var(--TC3b)"></span> TC3 / Hood 2</label>
-    <label class="chip"><input type="checkbox" data-cal="TC3-3" checked> <span class="dot" style="background:var(--TC3c)"></span> TC3 / Hood 3</label>
+    <label class="chip"><input type="checkbox" data-room="TC1" checked> <span class="dot" style="background:var(--TC1)"></span> TC1 (all hoods)</label>
+    <label class="chip"><input type="checkbox" data-room="TC2" checked> <span class="dot" style="background:var(--TC2)"></span> TC2 (all hoods)</label>
+    <label class="chip"><input type="checkbox" data-room="TC3" checked> <span class="dot" style="background:var(--TC3)"></span> TC3 (all hoods)</label>
   </div>
 
   <div id="calendar"></div>
-  <div class="legend">Drag to select a time range; release to open the form. Click an event to edit. Delete is in the edit dialog.</div>
+  <div class="legend">Drag to select a time range to create. Drag/resize an event to edit times. Click an event to edit details. Delete is in the edit dialog.</div>
 </div>
 
 <!-- Spinner -->
@@ -200,6 +190,7 @@
   const cancelBtn = document.getElementById('cancelBtn');
   const deleteBtn = document.getElementById('deleteBtn');
   const spinner = document.getElementById('spinner');
+  const newBtn = document.getElementById('newBooking');
 
   let BUSY = false;
   let editing = null; // {id, calendarId, start, end, raw:{name,room,hood}}
@@ -256,7 +247,6 @@
         credentials:'omit',
         body: JSON.stringify(payload)
       });
-      // We trust backend; even if it returns ok:false, reload will correct UI
       try { return await res.json(); } catch { return {}; }
     } finally { showSpin(false); }
   }
@@ -284,19 +274,11 @@
   document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); setRangeTitle(); loadFromBackend(); };
   document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); setRangeTitle(); loadFromBackend(); };
 
+  // Room-level visibility only (hood toggles removed)
   document.querySelectorAll('#roomFilters input[type=checkbox]').forEach(cb=>{
     cb.addEventListener('change', e=>{
       const room=e.target.dataset.room;
       ['1','2','3'].forEach(h=>Cal.visible(`${room}-${h}`, e.target.checked));
-      document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`).forEach(hcb=>hcb.checked=e.target.checked);
-    });
-  });
-  document.querySelectorAll('#hoodFilters input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change', e=>{
-      Cal.visible(e.target.dataset.cal, e.target.checked);
-      const room=e.target.dataset.cal.split('-')[0];
-      const any=[...document.querySelectorAll(`#hoodFilters input[data-cal^="${room}-"]`)].some(x=>x.checked);
-      document.querySelector(`#roomFilters input[data-room="${room}"]`).checked=any;
     });
   });
 
@@ -314,11 +296,26 @@
     editing = { id:null, start:ev.start, end:ev.end, calendarId:null, raw:{} };
   });
 
+  // Convenience: manual "+ New booking" button uses current view start, next 30-min slot
+  newBtn.onclick = ()=>{
+    const now = new Date();
+    const floor = new Date(now);
+    floor.setMinutes(Math.ceil(floor.getMinutes()/30)*30,0,0);
+    openModal('New Booking', {
+      mode:'create',
+      name:'',
+      date: toLocalDateInputValue(floor),
+      start: toLocalTimeInputValue(floor),
+      end: toLocalTimeInputValue(new Date(floor.getTime()+60*60*1000)),
+      room:'TC1', hood:'1'
+    });
+    editing = { id:null, start:null, end:null, calendarId:null, raw:{} };
+  };
+
   /* ---------- Click to Edit ---------- */
   calendar.on('clickSchedule', ({ schedule })=>{
     const start = schedule.start.toDate(), end = schedule.end.toDate();
     const [room,hood] = schedule.calendarId.split('-');
-    // Extract a name from the title if it follows "Name — TCx/Hood y"
     const nameGuess = schedule.title?.split(' — ')[0] || '';
     openModal('Edit Booking', {
       mode:'edit',
@@ -329,6 +326,37 @@
       room, hood
     });
     editing = { id:schedule.id, calendarId:schedule.calendarId, start:schedule.start, end:schedule.end, raw:{name:nameGuess,room,hood} };
+  });
+
+  /* ---------- Drag/Resize Edit (fixes the "snaps back" problem) ---------- */
+  calendar.on('beforeUpdateSchedule', async (ev)=>{
+    const { schedule, changes } = ev;
+    const newStart = (changes.start ? changes.start.toDate() : schedule.start.toDate());
+    const newEnd   = (changes.end   ? changes.end.toDate()   : schedule.end.toDate());
+    const newCalId = changes.calendarId || schedule.calendarId;
+
+    if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
+      // prevent overlapping move/resize
+      return;
+    }
+
+    // Update UI immediately
+    Cal.update(schedule.id, schedule.calendarId, changes);
+
+    // Persist
+    await postSimple({
+      action:'update',
+      event:{
+        id: schedule.id,
+        calendarId: newCalId,
+        title: changes.title || schedule.title,
+        start: newStart.toISOString(),
+        end:   newEnd.toISOString()
+      }
+    });
+
+    // reload to align with server truth
+    loadFromBackend();
   });
 
   /* ---------- Modal buttons ---------- */
@@ -353,14 +381,20 @@
     const date = dateEl.value;
     const sTime = startEl.value;
     const eTime = endEl.value;
+
+    if (!name) { alert('Please enter your name.'); return; }
     if (!date || !sTime || !eTime) { alert('Please pick a date and start/end times.'); return; }
 
     const start = buildDate(date, sTime);
     const end   = buildDate(date, eTime);
+    const now   = new Date();
     const calendarId = `${room}-${hood}`;
     const title = titleFor(name, room, hood);
 
     if (end <= start) { alert('End time must be after start time.'); return; }
+    if (end - start < 15*60*1000) { alert('Minimum booking is 15 minutes.'); return; }
+    if (end <= now) { if(!confirm('This is in the past. Save anyway?')) return; }
+
     const ignoreId = editing?.id || null;
     if (hasConflict(calendarId, start, end, ignoreId)) { alert('There is already a booking on that hood during this time.'); return; }
 
