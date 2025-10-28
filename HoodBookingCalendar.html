@@ -243,9 +243,9 @@
     try{
       const res = await fetch(ENDPOINT, {
         method:'POST',
-        headers:{ 'Content-Type':'application/json' },
+        headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
         credentials:'omit',
-        body: JSON.stringify(payload)
+        body: new URLSearchParams({ payload: JSON.stringify(payload), action: payload.action }).toString()
       });
       try { return await res.json(); } catch { return {}; }
     } finally { showSpin(false); }
