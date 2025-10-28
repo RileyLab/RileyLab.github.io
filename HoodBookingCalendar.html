@@ -90,6 +90,18 @@
   }));
 
   const calEl = document.getElementById('calendar');
+
+  // Detect API surface once
+  const isV1 = !!(tui?.Calendar?.prototype?.getSchedules);
+  const isV2 = !!(tui?.Calendar?.prototype?.getEvents);
+  
+  // Uniform getters so our logic works on either version
+  function getAllEvents() {
+    if (isV1) return calendar.getSchedules();
+    if (isV2) return calendar.getEvents();
+    return [];
+  }
+  
   const calendar = new tui.Calendar(calEl, {
     defaultView: 'week',
     taskView: false,
@@ -155,11 +167,14 @@
     return aStart < bEnd && bStart < aEnd;
   }
   function hasConflict(calId, start, end, ignoreId){
-    const schedules = calendar.getSchedules();
-    return schedules.some(s=>{
-      if (s.calendarId!==calId) return false;
-      if (ignoreId && s.id===ignoreId) return false;
-      return overlaps(s.start.toDate(), s.end.toDate(), start.toDate(), end.toDate());
+    const evts = getAllEvents();
+    return evts.some(s=>{
+      const thisCal = (isV1 ? s.calendarId : s.calendarId); // same field you set on create
+      if (thisCal !== calId) return false;
+      if (ignoreId && s.id === ignoreId) return false;
+      const sStart = (isV1 ? s.start.toDate() : s.start.toDate());
+      const sEnd   = (isV1 ? s.end.toDate()   : s.end.toDate());
+      return (start.toDate() < sEnd && sStart < end.toDate());
     });
   }
 
@@ -267,15 +282,22 @@
 
   // Load existing events from backend (optional)
   async function loadFromBackend(){
-    if (!ENDPOINT) return;
     const s = calendar.getDateRangeStart().toDate().toISOString();
     const e = calendar.getDateRangeEnd().toDate().toISOString();
     const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}`);
-    const json = await res.json(); // [{id, calendarId, title, start, end}]
+    const json = await res.json();
+  
+    // Accept array (final) or {events:[...]} (older) and ignore diagnostic objects
+    const arr = Array.isArray(json) ? json : (Array.isArray(json?.events) ? json.events : []);
     calendar.clear();
-    calendar.createSchedules(json.map(x => ({
-      id: x.id, calendarId: x.calendarId, title: x.title, category: 'time',
-      start: new Date(x.start), end: new Date(x.end), isReadOnly: false
+    calendar.createSchedules(arr.map(x => ({
+      id: x.id,
+      calendarId: x.calendarId,
+      title: x.title,
+      category: 'time',
+      start: new Date(x.start),
+      end: new Date(x.end),
+      isReadOnly: false
     })));
   }
   loadFromBackend();
