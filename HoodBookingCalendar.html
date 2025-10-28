@@ -176,107 +176,106 @@
     });
   }
 
+  // a tiny helper that keeps requests "simple"
+  function postSimple(payload) {
+    return fetch(ENDPOINT, {
+      method: 'POST',
+      // keep it “simple” so browsers skip preflight:
+      headers: { 'Content-Type': 'text/plain' },
+      // make sure no cookies are sent (can trigger preflight/redirects)
+      credentials: 'omit',
+      // IMPORTANT: do not set any custom headers or authorization
+      body: JSON.stringify(payload)
+    });
+  }
+
+  function uuid() {
+    // tiny uuid that’s good enough for our ids
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+      const r=Math.random()*16|0, v=c==='x'?r:(r&0x3|0x8); return v.toString(16);
+    });
+  }
+
+  
+
   // --- Create from popup (v1 event name) ---
   calendar.on('beforeCreateSchedule', async ev => {
-    const { start, end } = ev;      // moment() objects
-    const calId = ev.calendarId || 'TC1-1';  // simple safe default
-
+    const { start, end } = ev;
+    const calId = ev.calendarId || (calDefs.find(c => calendar.isVisibleCalendar(c.id)) || calDefs[0]).id;
+  
     if (hasConflict(calId, start, end)) {
       alert('Time overlaps an existing booking on that hood.');
-      ev.guide.clearGuideElement(); 
+      ev.guide.clearGuideElement();
       return;
     }
-
-    const tempId = 'tmp-' + Date.now();
-    calendar.createSchedules([{ id: tempId, calendarId: calId, title: ev.title || 'Booking',
-                                category:'time', start, end, isReadOnly:false }]);
+  
+    const newId = uuid(); // ✅ we provide the id
+    calendar.createSchedules([{
+      id: newId, calendarId: calId, title: ev.title || 'Booking',
+      category: 'time', start, end, isReadOnly: false
+    }]);
     ev.guide.clearGuideElement();
-
+  
     try {
-      await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },   // <- important: no preflight
-        body: JSON.stringify({
-          action: 'create',
-          event: { calendarId: calId, title: ev.title || 'Booking',
-                   start: start.toDate().toISOString(),
-                   end:   end.toDate().toISOString() }
-        })
+      await postSimple({
+        action: 'create',
+        event: {
+          id: newId,                      // ✅ server will keep this id
+          calendarId: calId,
+          title: ev.title || 'Booking',
+          start: start.toDate().toISOString(),
+          end:   end.toDate().toISOString()
+        }
       });
-      const json = await res.json();
-      if (json.ok && json.id) {
-        calendar.deleteSchedule(tempId, calId);
-        calendar.createSchedules([{ id: json.id, calendarId: calId, title: ev.title || 'Booking',
-                                    category:'time', start, end, isReadOnly:false }]);
-      } else {
-        alert(json.error || 'Failed to save. Reverting.');
-        calendar.deleteSchedule(tempId, calId);
-      }
-    } catch (e) {
-      alert('Network error. Reverting.');
-      calendar.deleteSchedule(tempId, calId);
+    } catch(_) {
+      alert('Network/CORS error while creating');
     } finally {
+      // refresh from the backend so UI always reflects the source of truth
       loadFromBackend();
     }
   });
-  
+    
   // --- Update / move / resize ---
   calendar.on('beforeUpdateSchedule', async ev => {
     const { schedule, changes } = ev;
     const newCalId = changes.calendarId || schedule.calendarId;
-    const newStart = changes.start || schedule.start;  // moment()
+    const newStart = changes.start || schedule.start;
     const newEnd   = changes.end   || schedule.end;
-
+    const newTitle = (changes.title ?? schedule.title);
+  
     if (hasConflict(newCalId, newStart, newEnd, schedule.id)) {
       alert('Conflict: another booking exists on that hood/time.');
       return;
     }
-
+  
+    // optimistic UI
     calendar.updateSchedule(schedule.id, schedule.calendarId, changes);
-
+  
     try {
-      await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },   // <- important: no preflight
-        body: JSON.stringify({
-          action: 'create',
-          event: { calendarId: calId, title: ev.title || 'Booking',
-                   start: start.toDate().toISOString(),
-                   end:   end.toDate().toISOString() }
-        })
+      await postSimple({
+        action: 'update',
+        event: {
+          id: schedule.id,
+          calendarId: newCalId,
+          start: newStart.toDate().toISOString(),
+          end:   newEnd.toDate().toISOString(),
+          title: newTitle
+        }
       });
-      const json = await res.json();
-      if (!json.ok) { alert(json.error || 'Update failed'); loadFromBackend(); }
-    } catch {
-      alert('Network error'); loadFromBackend();
+    } catch(_) {
+      alert('Network/CORS error while updating');
+    } finally {
+      loadFromBackend();
     }
   });
 
   // --- Delete ---
   calendar.on('beforeDeleteSchedule', async ({ schedule }) => {
     try {
-      // send JSON (we’ll allow preflight on the backend)
-      const res = await fetch(ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },   // <- important
-        body: JSON.stringify({ action: 'delete', event: { id: schedule.id } })
-      });
-  
-      // Important: Apps Script sometimes returns 200 with an HTML error
-      // so force JSON parse inside try/catch:
-      let json;
-      try { json = await res.json(); } catch (e) { throw new Error('Non-JSON response from server'); }
-  
-      if (json.ok) {
-        calendar.deleteSchedule(schedule.id, schedule.calendarId); // immediate UI update
-      } else {
-        alert(json.error || 'Delete failed on server');
-        // optional: reload calendar to stay consistent
-        loadFromBackend();
-      }
-    } catch (err) {
-      console.error('Delete error:', err);
+      await postSimple({ action:'delete', event:{ id: schedule.id } });
+    } catch(_) {
       alert('Network/CORS error while deleting');
+    } finally {
       loadFromBackend();
     }
   });
