@@ -93,6 +93,32 @@
     .tui-full-calendar-time-guide-resize-handler {
       display: none !important;
     }
+
+    /* Make two clean columns with real spacing and safe shrinking */
+    .grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      column-gap:18px;        /* was ~10–12, bump it */
+      row-gap:14px;
+    }
+    
+    /* Consistent field spacing + no overlap from icons */
+    .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    
+    input[type="text"], input[type="date"], input[type="time"], select{
+      width:100%;
+      box-sizing:border-box;      /* ensure padding/borders don’t grow the box */
+      padding:12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
+      outline:none;
+    }
+    
+    /* When space gets tight, stack to one column so nothing touches */
+    @media (max-width: 900px){
+      .grid{grid-template-columns:1fr; column-gap:0}
+    }
     
   </style>
 </head>
@@ -128,35 +154,31 @@
   <div class="modal" id="modalCard">
     <h3 id="modalTitle">New Booking</h3>
     <div class="grid">
-      <div>
+      <div class="field">
         <label for="name">Name</label>
         <input id="name" type="text" placeholder="Your name">
       </div>
-      <div>
+      <div class="field">
         <label for="date">Date</label>
         <input id="date" type="date">
       </div>
-      <div>
+      <div class="field">
         <label for="start">Start time</label>
         <input id="start" type="time" step="900">
       </div>
-      <div>
+      <div class="field">
         <label for="end">End time</label>
         <input id="end" type="time" step="900">
       </div>
     </div>
     <div class="row" style="margin-top:12px">
-      <div style="flex:1">
-        <label for="room">Room</label>
-        <select id="room" disabled>
-          <option value="TC1">TC1</option>
-          <option value="TC2">TC2</option>
-          <option value="TC3">TC3</option>
-        </select>
-      </div>
-      <div style="flex:1">
-        <label for="hood">Hood</label>
-        <select id="hood">
+    <div class="field" style="flex:1">
+      <label for="room">Room</label>
+      <select id="room" disabled> … </select>
+    </div>
+    <div class="field" style="flex:1">
+      <label for="hood">Hood</label>
+          <select id="hood">
           <option value="1">Hood 1</option>
           <option value="2">Hood 2</option>
           <option value="3">Hood 3</option>
