@@ -137,6 +137,37 @@
     @media (max-width: 900px){
       .grid{grid-template-columns:1fr; column-gap:0}
     }
+
+    /* Make row columns actually shrink within the modal */
+    .row { display:flex; gap:12px; }
+    .row > .field { flex:1 1 0; min-width:0; }   /* <-- critical */
+    
+    /* Keep the badge inside its box and center the text */
+    .room-badge{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:44px;                 /* consistent control height */
+      padding:0 12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#f9fafb;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#111827;
+    
+      /* prevent overflow */
+      box-sizing:border-box;
+      max-width:100%;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    
+    /* contextual colors (unchanged) */
+    .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
+    .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
+    .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); }
     
   </style>
 </head>
@@ -192,7 +223,7 @@
     </div>
 
     <!-- Room (read-only badge) + Hood (select) -->
-    <div class="row" style="margin-top:12px; gap:12px">
+    <div class="row" style="margin-top:12px">
       <div class="field" style="flex:1">
         <label>Room</label>
         <div id="roomDisplay" class="room-badge">TC1</div>
