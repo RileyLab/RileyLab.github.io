@@ -1327,7 +1327,9 @@ function renderAnnouncements(items){
     // left chip
     const chip = document.createElement('div');
     chip.className = `ann-chip ${levelToClass(level)}`;
-    chip.textContent = (level || 'Info').toUpperCase().slice(0,1); // I / W / U
+    chip.innerHTML = '<span class="ms" aria-hidden="true">info</span>';
+    if (lvl==='warn')  chip.innerHTML = '<span class="ms">error</span>';
+    if (lvl==='urgent')chip.innerHTML = '<span class="ms">priority_high</span>';
 
     // right block
     const head = document.createElement('div');
@@ -1742,6 +1744,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
