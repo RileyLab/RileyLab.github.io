@@ -91,20 +91,37 @@
     tbody tr:hover{background:#e8f0fe}
     .col-no{width:60px;color:#6d7891}
     .task a{color:var(--accent);text-decoration:none}
-    .owners{display:flex;flex-wrap:wrap;gap:6px}
+
+    /* >>> Updated: make names stand out <<< */
+    .owners{display:flex;flex-wrap:wrap;gap:8px}
     .chip{
-      background:var(--chip);
-      border:1px solid #c5d5f3;
       border-radius:999px;
-      padding:5px 10px;
-      font-size:13px;
-      color:#1a3a73;
+      padding:7px 12px;
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+      line-height:1;
+      box-shadow:0 1px 2px rgba(0,0,0,.08);
+      user-select:text;
     }
+    /* Rotation gets its own look */
     .warn{
-      background:var(--warn-bg);
-      border-color:var(--warn-border);
-      color:#8a6d00;
+      background:linear-gradient(135deg,#ffe08a,#f8c74a);
+      color:#553d00;
+      border:1px solid var(--warn-border);
+      box-shadow:none;
     }
+    /* Deterministic color classes for people chips */
+    .c1{background:#1a73e8;}   /* blue   */
+    .c2{background:#34a853;}   /* green  */
+    .c3{background:#f29900;}   /* orange */
+    .c4{background:#e91e63;}   /* pink   */
+    .c5{background:#6f42c1;}   /* purple */
+    .c6{background:#0097a7;}   /* teal   */
+    .c7{background:#ef5350;}   /* red    */
+    .c8{background:#2e7d32;}   /* dark green */
+    /* ------------------------------------- */
+
     .empty{padding:24px;text-align:center;color:var(--ink-dim)}
     footer{
       display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
@@ -173,16 +190,32 @@
       const rows=data.table.rows.map(r=>r.c.map(c=>c?c.v||"":""));
       return {cols,rows};
     }
-    function ownersToChips(str){
-      if(!str)return"";
-      return str.split(/[,;/&]+/).map(s=>s.trim()).filter(Boolean)
-        .map(n=>`<span class="chip${/rotation/i.test(n)?' warn':''}">${n}</span>`).join("");
-    }
+
     function normalizeHeaders(cols){
       const idx={};cols.forEach((c,i)=>idx[c.toLowerCase()]=i);
       function f(...names){for(const n of names){if(n.toLowerCase() in idx)return idx[n.toLowerCase()];}return -1;}
       return{no:f("no","#"),task:f("task"),owner:f("owner","owners","name"),notes:f("notes"),link:f("link")};
     }
+
+    /* Stable color per person using a tiny hash → one of .c1..c8 */
+    function colorClassFor(name){
+      const colors=["c1","c2","c3","c4","c5","c6","c7","c8"];
+      let h=5381; // djb2-ish
+      for(let i=0;i<name.length;i++){ h=((h<<5)+h) + name.charCodeAt(i); }
+      const idx=Math.abs(h)%colors.length;
+      return colors[idx];
+    }
+
+    function ownersToChips(str){
+      if(!str)return"";
+      return str.split(/[,;/&]+/).map(s=>s.trim()).filter(Boolean)
+        .map(n=>{
+          if(/rotation/i.test(n)) return `<span class="chip warn">${n}</span>`;
+          const cls=colorClassFor(n.toLowerCase());
+          return `<span class="chip ${cls}">${n}</span>`;
+        }).join("");
+    }
+
     function render(data){
       const {cols,rows}=data;
       const h=normalizeHeaders(cols);
@@ -198,7 +231,7 @@
         const link=h.link>=0?r[h.link]:"";
         const searchText=[task,owner,notes].join(" ").toLowerCase();
         if(q && !searchText.includes(q))continue;
-        const taskCell=link && /^https?:\/\//.test(link)?`<a href="${link}" target="_blank">${task}</a>`:task;
+        const taskCell=link && /^https?:\/\//.test(link)?`<a href="${link}" target="_blank" rel="noopener noreferrer">${task}</a>`:task;
         html+=`<tr>
           <td class="col-no">${no||"&nbsp;"}</td>
           <td class="task">${taskCell}</td>
@@ -220,6 +253,7 @@
         lastUpdated.textContent="Updated "+new Date().toLocaleString();
       }catch(e){tbody.innerHTML='<tr><td colspan="4" class="empty">Error loading sheet.</td></tr>';console.error(e);}
     }
+
     searchEl.addEventListener("input",()=>{try{render(parseGViz(cache));}catch{}});
     refreshBtn.addEventListener("click",load);
     load();
