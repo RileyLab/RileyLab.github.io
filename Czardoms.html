@@ -16,10 +16,13 @@
       --ink: #20252b;
       --ink-dim: #66738a;
       --accent: #1a73e8;
-      --warn-bg: #fff3cd;
-      --warn-border: #ffe082;
+      --accent-2: #118f6f;
+      --chip: #eaf1fb;
+      --warn-bg: #fff8e1;
+      --warn-border: #f9d57d;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -48,6 +51,7 @@
       border-radius:8px;
       font-weight:600;
       font-size:14px;
+      letter-spacing:.2px;
     }
     .sub{color:var(--ink-dim);font-size:13px}
     .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -87,27 +91,20 @@
     tbody tr:hover{background:#e8f0fe}
     .col-no{width:60px;color:#6d7891}
     .task a{color:var(--accent);text-decoration:none}
-
-    .owners{display:flex;flex-wrap:wrap;gap:8px;}
+    .owners{display:flex;flex-wrap:wrap;gap:6px}
     .chip{
+      background:var(--chip);
+      border:1px solid #c5d5f3;
       border-radius:999px;
-      padding:7px 12px;
-      font-size:14px;
-      font-weight:600;
-      color:#fff;
-      box-shadow:0 1px 2px rgba(0,0,0,.1);
+      padding:5px 10px;
+      font-size:13px;
+      color:#1a3a73;
     }
-    /* rotation warning style */
     .warn{
-      background:linear-gradient(135deg,#ffe08a,#f8c74a);
-      color:#5c4200;
-      border:1px solid var(--warn-border);
+      background:var(--warn-bg);
+      border-color:var(--warn-border);
+      color:#8a6d00;
     }
-    /* colorful name chips */
-    .c1{background:#1a73e8;}   /* blue */
-    .c2{background:#34a853;}   /* green */
-    .c3{background:#fbbc05;}   /* gold */
-    .c4{background:#e91e63;}   /* pink */
     .empty{padding:24px;text-align:center;color:var(--ink-dim)}
     footer{
       display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
@@ -116,7 +113,7 @@
       color:var(--ink-dim);
       background:#f3f6fa;
     }
-    .credit a{color:var(--accent);text-decoration:none}
+    .credit a{color:var(--accent-2);text-decoration:none}
     @media(max-width:700px){.col-notes{display:none}}
   </style>
 </head>
@@ -131,7 +128,7 @@
         <div class="controls">
           <input id="search" type="search" placeholder="Filter by task or owner…" />
           <button id="refreshBtn" type="button">Refresh</button>
-          <span class="hint">Edit names in the Google Sheet — updates live.</span>
+          <span class="hint">Edit names in the Google Sheet — this updates live.</span>
         </div>
       </header>
 
@@ -157,8 +154,8 @@
   </div>
 
   <script>
-    const SHEET_ID="1ttGaOPU64y-1mZIIs_3qwNFdUFTSDhsOCxb8iR0_JEM";  
-    const SHEET_NAME="CzardomList";               
+    const SHEET_ID="1ttGaOPU64y-1mZIIs_3qwNFdUFTSDhsOCxb8iR0_JEM";
+    const SHEET_NAME="CzardomList";
     const AUTO_REFRESH_MIN=5;
 
     const tbody=document.getElementById("tbody");
@@ -170,44 +167,37 @@
       return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tq=${encodeURIComponent("select *")}`;
     }
     function parseGViz(txt){
-      const m=txt.match(/setResponse\\(([\s\S]*)\\);?/);
+      const m=txt.match(/setResponse\(([\s\S]*)\);?/);
       const data=JSON.parse(m[1]);
       const cols=data.table.cols.map(c=>c.label||c.id||"");
       const rows=data.table.rows.map(r=>r.c.map(c=>c?c.v||"":""));
       return {cols,rows};
+    }
+    function ownersToChips(str){
+      if(!str)return"";
+      return str.split(/[,;/&]+/).map(s=>s.trim()).filter(Boolean)
+        .map(n=>`<span class="chip${/rotation/i.test(n)?' warn':''}">${n}</span>`).join("");
     }
     function normalizeHeaders(cols){
       const idx={};cols.forEach((c,i)=>idx[c.toLowerCase()]=i);
       function f(...names){for(const n of names){if(n.toLowerCase() in idx)return idx[n.toLowerCase()];}return -1;}
       return{no:f("no","#"),task:f("task"),owner:f("owner","owners","name"),notes:f("notes"),link:f("link")};
     }
-
-    function ownersToChips(str){
-      if(!str)return"";
-      const colors=["c1","c2","c3","c4"];
-      let count=0;
-      return str.split(/[,;/&]+/).map(s=>s.trim()).filter(Boolean)
-        .map(name=>{
-          if(/rotation/i.test(name))return `<span class="chip warn">${name}</span>`;
-          const color=colors[count++ % colors.length];
-          return `<span class="chip ${color}">${name}</span>`;
-        }).join("");
-    }
-
     function render(data){
       const {cols,rows}=data;
       const h=normalizeHeaders(cols);
       if(h.task<0||h.owner<0){tbody.innerHTML='<tr><td colspan="4" class="empty">Need “Task” and “Owner” columns.</td></tr>';return;}
       const q=(searchEl.value||"").toLowerCase();
-      let html=""; let shown=0;
+      let html="";
+      let shown=0;
       for(const r of rows){
         const no=h.no>=0?r[h.no]:"";
         const task=r[h.task]||"";
         const owner=r[h.owner]||"";
         const notes=h.notes>=0?r[h.notes]:"";
         const link=h.link>=0?r[h.link]:"";
-        const text=[task,owner,notes].join(" ").toLowerCase();
-        if(q && !text.includes(q))continue;
+        const searchText=[task,owner,notes].join(" ").toLowerCase();
+        if(q && !searchText.includes(q))continue;
         const taskCell=link && /^https?:\/\//.test(link)?`<a href="${link}" target="_blank">${task}</a>`:task;
         html+=`<tr>
           <td class="col-no">${no||"&nbsp;"}</td>
