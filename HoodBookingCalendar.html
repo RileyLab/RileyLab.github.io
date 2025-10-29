@@ -300,7 +300,6 @@
   const dateEl    = document.getElementById('date');
   const startEl   = document.getElementById('start');
   const endEl     = document.getElementById('end');
-  const roomEl    = document.getElementById('room'); // locked
   const roomDisplay = document.getElementById('roomDisplay');
   const hoodEl    = document.getElementById('hood');
   const saveBtn   = document.getElementById('saveBtn');
@@ -379,8 +378,7 @@
 
   function renderRoom(room){
     activeRoom = room;
-    // Sync locked dropdown if modal is open
-    if (modalBg.style.display === 'flex') roomEl.value = activeRoom;
+    if (modalBg.style.display === 'flex') syncRoomBadge(room);
   
     // Re-render from cache: only events for the selected room
     const toRender = cache.events.filter(e => String(e.calendarId).startsWith(`${room}-`));
@@ -529,9 +527,9 @@
   saveBtn.onclick = async ()=>{
     if (BUSY) return;
     const name = nameEl.value.trim();
-    const room = activeRoom;   // locked to tab
-    const calendarId = `${room}-${hood}`;
+    const room = activeRoom;           // locked to tab
     const hood = hoodEl.value;
+    const calendarId = `${room}-${hood}`;
     const date = dateEl.value;
     const sTime = startEl.value;
     const eTime = endEl.value;
@@ -542,7 +540,6 @@
     const start = buildDate(date, sTime);
     const end   = buildDate(date, eTime);
     const now   = new Date();
-    const calendarId = `${room}-${hood}`;
     const title = titleFor(name, room, hood);
     if (end <= start){ toast('End time must be after start time.', 'warn'); return; }
     if (end - start < 15*60*1000){ toast('Minimum booking is 15 minutes.', 'warn'); return; }
