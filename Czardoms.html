@@ -1,306 +1,229 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Riley Lab — Czar-dom List</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root{
-          --bg: #f8fafc;
-          --card: #ffffff;
-          --border: #d1d9e6;
-          --row: #f3f6fa;
-          --row-alt: #ffffff;
-          --ink: #20252b;
-          --ink-dim: #66738a;
-          --accent: #1a73e8;
-          --accent-2: #118f6f;
-          --chip: #eaf1fb;
-          --warn-bg: #fff8e1;
-          --warn-border: #f9d57d;
-        }
-        *{box-sizing:border-box}
-        html,body{height:100%}
-        body{
-          margin:0;
-          font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-          background: var(--bg);
-          color: var(--ink);
-          line-height:1.5;
-        }
-        .wrap{max-width:1100px;margin:48px auto;padding:0 20px;}
-        .card{
-          background: var(--card);
-          border:1px solid var(--border);
-          border-radius:16px;
-          box-shadow: 0 2px 8px rgba(0,0,0,.05);
-          overflow:hidden;
-        }
-        header{
-          display:flex;align-items:center;justify-content:space-between;gap:16px;
-          padding:18px 22px;border-bottom:1px solid var(--border);
-          background:#f3f6fa;
-        }
-        .title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-        .badge{
-          background:var(--accent);
-          color:#fff;
-          padding:8px 12px;
-          border-radius:8px;
-          font-weight:600;
-          font-size:14px;
-          letter-spacing:.2px;
-        }
-        .sub{color:var(--ink-dim);font-size:13px}
-        .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-        input[type="search"]{
-          border:1px solid var(--border);
-          padding:9px 12px;
-          border-radius:8px;
-          font-size:14px;
-          min-width:220px;
-        }
-        input[type="search"]:focus{border-color:var(--accent);outline:none}
-        button{
-          cursor:pointer;
-          background:var(--accent);
-          color:#fff;
-          border:none;
-          border-radius:8px;
-          padding:9px 14px;
-          font-weight:600;
-        }
-        button:hover{background:#155fc0}
-        .hint{color:var(--ink-dim);font-size:12px;margin-left:6px}
-    
-        table{width:100%;border-collapse:collapse}
-        thead th{
-          text-align:left;
-          padding:12px 14px;
-          background:#f3f6fa;
-          color:#5b667a;
-          font-size:12px;
-          text-transform:uppercase;
-          letter-spacing:.3px;
-          border-bottom:1px solid var(--border);
-        }
-        tbody td{padding:14px 14px;border-bottom:1px solid var(--border)}
-        tbody tr:nth-child(even){background:var(--row)}
-        tbody tr:hover{background:#e8f0fe}
-        .col-no{width:60px;color:#6d7891}
-        .task a{color:var(--accent);text-decoration:none}
-        .owners{display:flex;flex-wrap:wrap;gap:6px}
-        .chip{
-          background:var(--chip);
-          border:1px solid #c5d5f3;
-          border-radius:999px;
-          padding:5px 10px;
-          font-size:13px;
-          color:#1a3a73;
-        }
-        .warn{
-          background:var(--warn-bg);
-          border-color:var(--warn-border);
-          color:#8a6d00;
-        }
-        .empty{padding:24px;text-align:center;color:var(--ink-dim)}
-        footer{
-          display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
-          padding:12px 18px;
-          font-size:12px;
-          color:var(--ink-dim);
-          background:#f3f6fa;
-        }
-        .credit a{color:var(--accent-2);text-decoration:none}
-        @media(max-width:700px){.col-notes{display:none}}
-      </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Riley Lab — Czar-dom List</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #d1d9e6;
+      --row: #f3f6fa;
+      --row-alt: #ffffff;
+      --ink: #20252b;
+      --ink-dim: #66738a;
+      --accent: #1a73e8;
+      --accent-2: #118f6f;
+      --chip: #eaf1fb;
+      --warn-bg: #fff8e1;
+      --warn-border: #f9d57d;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height:1.5;
+    }
+    .wrap{max-width:1100px;margin:48px auto;padding:0 20px;}
+    .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      overflow:hidden;
+    }
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:18px 22px;border-bottom:1px solid var(--border);
+      background:#f3f6fa;
+    }
+    .title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .badge{
+      background:var(--accent);
+      color:#fff;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    .sub{color:var(--ink-dim);font-size:13px}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    input[type="search"]{
+      border:1px solid var(--border);
+      padding:9px 12px;
+      border-radius:8px;
+      font-size:14px;
+      min-width:220px;
+    }
+    input[type="search"]:focus{border-color:var(--accent);outline:none}
+    button{
+      cursor:pointer;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:9px 14px;
+      font-weight:600;
+    }
+    button:hover{background:#155fc0}
+    .hint{color:var(--ink-dim);font-size:12px;margin-left:6px}
+
+    table{width:100%;border-collapse:collapse}
+    thead th{
+      text-align:left;
+      padding:12px 14px;
+      background:#f3f6fa;
+      color:#5b667a;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      border-bottom:1px solid var(--border);
+    }
+    tbody td{padding:14px 14px;border-bottom:1px solid var(--border)}
+    tbody tr:nth-child(even){background:var(--row)}
+    tbody tr:hover{background:#e8f0fe}
+    .col-no{width:60px;color:#6d7891}
+    .task a{color:var(--accent);text-decoration:none}
+    .owners{display:flex;flex-wrap:wrap;gap:6px}
+    .chip{
+      background:var(--chip);
+      border:1px solid #c5d5f3;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:13px;
+      color:#1a3a73;
+    }
+    .warn{
+      background:var(--warn-bg);
+      border-color:var(--warn-border);
+      color:#8a6d00;
+    }
+    .empty{padding:24px;text-align:center;color:var(--ink-dim)}
+    footer{
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+      padding:12px 18px;
+      font-size:12px;
+      color:var(--ink-dim);
+      background:#f3f6fa;
+    }
+    .credit a{color:var(--accent-2);text-decoration:none}
+    @media(max-width:700px){.col-notes{display:none}}
+  </style>
 </head>
 <body>
-<div class="wrap">
+  <div class="wrap">
     <div class="card">
-        <header>
-            <div class="title">
-                <div class="badge" title="Central ownership list for lab tasks">
-                    Riley Lab · Czar-dom List
-                </div>
-                <div class="sub" id="lastUpdated">—</div>
-            </div>
-            <div class="controls">
-                <input id="search" type="search" placeholder="Filter by task or owner…" />
-                <button id="refreshBtn" type="button">Refresh</button>
-                <span class="hint">Edit names in the Google Sheet — this page auto-updates.</span>
-            </div>
-        </header>
-
-        <div id="tableWrap">
-            <table id="czarTable" aria-describedby="lastUpdated">
-                <thead>
-                <tr>
-                    <th class="col-no">#</th>
-                    <th>Task</th>
-                    <th>Owner(s)</th>
-                    <th class="col-notes">Notes</th>
-                </tr>
-                </thead>
-                <tbody id="tbody">
-                <tr><td colspan="4" class="empty">Loading…</td></tr>
-                </tbody>
-            </table>
+      <header>
+        <div class="title">
+          <div class="badge">Riley Lab Czar-dom List</div>
+          <div class="sub" id="lastUpdated">—</div>
         </div>
+        <div class="controls">
+          <input id="search" type="search" placeholder="Filter by task or owner…" />
+          <button id="refreshBtn" type="button">Refresh</button>
+          <span class="hint">Edit names in the Google Sheet — this updates live.</span>
+        </div>
+      </header>
 
-        <footer>
-            <div>Tip: separate multiple owners with commas in the sheet (e.g., <em>Emileigh, Max</em>).</div>
-            <div class="credit">Maintained via Google Sheets → Live HTML</div>
-        </footer>
+      <table id="czarTable">
+        <thead>
+          <tr>
+            <th class="col-no">#</th>
+            <th>Task</th>
+            <th>Owner(s)</th>
+            <th class="col-notes">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="4" class="empty">Loading…</td></tr>
+        </tbody>
+      </table>
+
+      <footer>
+        <div>Tip: use commas for multiple owners (e.g., <em>Emileigh, Max</em>).</div>
+        <div class="credit">Powered by Google Sheets → Live HTML</div>
+      </footer>
     </div>
-</div>
+  </div>
 
-<script>
-    /***********************
-     * CONFIG – set these! *
-     ***********************/
-    const SHEET_ID   = "1ttGaOPU64y-1mZIIs_3qwNFdUFTSDhsOCxb8iR0_JEM";
-    const SHEET_NAME = "CzardomList";
-    // If you prefer using a gid instead of sheet name, set SHEET_NAME=null and fill GID
-    const GID        = null; // e.g., "0"
+  <script>
+    const SHEET_ID="1ttGaOPU64y-1mZIIs_3qwNFdUFTSDhsOCxb8iR0_JEM";
+    const SHEET_NAME="CzardomList";
+    const AUTO_REFRESH_MIN=5;
 
-    // Auto-refresh every N minutes (set to 0 to disable)
-    const AUTO_REFRESH_MIN = 5;
-
-    /***********************
-     * Fetch + Render      *
-     ***********************/
-    const tbody = document.getElementById("tbody");
-    const lastUpdated = document.getElementById("lastUpdated");
-    const searchEl = document.getElementById("search");
-    const refreshBtn = document.getElementById("refreshBtn");
+    const tbody=document.getElementById("tbody");
+    const lastUpdated=document.getElementById("lastUpdated");
+    const searchEl=document.getElementById("search");
+    const refreshBtn=document.getElementById("refreshBtn");
 
     function gvizUrl(){
-        if (SHEET_NAME && SHEET_NAME.trim().length){
-            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tq=${encodeURIComponent("select *")}`;
-        }
-        if (GID){
-            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&tq=${encodeURIComponent("select *")}`;
-        }
-        throw new Error("Set SHEET_NAME or GID.");
+      return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tq=${encodeURIComponent("select *")}`;
     }
-
-    function parseGViz(text){
-        // gviz returns: google.visualization.Query.setResponse({...});
-        const m = text.match(/setResponse\(([\s\S]*)\);?/);
-        if(!m) throw new Error("Unexpected GViz response.");
-        const data = JSON.parse(m[1]);
-        const cols = data.table.cols.map(c => (c.label || c.id || "").toString().trim());
-        const rows = data.table.rows.map(r => r.c.map(c => c ? (c.f ?? c.v ?? "") : ""));
-        return { cols, rows };
+    function parseGViz(txt){
+      const m=txt.match(/setResponse\(([\s\S]*)\);?/);
+      const data=JSON.parse(m[1]);
+      const cols=data.table.cols.map(c=>c.label||c.id||"");
+      const rows=data.table.rows.map(r=>r.c.map(c=>c?c.v||"":""));
+      return {cols,rows};
     }
-
-    function normalizeHeaders(cols){
-        // map header names to indices, case-insensitive
-        const idx = {};
-        cols.forEach((c,i)=>{
-            const k = c.toLowerCase().trim();
-            idx[k] = i;
-        });
-        function find(...names){
-            for (const n of names){
-                const key = n.toLowerCase();
-                if (key in idx) return idx[key];
-            }
-            return -1;
-        }
-        return {
-            iNo:     find("no","#","index"),
-            iTask:   find("task","role","item","responsibility"),
-            iOwner:  find("owner","owners","name","names","lead","leads"),
-            iNotes:  find("notes","comment","comments","details"),
-            iLink:   find("link","url","href")
-        };
-    }
-
     function ownersToChips(str){
-        if(!str) return "";
-        return str.split(/[,/;&]+/).map(s=>s.trim()).filter(Boolean)
-            .map(name => `<span class="chip${/rotation/i.test(name)?' warn':''}">${name}</span>`).join("");
+      if(!str)return"";
+      return str.split(/[,;/&]+/).map(s=>s.trim()).filter(Boolean)
+        .map(n=>`<span class="chip${/rotation/i.test(n)?' warn':''}">${n}</span>`).join("");
+    }
+    function normalizeHeaders(cols){
+      const idx={};cols.forEach((c,i)=>idx[c.toLowerCase()]=i);
+      function f(...names){for(const n of names){if(n.toLowerCase() in idx)return idx[n.toLowerCase()];}return -1;}
+      return{no:f("no","#"),task:f("task"),owner:f("owner","owners","name"),notes:f("notes"),link:f("link")};
+    }
+    function render(data){
+      const {cols,rows}=data;
+      const h=normalizeHeaders(cols);
+      if(h.task<0||h.owner<0){tbody.innerHTML='<tr><td colspan="4" class="empty">Need “Task” and “Owner” columns.</td></tr>';return;}
+      const q=(searchEl.value||"").toLowerCase();
+      let html="";
+      let shown=0;
+      for(const r of rows){
+        const no=h.no>=0?r[h.no]:"";
+        const task=r[h.task]||"";
+        const owner=r[h.owner]||"";
+        const notes=h.notes>=0?r[h.notes]:"";
+        const link=h.link>=0?r[h.link]:"";
+        const searchText=[task,owner,notes].join(" ").toLowerCase();
+        if(q && !searchText.includes(q))continue;
+        const taskCell=link && /^https?:\/\//.test(link)?`<a href="${link}" target="_blank">${task}</a>`:task;
+        html+=`<tr>
+          <td class="col-no">${no||"&nbsp;"}</td>
+          <td class="task">${taskCell}</td>
+          <td><div class="owners">${ownersToChips(owner)}</div></td>
+          <td class="col-notes" style="color:var(--ink-dim)">${notes||""}</td>
+        </tr>`;
+        shown++;
+      }
+      tbody.innerHTML=shown?html:'<tr><td colspan="4" class="empty">No matches.</td></tr>';
+      lastUpdated.textContent="Updated "+new Date().toLocaleString();
     }
 
-    function renderTable(data){
-        const {cols, rows} = data;
-        const h = normalizeHeaders(cols);
-        if (h.iTask < 0 || h.iOwner < 0){
-            tbody.innerHTML = `<tr><td colspan="4" class="empty">Your sheet must include “Task” and “Owner” columns.</td></tr>`;
-            return;
-        }
-
-        const q = (searchEl.value || "").trim().toLowerCase();
-        const match = (t) => !q || (t && t.toLowerCase().includes(q));
-
-        let html = "";
-        let shown = 0;
-        for (const r of rows){
-            const no    = h.iNo   >=0 ? (r[h.iNo]   || "") : "";
-            const task  = r[h.iTask]  || "";
-            const owner = r[h.iOwner] || "";
-            const notes = h.iNotes>=0 ? (r[h.iNotes]|| "") : "";
-            const link  = h.iLink >=0 ? (r[h.iLink] || "") : "";
-
-            const searchable = [task, owner, notes].join(" ").toLowerCase();
-            if (q && !searchable.includes(q)) continue;
-
-            const taskCell = link && /^https?:\/\//i.test(link)
-                ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${task}</a>`
-                : `${task}`;
-
-            html += `
-          <tr>
-            <td class="col-no">${no || "&nbsp;"}</td>
-            <td class="task">${taskCell}</td>
-            <td><div class="owners">${ownersToChips(owner)}</div></td>
-            <td class="col-notes" style="color:var(--ink-dim)">${notes || ""}</td>
-          </tr>
-        `;
-            shown++;
-        }
-        tbody.innerHTML = shown ? html : `<tr><td colspan="4" class="empty">No rows match your filter.</td></tr>`;
-        lastUpdated.textContent = "Updated: " + new Date().toLocaleString();
+    let cache="";
+    async function load(){
+      try{
+        const res=await fetch(gvizUrl(),{cache:"no-store"});
+        const txt=await res.text();
+        if(txt!==cache){cache=txt;render(parseGViz(txt));}
+        lastUpdated.textContent="Updated "+new Date().toLocaleString();
+      }catch(e){tbody.innerHTML='<tr><td colspan="4" class="empty">Error loading sheet.</td></tr>';console.error(e);}
     }
-
-    let _cacheText = "";
-    async function loadData(){
-        try{
-            const res = await fetch(gvizUrl(), {cache: "no-store"});
-            const text = await res.text();
-            if (text && text !== _cacheText){
-                _cacheText = text;
-                const parsed = parseGViz(text);
-                renderTable(parsed);
-            } else {
-                // still update the timestamp so users know refresh happened
-                lastUpdated.textContent = "Checked: " + new Date().toLocaleString();
-            }
-        }catch(err){
-            console.error(err);
-            tbody.innerHTML = `<tr><td colspan="4" class="empty">Couldn’t load the Google Sheet. Check sharing settings and IDs.</td></tr>`;
-        }
-    }
-
-    // UI wiring
-    searchEl.addEventListener("input", () => {
-        // re-render against cached data for instant filtering
-        try{
-            const parsed = parseGViz(_cacheText);
-            renderTable(parsed);
-        }catch{ /* ignore until first load */ }
-    });
-    refreshBtn.addEventListener("click", loadData);
-
-    // First load + optional auto refresh
-    loadData();
-    if (AUTO_REFRESH_MIN > 0){
-        setInterval(loadData, AUTO_REFRESH_MIN * 60 * 1000);
-    }
-</script>
+    searchEl.addEventListener("input",()=>{try{render(parseGViz(cache));}catch{}});
+    refreshBtn.addEventListener("click",load);
+    load();
+    if(AUTO_REFRESH_MIN>0)setInterval(load,AUTO_REFRESH_MIN*60*1000);
+  </script>
 </body>
 </html>
