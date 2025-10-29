@@ -177,13 +177,11 @@
       <select id="room" disabled> … </select>
     </div>
     <div class="field" style="flex:1">
-      <label for="hood">Hood</label>
-          <select id="hood">
-            <option value="1">Hood 1</option>
-            <option value="2">Hood 2</option>
-            <option value="3">Hood 3</option>
-        </select>
-      </div>
+      <label for="room">Room</label>
+      <div id="roomDisplay" style="
+        width:100%; padding:12px; border:1px solid #e5e7eb; border-radius:12px;
+        background:#f9fafb; font-weight:600; color:#111827; text-align:center;
+      ">TC1</div>
     </div>
 
     <div class="modal-actions">
@@ -307,8 +305,7 @@
     dateEl.value  = preset?.date || '';
     startEl.value = preset?.start || '';
     endEl.value   = preset?.end || '';
-    roomEl.value  = preset?.room || activeRoom || 'TC1';
-    roomEl.disabled = true; // LOCKED to active tab
+    document.getElementById('roomDisplay').textContent = preset?.room || activeRoom || 'TC1';
     hoodEl.value  = preset?.hood || '1';
     deleteBtn.style.display = preset?.mode === 'edit' ? 'inline-block' : 'none';
     setTimeout(()=>nameEl.focus(), 0);
