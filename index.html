@@ -754,6 +754,14 @@
       background:#fff; border-color:#90caf9; color:#0d47a1;
     }
     .notice-fixed.ann-toast .ms{ color:#2979ff; }
+
+    /* === Fade out Mark Read button === */
+    .ann-item.read .btn-min {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
     
   </style>
 
@@ -1244,8 +1252,21 @@ async function fetchPortalData() {
 }
 
 /* Renderers */
-/* ===== Announcements: render + "new since last visit" tracking ===== */
-const ANN_SEEN_KEY = 'lab_announcements_last_seen_v1';
+/* === Per-announcement read tracking === */
+const ANN_READ_KEY = 'lab_announcements_read_ids_v1';
+
+function getReadSet(){
+  try { return new Set(JSON.parse(localStorage.getItem(ANN_READ_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function saveReadSet(set){
+  localStorage.setItem(ANN_READ_KEY, JSON.stringify([...set]));
+}
+function markAnnouncementRead(id){
+  const set = getReadSet();
+  set.add(id);
+  saveReadSet(set);
+}
 
 function parseDateSafe(s){
   const d = new Date(s);
@@ -1304,6 +1325,8 @@ function renderAnnouncements(items){
   let newestTs = lastSeen;
   let newCount = 0;
 
+  const readSet = getReadSet();
+
   const sorted = (items||[]).slice().sort((a,b) => {
     const da = parseDateSafe(a.when) || new Date(0);
     const db = parseDateSafe(b.when) || new Date(0);
@@ -1317,8 +1340,9 @@ function renderAnnouncements(items){
     const ts = d.getTime();
     if (ts > newestTs) newestTs = ts;
 
-    const isNew = ts > lastSeen;
-    if (isNew) newCount++;
+    const id = hashId(text||'', when||'');
+    const isRead = readSet.has(id);
+    const isNew  = !isRead && ts > lastSeen;
 
     const li = document.createElement('li');
     li.className = `ann-item${isNew ? ' new' : ''}`;
@@ -1371,13 +1395,11 @@ function renderAnnouncements(items){
     mark.className = 'btn-min';
     mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
     mark.addEventListener('click', () => {
+      const id = li.dataset.id;
+      markAnnouncementRead(id);
+    
       li.classList.remove('new');
-      const remaining = list.querySelectorAll('.ann-item.new').length;
-      if (!remaining){
-        const dot = document.getElementById('ann-header-dot');
-        if (dot) dot.classList.remove('show');
-      }
-      setLastSeenTs(Math.max(newestTs, Date.now()));
+      li.classList.add('read'); // adds fade animation
     });
     actions.appendChild(mark);
 
@@ -1745,6 +1767,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
