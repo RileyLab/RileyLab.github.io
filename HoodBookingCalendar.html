@@ -282,14 +282,27 @@
     showSpin(false);
   }
 
-  function showOnlyRoom(room){
-    // toggle calendars instantly
-    ['TC1','TC2','TC3'].forEach(r=>{
-      ['1','2','3'].forEach(h=>Cal.visible(`${r}-${h}`, r===room));
-    });
+  function renderRoom(room){
     activeRoom = room;
-    // if modal is open, sync locked dropdown
+    // Sync locked dropdown if modal is open
     if (modalBg.style.display === 'flex') roomEl.value = activeRoom;
+  
+    // Re-render from cache: only events for the selected room
+    const toRender = cache.events.filter(e => String(e.calendarId).startsWith(`${room}-`));
+  
+    // Fast redraw without thrash
+    Cal.clear();
+    document.getElementById('calendar').style.visibility = 'hidden';
+    Cal.add(toRender.map(x => ({
+      id: x.id,
+      calendarId: x.calendarId,
+      title: x.title,
+      category: 'time',
+      start: new Date(x.start),
+      end: new Date(x.end),
+      isReadOnly: false
+    })));
+    document.getElementById('calendar').style.visibility = '';
   }
 
   /* ---------- API helper ---------- */
@@ -305,7 +318,7 @@
   /* ---------- Toolbar + navigation (prefetch pattern) ---------- */
   function reloadRange(){
     setRangeTitle();
-    ensureRangeLoaded().then(()=> showOnlyRoom(activeRoom));
+    ensureRangeLoaded().then(()=> renderRoom(activeRoom));
   }
   document.getElementById('prev').onclick  = ()=>{ calendar.prev();  reloadRange(); };
   document.getElementById('today').onclick = ()=>{ calendar.today(); reloadRange(); };
@@ -319,7 +332,7 @@
       document.querySelectorAll('#roomTabs .tab').forEach(t=>t.classList.remove('active'));
       tab.classList.add('active');
       // no re-fetch: just toggle visibility
-      showOnlyRoom(tab.dataset.room);
+      renderRoom(tab.dataset.room);
       toast(`Viewing ${tab.dataset.room}`, 'ok', 800);
     });
   });
@@ -397,79 +410,103 @@
   deleteBtn.onclick = async ()=>{
     if (!editing?.id || BUSY) return;
     BUSY = true;
+  
+    // Optimistic: close modal and remove immediately
     const id = editing.id;
+    closeModal();
+    const curr = Cal.all().find(s => s.id === id);
+    if (curr) Cal.remove(id, curr.calendarId);
+    cache.events = cache.events.filter(e => e.id !== id);
+  
+    // Persist
     const res = await postSimple({ action:'delete', event:{ id } });
     if (res && res.ok){
-      // remove from UI + cache
-      const s = Cal.all().find(x=>x.id===id);
-      if (s) Cal.remove(id, s.calendarId);
-      cache.events = cache.events.filter(e=>e.id!==id);
       toast('Deleted.', 'ok', 900);
-      closeModal();
     } else {
-      toast('Delete failed.', 'err', 1600);
+      toast('Delete failed. Reloading…', 'err', 1600);
+      // Recover by reloading the range and re-rendering the active room
+      await ensureRangeLoaded();
+      renderRoom(activeRoom);
     }
-    BUSY = false; editing=null;
+    BUSY = false; editing = null;
   };
 
   saveBtn.onclick = async ()=>{
     if (BUSY) return;
     const name = nameEl.value.trim();
-    const room = activeRoom; // LOCKED to tab
+    const room = activeRoom; // locked to tab
     const hood = hoodEl.value;
     const date = dateEl.value;
     const sTime = startEl.value;
     const eTime = endEl.value;
-
+  
     if (!name){ toast('Please enter your name.', 'warn'); return; }
     if (!date || !sTime || !eTime){ toast('Pick a date and start/end times.', 'warn'); return; }
-
+  
     const start = buildDate(date, sTime);
     const end   = buildDate(date, eTime);
     const now   = new Date();
     const calendarId = `${room}-${hood}`;
     const title = titleFor(name, room, hood);
-
     if (end <= start){ toast('End time must be after start time.', 'warn'); return; }
     if (end - start < 15*60*1000){ toast('Minimum booking is 15 minutes.', 'warn'); return; }
     if (end <= now){ if(!confirm('This is in the past. Save anyway?')) return; }
-
+  
     BUSY = true;
+  
+    // ---- EDIT EXISTING ----
     if (editing && editing.id){
-      // UPDATE
-      const payload = { action:'update', event:{ id: editing.id, calendarId, title, start:start.toISOString(), end:end.toISOString() } };
-      const resp = await postSimple(payload);
+      const id = editing.id;
+  
+      // Optimistic: close modal, update UI & cache first
+      closeModal();
+      Cal.update(id, calendarId, { title, start, end, calendarId });
+      const ci = cache.events.findIndex(e => e.id === id);
+      if (ci >= 0) cache.events[ci] = { id, calendarId, title, start: start.toISOString(), end: end.toISOString() };
+  
+      // Persist
+      const resp = await postSimple({ action:'update', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
       if (resp && resp.ok){
-        Cal.update(editing.id, calendarId, { title, start, end, calendarId });
-        const idx = cache.events.findIndex(e=>e.id===editing.id);
-        if (idx>=0) cache.events[idx] = { id:editing.id, calendarId, title, start:start.toISOString(), end:end.toISOString() };
         toast('Saved.', 'ok', 900);
-        closeModal(); editing=null;
       } else {
-        toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Update failed.', resp && resp.error==='conflict'?'warn':'err', 2000);
+        // Rollback on failure
+        toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Update failed. Rolling back.', resp && resp.error==='conflict' ? 'warn' : 'err', 2000);
+        await ensureRangeLoaded();
+        renderRoom(activeRoom);
       }
-      BUSY = false; return;
+      BUSY = false; editing = null; return;
     }
-
-    // CREATE
+  
+    // ---- CREATE NEW ----
     const id = uuid();
-    const resp = await postSimple({ action:'create', event:{ id, calendarId, title, start:start.toISOString(), end:end.toISOString() }});
+  
+    // Optimistic: close modal, add to UI & cache first
+    closeModal();
+    Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
+    cache.events.push({ id, calendarId, title, start: start.toISOString(), end: end.toISOString() });
+  
+    // Persist
+    const resp = await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
     if (resp && resp.ok){
-      Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
-      cache.events.push({ id, calendarId, title, start:start.toISOString(), end:end.toISOString() });
       toast('Saved.', 'ok', 900);
-      closeModal(); editing=null;
     } else {
-      toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Create failed.', resp && resp.error==='conflict'?'warn':'err', 2000);
+      // Rollback on failure
+      toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Create failed. Rolling back.', resp && resp.error==='conflict' ? 'warn' : 'err', 2000);
+      // Remove optimistic one and refresh
+      const s = Cal.all().find(x => x.id === id);
+      if (s) Cal.remove(id, s.calendarId);
+      cache.events = cache.events.filter(e => e.id !== id);
+      await ensureRangeLoaded();
+      renderRoom(activeRoom);
     }
-    BUSY = false;
+    BUSY = false; editing = null;
   };
 
   /* ---------- Init ---------- */
   setRangeTitle();
   (async ()=>{
     await ensureRangeLoaded();     // load once for visible range
-    showOnlyRoom(activeRoom);      // show the default room instantly
+    renderRoom(activeRoom);      // show the default room instantly
   })();
 </script>
 </body>
