@@ -30,7 +30,6 @@
     .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
     .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
     .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .btn.ghost{background:transparent;border-color:transparent}
     .title{margin-left:auto;font-weight:700;font-size:16px}
 
     /* BIG Tabs */
@@ -42,10 +41,10 @@
       cursor:pointer; user-select:none; transition:transform .05s ease;
     }
     .tab:active{transform:translateY(1px)}
+    .tab .dot{width:12px;height:12px;border-radius:999px;display:inline-block;margin-right:8px;vertical-align:middle}
     .tab[data-room="TC1"] .dot{background:var(--TC1)}
     .tab[data-room="TC2"] .dot{background:var(--TC2)}
     .tab[data-room="TC3"] .dot{background:var(--TC3)}
-    .tab .dot{width:12px;height:12px;border-radius:999px;display:inline-block;margin-right:8px;vertical-align:middle}
     .tab.active{border-color:#111827; color:#111827}
     .tab.active[data-room="TC1"]{box-shadow:0 0 0 4px rgba(37,99,235,.1), var(--shadow)}
     .tab.active[data-room="TC2"]{box-shadow:0 0 0 4px rgba(22,163,74,.1), var(--shadow)}
@@ -54,7 +53,7 @@
     #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
     .legend{margin-top:8px;color:var(--muted)}
 
-    /* Modal (cleaner) */
+    /* Modal (clean) */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:9999}
     .modal{width:min(560px,94vw);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:20px}
     .modal h3{margin:0 0 14px 0;font-size:20px;line-height:1.2}
@@ -181,19 +180,17 @@
     useCreationPopup: false,
     useDetailPopup: false,
     isReadOnly: false,
-    week: { hourStart: 1, hourEnd: 23, workweek: false, narrowWeekend: true, startDayOfWeek: 1 },
+    week: { hourStart: 2, hourEnd: 24, workweek: false, narrowWeekend: true, startDayOfWeek: 1 },
     calendars: calDefs
   });
 
   /* ---------- Helpers ---------- */
   const hasGetSchedules = !!calendar.getSchedules;
   const Cal = {
-    all(){ return hasGetSchedules ? calendar.getSchedules() : []; },
     add(arr){ return calendar.createSchedules(arr); },
     update(id, calId, changes){ return calendar.updateSchedule(id, calId, changes); },
     remove(id, calId){ return calendar.deleteSchedule(id, calId); },
-    clear(){ return calendar.clear(); },
-    visible(calId, vis){ return calendar.setCalendarVisibility(calId, vis); }
+    clear(){ return calendar.clear(); }
   };
 
   function setRangeTitle(){
@@ -261,13 +258,6 @@
   }
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
   function overlaps(aStart,aEnd,bStart,bEnd){ return aStart < bEnd && bStart < aEnd; }
-  function hasConflict(calendarId, start, end, ignoreId){
-    return Cal.all().some(s=>{
-      if (s.calendarId !== calendarId) return false;
-      if (ignoreId && s.id === ignoreId) return false;
-      return overlaps(s.start.toDate(), s.end.toDate(), start, end);
-    });
-  }
 
   async function postSimple(payload){
     showSpin(true);
@@ -282,42 +272,39 @@
     } finally { showSpin(false); }
   }
 
-  async function loadFromBackend(){
+  // Load events and ONLY render the active room
+  async function loadFromBackend(roomFilter = activeRoom){
     try{
       const s = calendar.getDateRangeStart().toDate().toISOString();
       const e = calendar.getDateRangeEnd().toDate().toISOString();
       const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&timeMin=${encodeURIComponent(s)}&timeMax=${encodeURIComponent(e)}`);
       const json = await res.json();
       if (!Array.isArray(json)) return;
+      const filtered = json.filter(x => String(x.calendarId || '').startsWith(`${roomFilter}-`));
       Cal.clear();
-      Cal.add(json.map(x=>({
+      Cal.add(filtered.map(x=>({
         id:x.id, calendarId:x.calendarId, title:x.title,
         category:'time', start:new Date(x.start), end:new Date(x.end),
         isReadOnly:false
       })));
-      applyRoomVisibility(); // keep current tab filter after reload
     }catch(err){ console.error('loadFromBackend failed:', err); }
   }
 
   /* ---------- Toolbar ---------- */
-  document.getElementById('prev').onclick  = ()=>{ calendar.prev();  setRangeTitle(); loadFromBackend(); };
-  document.getElementById('today').onclick = ()=>{ calendar.today(); setRangeTitle(); loadFromBackend(); };
-  document.getElementById('next').onclick  = ()=>{ calendar.next();  setRangeTitle(); loadFromBackend(); };
-  document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); setRangeTitle(); loadFromBackend(); };
-  document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); setRangeTitle(); loadFromBackend(); };
+  function reloadView(){ setRangeTitle(); loadFromBackend(activeRoom); }
+  document.getElementById('prev').onclick  = ()=>{ calendar.prev();  reloadView(); };
+  document.getElementById('today').onclick = ()=>{ calendar.today(); reloadView(); };
+  document.getElementById('next').onclick  = ()=>{ calendar.next();  reloadView(); };
+  document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); reloadView(); };
+  document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); reloadView(); };
 
   /* ---------- Tabs (one room visible at a time) ---------- */
-  function applyRoomVisibility(){
-    ['TC1','TC2','TC3'].forEach(r=>{
-      ['1','2','3'].forEach(h=>Cal.visible(`${r}-${h}`, r===activeRoom));
-    });
-  }
   document.querySelectorAll('#roomTabs .tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>{
+    tab.addEventListener('click', async ()=>{
       document.querySelectorAll('#roomTabs .tab').forEach(t=>t.classList.remove('active'));
       tab.classList.add('active');
       activeRoom = tab.dataset.room;
-      applyRoomVisibility();
+      await loadFromBackend(activeRoom); // hard switch room contents
     });
   });
 
@@ -373,34 +360,23 @@
     const newEnd   = (changes.end   ? changes.end.toDate()   : schedule.end.toDate());
     const newCalId = changes.calendarId || schedule.calendarId;
 
-    // UI optimistic update
+    // Optimistic UI
     const prev = { start:schedule.start.toDate(), end:schedule.end.toDate(), calendarId:schedule.calendarId, title:schedule.title };
     Cal.update(schedule.id, schedule.calendarId, changes);
 
-    // Persist to server
     const resp = await postSimple({
       action:'update',
-      event:{
-        id: schedule.id,
-        calendarId: newCalId,
-        title: changes.title || schedule.title,
-        start: newStart.toISOString(),
-        end:   newEnd.toISOString()
-      }
+      event:{ id: schedule.id, calendarId: newCalId, title: changes.title || schedule.title, start: newStart.toISOString(), end: newEnd.toISOString() }
     });
 
     if (!resp || resp.ok !== true){
-      // revert UI
+      // revert and notify
       Cal.update(schedule.id, newCalId, { start: new Date(prev.start), end: new Date(prev.end), calendarId: prev.calendarId, title: prev.title });
-      if (resp && resp.error === 'conflict'){
-        toast('⚠️ Conflict: that hood already has a booking in this time.', 'warn', 3600);
-      } else {
-        toast('Update failed. Reverted.', 'err');
-      }
+      toast(resp && resp.error === 'conflict' ? '⚠️ Conflict: that hood already has a booking in this time.' : 'Update failed. Reverted.', resp && resp.error === 'conflict' ? 'warn' : 'err', 3600);
       return;
     }
     toast('Updated.', 'ok');
-    loadFromBackend();
+    loadFromBackend(activeRoom);
   });
 
   /* ---------- Modal buttons ---------- */
@@ -410,17 +386,16 @@
     if (!editing?.id || BUSY) return;
     BUSY = true;
     try{
-      Cal.remove(editing.id, editing.calendarId);
       const resp = await postSimple({ action:'delete', event:{ id: editing.id } });
       if (!resp || resp.ok !== true){
         toast('Delete failed. Reloading…', 'err', 3000);
-        loadFromBackend();
       } else {
         toast('Deleted.', 'ok');
       }
+      closeModal(); // ensure it disappears on success
+      await loadFromBackend(activeRoom);
     } finally{
-      BUSY = false; editing=null; closeModal();
-      setTimeout(loadFromBackend, 300);
+      BUSY = false; editing=null;
     }
   };
 
@@ -446,67 +421,39 @@
     if (end - start < 15*60*1000) { toast('Minimum booking is 15 minutes.', 'warn'); return; }
     if (end <= now) { if(!confirm('This is in the past. Save anyway?')) return; }
 
-    const ignoreId = editing?.id || null;
-    if (hasConflict(calendarId, start, end, ignoreId)) {
-      toast('⚠️ Conflict: that hood already has a booking in this time.', 'warn', 3600);
-      return;
-    }
-
     BUSY = true;
     try{
       if (editing && editing.id){
-        // EDIT: persist first; only keep UI update if server ok
-        const resp = await postSimple({
-          action:'update',
-          event:{
-            id: editing.id, calendarId, title,
-            start: start.toISOString(), end: end.toISOString()
-          }
-        });
+        // UPDATE via server first
+        const resp = await postSimple({ action:'update', event:{ id: editing.id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
         if (!resp || resp.ok !== true){
-          if (resp && resp.error === 'conflict'){
-            toast('⚠️ Conflict: that hood already has a booking in this time.', 'warn', 3600);
-          } else {
-            toast('Update failed.', 'err');
-          }
-          return; // keep modal open to adjust
+          toast(resp && resp.error === 'conflict' ? '⚠️ Conflict: that hood already has a booking in this time.' : 'Update failed.', resp && resp.error === 'conflict' ? 'warn':'err', 3600);
+          return;
         }
-        Cal.update(editing.id, editing.calendarId, { title, start, end, calendarId });
         toast('Saved.', 'ok');
-        editing=null; closeModal(); setTimeout(loadFromBackend, 300);
+        closeModal();            // auto-close on success
+        await loadFromBackend(activeRoom);
+        editing = null;
       } else {
-        // CREATE: call server first to avoid ghost events, then add to UI
+        // CREATE via server first
         const id = uuid();
-        const resp = await postSimple({
-          action:'create',
-          event:{
-            id, calendarId, title,
-            start: start.toISOString(), end: end.toISOString()
-          }
-        });
+        const resp = await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
         if (!resp || resp.ok !== true){
-          if (resp && resp.error === 'conflict'){
-            toast('⚠️ Conflict: that hood already has a booking in this time.', 'warn', 3600);
-          } else {
-            toast('Create failed.', 'err');
-          }
-          return; // keep modal open
+          toast(resp && resp.error === 'conflict' ? '⚠️ Conflict: that hood already has a booking in this time.' : 'Create failed.', resp && resp.error === 'conflict' ? 'warn':'err', 3600);
+          return;
         }
-        Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
         toast('Saved.', 'ok');
-        editing=null; closeModal(); setTimeout(loadFromBackend, 300);
+        closeModal();            // auto-close on success
+        await loadFromBackend(activeRoom);
+        editing = null;
       }
     } finally{
       BUSY = false;
     }
   };
 
-  // Initial load + start with active room only
-  setRangeTitle();
-  setTimeout(async ()=>{
-    await loadFromBackend();
-    applyRoomVisibility();
-  }, 0);
+  // Initial load for the default tab
+  setTimeout(()=>loadFromBackend('TC1'), 0);
 </script>
 </body>
 </html>
