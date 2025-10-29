@@ -1285,6 +1285,8 @@ function hashId(text, when){ // stable-ish client id
   return btoa(unescape(encodeURIComponent(`${when}::${text}`))).slice(0,24);
 }
 
+const ANN_SEEN_KEY = 'lab_announcements_last_seen_v1';
+
 function getLastSeenTs(){
   const v = localStorage.getItem(ANN_SEEN_KEY);
   const n = v ? Number(v) : 0;
@@ -1767,6 +1769,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
