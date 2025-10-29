@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Riley Lab — Czar-dom List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg: #0b1020;
+            --card: #11162b;
+            --ink: #e8ecf5;
+            --ink-dim:#afbad2;
+            --accent:#6ea8fe;
+            --accent-2:#7ae0b8;
+            --row:#121a34;
+            --row-alt:#0f1630;
+            --border:#1d2747;
+            --chip:#1e2a52;
+            --warning:#f0c674;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0;
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+            background: radial-gradient(1200px 800px at 20% -10%, #1a2b5e22, transparent 70%),
+            radial-gradient(900px 600px at 120% 10%, #1e654922, transparent 60%),
+            var(--bg);
+            color: var(--ink);
+            line-height:1.4;
+        }
+        .wrap{
+            max-width: 1100px;
+            margin: 48px auto;
+            padding: 0 20px;
+        }
+        .card{
+            background: linear-gradient(180deg, #111831, #0e142b);
+            border:1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.02);
+            overflow: hidden;
+        }
+        header{
+            display:flex; gap:16px; align-items:center; justify-content:space-between;
+            padding:20px 22px; border-bottom:1px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+        }
+        .title{
+            display:flex; align-items:center; gap:14px;
+        }
+        .badge{
+            display:inline-flex; align-items:center; gap:8px;
+            padding:8px 12px; border-radius:999px; background:var(--chip);
+            color:var(--ink); font-weight:600; letter-spacing:.2px; font-size:13px;
+            border:1px solid var(--border);
+        }
+        .sub{color:var(--ink-dim); font-size:13px}
+        .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+        input[type="search"]{
+            background:#0c1230; border:1px solid var(--border);
+            color:var(--ink); padding:10px 12px; border-radius:12px; min-width:240px;
+            outline:none; transition: border-color .15s ease;
+        }
+        input[type="search"]::placeholder{color:#7c86a6}
+        input[type="search"]:focus{border-color:#2c3f78}
+        button{
+            cursor:pointer;
+            padding:10px 14px; border-radius:12px; border:1px solid var(--border);
+            color:var(--ink); background:#0f1736; font-weight:600;
+        }
+        button:hover{border-color:#2a3c74}
+        .hint{color:var(--ink-dim); font-size:12px; margin-left:6px}
+
+        table{width:100%; border-collapse:separate; border-spacing:0}
+        thead th{
+            text-align:left; font-size:12px; letter-spacing:.3px; text-transform:uppercase;
+            color:#9fb0d6; padding:12px 16px; background:#0c1330; position:sticky; top:0; z-index:1;
+            border-bottom:1px solid var(--border);
+        }
+        tbody td{padding:14px 16px; border-bottom:1px solid var(--border)}
+        tbody tr{background:var(--row)}
+        tbody tr:nth-child(even){background:var(--row-alt)}
+        tbody tr:hover{filter:brightness(1.05)}
+        .col-no{width:64px; color:#9fb0d6}
+        .task a{color:var(--accent); text-decoration:none; border-bottom:1px dashed #3d6fff33}
+        .task a:hover{border-bottom-color:#3d6fff88}
+        .owners{
+            display:flex; flex-wrap:wrap; gap:8px;
+        }
+        .chip{
+            background:var(--chip); border:1px solid var(--border);
+            padding:6px 10px; border-radius:999px; font-size:13px; color:#dfe7ff;
+            white-space:nowrap;
+        }
+        .warn{background:#3b2e0f; border-color:#6b5418; color:#f2e3b4}
+        .empty{padding:28px; text-align:center; color:var(--ink-dim)}
+        footer{
+            display:flex; justify-content:space-between; align-items:center; gap:12px;
+            padding:14px 18px; border-top:1px solid var(--border); color:#9fb0d6; font-size:12px;
+            background: linear-gradient(0deg, rgba(255,255,255,.02), transparent);
+        }
+        .credit a{color:var(--accent-2); text-decoration:none}
+        @media (max-width:700px){
+            .col-notes{display:none}
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="card">
+        <header>
+            <div class="title">
+                <div class="badge" title="Central ownership list for lab tasks">
+                    Riley Lab · Czar-dom List
+                </div>
+                <div class="sub" id="lastUpdated">—</div>
+            </div>
+            <div class="controls">
+                <input id="search" type="search" placeholder="Filter by task or owner…" />
+                <button id="refreshBtn" type="button">Refresh</button>
+                <span class="hint">Edit names in the Google Sheet — this page auto-updates.</span>
+            </div>
+        </header>
+
+        <div id="tableWrap">
+            <table id="czarTable" aria-describedby="lastUpdated">
+                <thead>
+                <tr>
+                    <th class="col-no">#</th>
+                    <th>Task</th>
+                    <th>Owner(s)</th>
+                    <th class="col-notes">Notes</th>
+                </tr>
+                </thead>
+                <tbody id="tbody">
+                <tr><td colspan="4" class="empty">Loading…</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <div>Tip: separate multiple owners with commas in the sheet (e.g., <em>Emileigh, Max</em>).</div>
+            <div class="credit">Maintained via Google Sheets → Live HTML</div>
+        </footer>
+    </div>
+</div>
+
+<script>
+    /***********************
+     * CONFIG – set these! *
+     ***********************/
+    const SHEET_ID   = "1ttGaOPU64y-1mZIIs_3qwNFdUFTSDhsOCxb8iR0_JEM";
+    const SHEET_NAME = "CzardomList";
+    // If you prefer using a gid instead of sheet name, set SHEET_NAME=null and fill GID
+    const GID        = null; // e.g., "0"
+
+    // Auto-refresh every N minutes (set to 0 to disable)
+    const AUTO_REFRESH_MIN = 5;
+
+    /***********************
+     * Fetch + Render      *
+     ***********************/
+    const tbody = document.getElementById("tbody");
+    const lastUpdated = document.getElementById("lastUpdated");
+    const searchEl = document.getElementById("search");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    function gvizUrl(){
+        if (SHEET_NAME && SHEET_NAME.trim().length){
+            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tq=${encodeURIComponent("select *")}`;
+        }
+        if (GID){
+            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&tq=${encodeURIComponent("select *")}`;
+        }
+        throw new Error("Set SHEET_NAME or GID.");
+    }
+
+    function parseGViz(text){
+        // gviz returns: google.visualization.Query.setResponse({...});
+        const m = text.match(/setResponse\(([\s\S]*)\);?/);
+        if(!m) throw new Error("Unexpected GViz response.");
+        const data = JSON.parse(m[1]);
+        const cols = data.table.cols.map(c => (c.label || c.id || "").toString().trim());
+        const rows = data.table.rows.map(r => r.c.map(c => c ? (c.f ?? c.v ?? "") : ""));
+        return { cols, rows };
+    }
+
+    function normalizeHeaders(cols){
+        // map header names to indices, case-insensitive
+        const idx = {};
+        cols.forEach((c,i)=>{
+            const k = c.toLowerCase().trim();
+            idx[k] = i;
+        });
+        function find(...names){
+            for (const n of names){
+                const key = n.toLowerCase();
+                if (key in idx) return idx[key];
+            }
+            return -1;
+        }
+        return {
+            iNo:     find("no","#","index"),
+            iTask:   find("task","role","item","responsibility"),
+            iOwner:  find("owner","owners","name","names","lead","leads"),
+            iNotes:  find("notes","comment","comments","details"),
+            iLink:   find("link","url","href")
+        };
+    }
+
+    function ownersToChips(str){
+        if(!str) return "";
+        return str.split(/[,/;&]+/).map(s=>s.trim()).filter(Boolean)
+            .map(name => `<span class="chip${/rotation/i.test(name)?' warn':''}">${name}</span>`).join("");
+    }
+
+    function renderTable(data){
+        const {cols, rows} = data;
+        const h = normalizeHeaders(cols);
+        if (h.iTask < 0 || h.iOwner < 0){
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">Your sheet must include “Task” and “Owner” columns.</td></tr>`;
+            return;
+        }
+
+        const q = (searchEl.value || "").trim().toLowerCase();
+        const match = (t) => !q || (t && t.toLowerCase().includes(q));
+
+        let html = "";
+        let shown = 0;
+        for (const r of rows){
+            const no    = h.iNo   >=0 ? (r[h.iNo]   || "") : "";
+            const task  = r[h.iTask]  || "";
+            const owner = r[h.iOwner] || "";
+            const notes = h.iNotes>=0 ? (r[h.iNotes]|| "") : "";
+            const link  = h.iLink >=0 ? (r[h.iLink] || "") : "";
+
+            const searchable = [task, owner, notes].join(" ").toLowerCase();
+            if (q && !searchable.includes(q)) continue;
+
+            const taskCell = link && /^https?:\/\//i.test(link)
+                ? `<a href="${link}" target="_blank" rel="noopener noreferrer">${task}</a>`
+                : `${task}`;
+
+            html += `
+          <tr>
+            <td class="col-no">${no || "&nbsp;"}</td>
+            <td class="task">${taskCell}</td>
+            <td><div class="owners">${ownersToChips(owner)}</div></td>
+            <td class="col-notes" style="color:var(--ink-dim)">${notes || ""}</td>
+          </tr>
+        `;
+            shown++;
+        }
+        tbody.innerHTML = shown ? html : `<tr><td colspan="4" class="empty">No rows match your filter.</td></tr>`;
+        lastUpdated.textContent = "Updated: " + new Date().toLocaleString();
+    }
+
+    let _cacheText = "";
+    async function loadData(){
+        try{
+            const res = await fetch(gvizUrl(), {cache: "no-store"});
+            const text = await res.text();
+            if (text && text !== _cacheText){
+                _cacheText = text;
+                const parsed = parseGViz(text);
+                renderTable(parsed);
+            } else {
+                // still update the timestamp so users know refresh happened
+                lastUpdated.textContent = "Checked: " + new Date().toLocaleString();
+            }
+        }catch(err){
+            console.error(err);
+            tbody.innerHTML = `<tr><td colspan="4" class="empty">Couldn’t load the Google Sheet. Check sharing settings and IDs.</td></tr>`;
+        }
+    }
+
+    // UI wiring
+    searchEl.addEventListener("input", () => {
+        // re-render against cached data for instant filtering
+        try{
+            const parsed = parseGViz(_cacheText);
+            renderTable(parsed);
+        }catch{ /* ignore until first load */ }
+    });
+    refreshBtn.addEventListener("click", loadData);
+
+    // First load + optional auto refresh
+    loadData();
+    if (AUTO_REFRESH_MIN > 0){
+        setInterval(loadData, AUTO_REFRESH_MIN * 60 * 1000);
+    }
+</script>
+</body>
+</html>
