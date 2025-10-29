@@ -186,7 +186,44 @@
     useDetailPopup: false,
     isReadOnly: false,
     week: { hourStart: 2, hourEnd: 24, workweek: false, narrowWeekend: true, startDayOfWeek: 1 },
-    calendars: calDefs
+    calendars: calDefs,
+    template: {
+      time: function(schedule) {
+        const title = schedule.title?.split(' — ')[0] || schedule.title;
+        const label = schedule.calendarId || '';
+        const color = getComputedStyle(document.documentElement)
+          .getPropertyValue(`--${label.split('-')[0]}`) || '#444';
+        return `
+          <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            height:100%;
+            overflow:hidden;
+            border-radius:4px;
+            font-weight:600;
+            background:${schedule.bgColor};
+          ">
+            <div style="
+              flex:1;
+              padding:0 6px;
+              color:#fff;
+              text-overflow:ellipsis;
+              white-space:nowrap;
+              overflow:hidden;
+            ">${title}</div>
+            <div style="
+              background:${color};
+              color:#fff;
+              padding:0 6px;
+              border-left:1px solid rgba(255,255,255,0.3);
+              font-size:11px;
+              white-space:nowrap;
+            ">${label.replace('-', '/Hood ')}</div>
+          </div>
+        `;
+      }
+    }
   });
 
   /* ---------- Helper handles ---------- */
