@@ -698,6 +698,62 @@
     ul.checklist { list-style: none; padding-left: 0; margin: 0; }
     ul.checklist li { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
     ul.checklist li input[type="checkbox"] { transform: translateY(1px); }
+
+    /* ===== Announcements: polished cards + "new" states ===== */
+    .ann-banner h2{
+      display:flex; align-items:center; gap:10px;
+    }
+    .ann-banner h2 .dot{
+      width:10px; height:10px; border-radius:999px; background:#ff1744; box-shadow:0 0 0 0 rgba(255,23,68,.6);
+      margin-left:6px; transform:translateY(1px); display:none;
+    }
+    .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite; }
+    @keyframes annPulse{ 0%{box-shadow:0 0 0 0 rgba(255,23,68,.5)} 70%{box-shadow:0 0 0 10px rgba(255,23,68,0)} 100%{box-shadow:0 0 0 0 rgba(255,23,68,0)} }
+    
+    .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    .ann-item{
+      position:relative; display:grid; grid-template-columns:auto 1fr; gap:10px;
+      padding:12px 14px; border-radius:12px; border:1px solid #e9edf7; background:#ffffff; box-shadow:var(--shadow);
+      transform-origin: top left;
+    }
+    .ann-item.new{ animation:annPop .35s ease-out; }
+    @keyframes annPop{ 0%{transform:scale(.96); opacity:.0} 100%{transform:scale(1); opacity:1} }
+    
+    .ann-chip{
+      grid-row:1 / span 2; align-self:start; display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff;
+    }
+    .ann-chip.info   { background:#2979ff; }
+    .ann-chip.warn   { background:#ffa000; }
+    .ann-chip.urgent { background:#e53935; }
+    
+    .ann-head{ display:flex; gap:8px; align-items:center; font-weight:800; color:#1c2430; }
+    .ann-time{ font-size:12px; color:#6b5d3b; font-weight:700; }
+    .ann-body{ color:#263238; line-height:1.45; }
+    .ann-actions{ display:flex; gap:8px; margin-top:8px; }
+    .ann-actions .btn-min{
+      appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
+      font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
+    }
+    .badge-new{
+      margin-left:auto; font-size:11px; font-weight:900; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
+      padding:2px 8px; border-radius:999px; display:none;
+    }
+    .ann-item.new .badge-new{ display:inline-flex; }
+    
+    .ann-toolbar{
+      display:flex; align-items:center; gap:8px; margin-top:8px;
+    }
+    .ann-toolbar .pill-action{
+      margin-left:auto; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid #d6e3ff; background:#eef4ff;
+      color:#0b3d91; font-weight:800; cursor:pointer;
+    }
+    
+    /* make the toast you already have feel “alerty” for announcements */
+    .notice-fixed.ann-toast{
+      background:#fff; border-color:#90caf9; color:#0d47a1;
+    }
+    .notice-fixed.ann-toast .ms{ color:#2979ff; }
     
   </style>
 
@@ -730,7 +786,9 @@
 
 <section class="card ann-banner" aria-labelledby="ann-banner-title">
   <h2 id="ann-banner-title">
-    <span class="ms" aria-hidden="true" style="font-size: 2em;">campaign</span> LAB ANNOUNCEMENTS
+    <span class="ms" aria-hidden="true" style="font-size:2em;">campaign</span>
+    LAB ANNOUNCEMENTS
+    <span id="ann-header-dot" class="dot" aria-hidden="true"></span>
   </h2>
   <ul id="ann-banner-list" class="list ann-list"></ul>
 </section>
@@ -1186,24 +1244,160 @@ async function fetchPortalData() {
 }
 
 /* Renderers */
+/* ===== Announcements: render + "new since last visit" tracking ===== */
+const ANN_SEEN_KEY = 'lab_announcements_last_seen_v1';
+
+function parseDateSafe(s){
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+function fmtDayShort(d){
+  return d.toLocaleDateString(undefined,{ month:'short', day:'numeric' });
+}
+function levelToClass(level){
+  const v = String(level||'info').toLowerCase();
+  if (v.startsWith('warn')) return 'warn';
+  if (v.startsWith('urg'))  return 'urgent';
+  return 'info';
+}
+function hashId(text, when){ // stable-ish client id
+  return btoa(unescape(encodeURIComponent(`${when}::${text}`))).slice(0,24);
+}
+
+function getLastSeenTs(){
+  const v = localStorage.getItem(ANN_SEEN_KEY);
+  const n = v ? Number(v) : 0;
+  return Number.isFinite(n) ? n : 0;
+}
+function setLastSeenTs(ts){
+  localStorage.setItem(ANN_SEEN_KEY, String(ts));
+}
+
+function autoLink(s){
+  // very small autolinker for http(s)://… — keeps things safe by using textContent elsewhere
+  return s.replace(/\bhttps?:\/\/[^\s)]+/g, (m)=>`<a class="link ext" href="${m}" target="_blank" rel="noopener">${m}</a>`);
+}
+
+function showAnnToast(count){
+  if (!count) return;
+  const toast = document.getElementById('notice');
+  const text  = document.getElementById('notice-text');
+  if (!toast || !text) return;
+
+  toast.classList.add('ann-toast');        // reuse your fixed notice, recolored
+  text.innerHTML = `<strong>${count}</strong> new announcement${count>1?'s':''}`;
+  toast.classList.add('show');
+
+  // also blink a dot in the header
+  const dot = document.getElementById('ann-header-dot');
+  if (dot) dot.classList.add('show');
+
+  // hide after a few seconds (still visible via header dot)
+  setTimeout(()=> toast.classList.remove('show'), 5500);
+}
+
 function renderAnnouncements(items){
   const list = document.getElementById('ann-banner-list');
-  if(!list) return;
-  const sorted = (items || []).slice().sort((a,b) => new Date(b.when) - new Date(a.when));
+  if (!list) return;
+
+  const lastSeen = getLastSeenTs();
+  let newestTs = lastSeen;
+  let newCount = 0;
+
+  const sorted = (items||[]).slice().sort((a,b) => {
+    const da = parseDateSafe(a.when) || new Date(0);
+    const db = parseDateSafe(b.when) || new Date(0);
+    return db - da;
+  });
+
   const frag = document.createDocumentFragment();
-  sorted.forEach(({text, when})=>{
+
+  sorted.forEach(({ text, when, level, link }) => {
+    const d  = parseDateSafe(when) || new Date(0);
+    const ts = d.getTime();
+    if (ts > newestTs) newestTs = ts;
+
+    const isNew = ts > lastSeen;
+    if (isNew) newCount++;
+
     const li = document.createElement('li');
+    li.className = `ann-item${isNew ? ' new' : ''}`;
+    li.dataset.id = hashId(text||'', when||'');
+
+    // left chip
+    const chip = document.createElement('div');
+    chip.className = `ann-chip ${levelToClass(level)}`;
+    chip.textContent = (level || 'Info').toUpperCase().slice(0,1); // I / W / U
+
+    // right block
+    const head = document.createElement('div');
+    head.className = 'ann-head';
+
     const time = document.createElement('div');
-    const body = document.createElement('div');
     time.className = 'ann-time';
-    body.className = 'ann-text';
-    const d = new Date(when);
-    time.textContent = isNaN(d) ? "" : d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-    body.textContent = text || '';
-    li.appendChild(time); li.appendChild(body);
+    time.textContent = d ? fmtDayShort(d) : '';
+
+    const badgeNew = document.createElement('span');
+    badgeNew.className = 'badge-new';
+    badgeNew.textContent = 'NEW';
+
+    head.append(time, badgeNew);
+
+    const body = document.createElement('div');
+    body.className = 'ann-body';
+
+    // allow simple autolink but still sanitize by assigning via innerHTML to a wrapper we control
+    const safe = document.createElement('div');
+    safe.innerHTML = autoLink((text || '').replace(/[<>]/g, c => ({'<':'&lt;','>':'&gt;'}[c])));
+    body.appendChild(safe);
+
+    // optional link button if a `link` is provided
+    const actions = document.createElement('div');
+    actions.className = 'ann-actions';
+    if (link) {
+      const a = document.createElement('a');
+      a.className = 'btn-min link ext';
+      a.href = link; a.target = '_blank'; a.rel = 'noopener';
+      a.innerHTML = `<span class="ms" aria-hidden="true">open_in_new</span> Open`;
+      actions.appendChild(a);
+    }
+
+    // mark-as-read per item
+    const mark = document.createElement('button');
+    mark.type = 'button';
+    mark.className = 'btn-min';
+    mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
+    mark.addEventListener('click', () => {
+      li.classList.remove('new');
+      const remaining = list.querySelectorAll('.ann-item.new').length;
+      if (!remaining){
+        const dot = document.getElementById('ann-header-dot');
+        if (dot) dot.classList.remove('show');
+      }
+      setLastSeenTs(Math.max(newestTs, Date.now()));
+    });
+    actions.appendChild(mark);
+
+    li.append(chip, head, body, actions);
     frag.appendChild(li);
   });
-  list.innerHTML = ''; list.appendChild(frag);
+
+  list.innerHTML = '';
+  list.appendChild(frag);
+
+  // top-right “new announcements” toast + header dot
+  showAnnToast(newCount);
+
+  // wire "Mark all read"
+  const markAll = document.getElementById('ann-mark-read');
+  if (markAll){
+    markAll.onclick = () => {
+      list.querySelectorAll('.ann-item.new').forEach(el => el.classList.remove('new'));
+      setLastSeenTs(Math.max(newestTs, Date.now()));
+      const dot = document.getElementById('ann-header-dot');
+      if (dot) dot.classList.remove('show');
+    };
+  }
 }
 
 function renderRotations(obj){
@@ -1265,6 +1459,8 @@ function computeRotationFromPlan(plan) {
 (async function initPortal(){
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+
+  if (!getLastSeenTs()) setLastSeenTs(Date.now());
   
   let rot = data.rotations || {};
   if (data.rotationPlan) {
@@ -1278,6 +1474,8 @@ document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible') return;
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+
+  if (!getLastSeenTs()) setLastSeenTs(Date.now());
   
   let rot = data.rotations || {};
   if (data.rotationPlan) {
@@ -1544,6 +1742,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
