@@ -70,6 +70,24 @@
     .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
     .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
 
+    .room-badge{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      font-weight:700;
+      letter-spacing:.2px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      color:#111827;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+    }
+    
+    /* Optional: contextual colors by room */
+    .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
+    .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
+    .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); color:#0b1220; }
+
     /* Spinner + Toast (center) */
     #spinner{
       position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);
@@ -153,6 +171,7 @@
 <div class="modal-backdrop" id="modalBg" role="dialog" aria-modal="true">
   <div class="modal" id="modalCard">
     <h3 id="modalTitle">New Booking</h3>
+
     <div class="grid">
       <div class="field">
         <label for="name">Name</label>
@@ -171,17 +190,21 @@
         <input id="end" type="time" step="900">
       </div>
     </div>
-    <div class="row" style="margin-top:12px">
-    <div class="field" style="flex:1">
-      <label for="room">Room</label>
-      <select id="room" disabled> … </select>
-    </div>
-    <div class="field" style="flex:1">
-      <label for="room">Room</label>
-      <div id="roomDisplay" style="
-        width:100%; padding:12px; border:1px solid #e5e7eb; border-radius:12px;
-        background:#f9fafb; font-weight:600; color:#111827; text-align:center;
-      ">TC1</div>
+
+    <!-- Room (read-only badge) + Hood (select) -->
+    <div class="row" style="margin-top:12px; gap:12px">
+      <div class="field" style="flex:1">
+        <label>Room</label>
+        <div id="roomDisplay" class="room-badge">TC1</div>
+      </div>
+      <div class="field" style="flex:1">
+        <label for="hood">Hood</label>
+        <select id="hood">
+          <option value="1">Hood 1</option>
+          <option value="2">Hood 2</option>
+          <option value="3">Hood 3</option>
+        </select>
+      </div>
     </div>
 
     <div class="modal-actions">
@@ -278,6 +301,7 @@
   const startEl   = document.getElementById('start');
   const endEl     = document.getElementById('end');
   const roomEl    = document.getElementById('room'); // locked
+  const roomDisplay = document.getElementById('roomDisplay');
   const hoodEl    = document.getElementById('hood');
   const saveBtn   = document.getElementById('saveBtn');
   const cancelBtn = document.getElementById('cancelBtn');
@@ -291,6 +315,10 @@
   let activeRoom = 'TC1';
 
   // Super-snappy UX helpers
+  function syncRoomBadge(room){
+    roomDisplay.textContent = room;
+    roomDisplay.className = 'room-badge ' + room.toLowerCase(); // tc1/tc2/tc3 class for colors
+  }
   function showSpin(v){ spinner.style.display = v ? 'block' : 'none'; }
   function toast(msg, type='ok', ms=1700){
     toastEl.className = ''; toastEl.classList.add(type);
@@ -301,11 +329,15 @@
   function openModal(title, preset){
     modalTitle.textContent = title;
     modalBg.style.display = 'flex';
+  
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
     startEl.value = preset?.start || '';
     endEl.value   = preset?.end || '';
-    document.getElementById('roomDisplay').textContent = preset?.room || activeRoom || 'TC1';
+  
+    const room = preset?.room || activeRoom || 'TC1';
+    syncRoomBadge(room);
+  
     hoodEl.value  = preset?.hood || '1';
     deleteBtn.style.display = preset?.mode === 'edit' ? 'inline-block' : 'none';
     setTimeout(()=>nameEl.focus(), 0);
@@ -391,11 +423,11 @@
 
   /* ---------- Tabs ---------- */
   document.querySelectorAll('#roomTabs .tab').forEach(tab=>{
-    tab.addEventListener('click', async ()=>{
+    tab.addEventListener('click', ()=>{
       document.querySelectorAll('#roomTabs .tab').forEach(t=>t.classList.remove('active'));
       tab.classList.add('active');
-      // no re-fetch: just toggle visibility
       renderRoom(tab.dataset.room);
+      if (modalBg.style.display === 'flex') syncRoomBadge(tab.dataset.room);
       toast(`Viewing ${tab.dataset.room}`, 'ok', 800);
     });
   });
@@ -497,7 +529,8 @@
   saveBtn.onclick = async ()=>{
     if (BUSY) return;
     const name = nameEl.value.trim();
-    const room = activeRoom; // locked to tab
+    const room = activeRoom;   // locked to tab
+    const calendarId = `${room}-${hood}`;
     const hood = hoodEl.value;
     const date = dateEl.value;
     const sTime = startEl.value;
