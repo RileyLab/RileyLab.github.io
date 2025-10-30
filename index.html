@@ -1402,9 +1402,15 @@ function renderAnnouncements(items){
       markAnnouncementRead(id);
     
       li.classList.remove('new');
-      li.classList.add('read'); // adds fade animation
+      li.classList.add('read'); // add fade animation
+      mark.classList.add('marked');
     });
     actions.appendChild(mark);
+
+    if (isRead) {
+      mark.classList.add('marked'); // hide faded button on reload
+      li.classList.add('read');     // ensure .read class applies visually
+    }
 
     li.append(chip, head, body, actions);
     frag.appendChild(li);
@@ -1770,6 +1776,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
