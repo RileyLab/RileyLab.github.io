@@ -331,6 +331,81 @@
       margin-top: 28px;
     }
 
+    /* ===== Minimalist announcement style ===== */
+    :root {
+      --ann-info:   #2979ff;
+      --ann-warn:   #ffa000;
+      --ann-urgent: #e53935;
+    }
+    
+    /* Base card */
+    .ann-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #e9edf7;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transform-origin: top left;
+    
+      /* Level stripe */
+      border-left: 4px solid var(--ann-info);
+    }
+    .ann-item.info   { border-left-color: var(--ann-info); }
+    .ann-item.warn   { border-left-color: var(--ann-warn); }
+    .ann-item.urgent { border-left-color: var(--ann-urgent); }
+    
+    /* Header */
+    .ann-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #1c2430;
+    }
+    .ann-head::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 8px;
+      background: currentColor;
+    }
+    
+    /* Tint header by level */
+    .ann-item.info   .ann-head { color: var(--ann-info); }
+    .ann-item.warn   .ann-head { color: var(--ann-warn); }
+    .ann-item.urgent .ann-head { color: var(--ann-urgent); }
+    
+    /* Remove icon chip */
+    .ann-chip { display: none !important; }
+    
+    /* NEW pill */
+    .badge-new {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 800;
+      color: #b71c1c;
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+    .ann-item.new .badge-new { display: inline-flex; }
+    
+    /* Fade “Mark read” button when pressed or read */
+    .ann-item.read .btn-min {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+
     /* === MATCH LAB CALENDAR HEIGHT TO TWO STACKED CARDS === */
     .sidebar .card#live-cal-card {
       height: calc((18px * 2) + (var(--card-height, 0px) * 2) + 40px); /* placeholder fallback */
@@ -1325,13 +1400,11 @@ function showAnnToast(count){
   }
 }
 
-function updateAnnDotVisibility() {
-  const list = document.getElementById('ann-banner-list');
-  const dot  = document.getElementById('ann-header-dot');
-  if (!list || !dot) return;
-  
-  const anyUnread = list.querySelector('.ann-item:not(.read)');
-  dot.classList.toggle('show', Boolean(anyUnread));
+function updateAnnDotVisibility(){
+  const dot = document.getElementById('ann-header-dot');
+  if (!dot) return;
+  const unread = document.querySelectorAll('#ann-banner-list .ann-item:not(.read)').length;
+  dot.classList.toggle('show', unread > 0);
 }
 
 function renderAnnouncements(items){
@@ -1363,18 +1436,11 @@ function renderAnnouncements(items){
     if (isNew) newCount++;
 
     const li = document.createElement('li');
-    li.className = `ann-item${isNew ? ' new' : ''}`;
-    li.dataset.id = hashId(text||'', when||'');
+    const lvl = levelToClass(level);               // "info" | "warn" | "urgent"
+    li.className = `ann-item ${lvl}${isNew ? ' new' : ''}`;
+    li.dataset.id = id;
 
-    // left chip
-    const chip = document.createElement('div');
-    const lvl = levelToClass(level);             // ← add this
-    chip.className = `ann-chip ${lvl}`;
-    chip.innerHTML = '<span class="ms" aria-hidden="true">info</span>';
-    if (lvl === 'warn')   chip.innerHTML = '<span class="ms" aria-hidden="true">error</span>';
-    if (lvl === 'urgent') chip.innerHTML = '<span class="ms" aria-hidden="true">priority_high</span>';
-
-    // right block
+    // Header
     const head = document.createElement('div');
     head.className = 'ann-head';
 
@@ -1385,18 +1451,16 @@ function renderAnnouncements(items){
     const badgeNew = document.createElement('span');
     badgeNew.className = 'badge-new';
     badgeNew.textContent = 'NEW';
-
     head.append(time, badgeNew);
 
+    // Body
     const body = document.createElement('div');
     body.className = 'ann-body';
-
-    // allow simple autolink but still sanitize by assigning via innerHTML to a wrapper we control
     const safe = document.createElement('div');
     safe.innerHTML = autoLink((text || '').replace(/[<>]/g, c => ({'<':'&lt;','>':'&gt;'}[c])));
     body.appendChild(safe);
 
-    // optional link button if a `link` is provided
+    // Actions
     const actions = document.createElement('div');
     actions.className = 'ann-actions';
     if (link) {
@@ -1407,46 +1471,57 @@ function renderAnnouncements(items){
       actions.appendChild(a);
     }
 
-    // mark-as-read per item
+    // Mark-as-read
     const mark = document.createElement('button');
     mark.type = 'button';
     mark.className = 'btn-min';
     mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
     mark.addEventListener('click', () => {
-      const id = li.dataset.id;
       markAnnouncementRead(id);
-    
       li.classList.remove('new');
-      li.classList.add('read'); // add fade animation
+      li.classList.add('read');   // fade/hide button via CSS
       mark.classList.add('marked');
-      updateAnnDotVisibility();
+      updateAnnDotVisibility();   // <- live toggle of red dot
     });
     actions.appendChild(mark);
 
+    // If previously read, reflect that on load
     if (isRead) {
-      mark.classList.add('marked'); // hide faded button on reload
-      li.classList.add('read');     // ensure .read class applies visually
+      mark.classList.add('marked');
+      li.classList.add('read');
     }
 
-    li.append(chip, head, body, actions);
+    // Append (no chip anymore)
+    li.append(head, body, actions);
     frag.appendChild(li);
   });
 
   list.innerHTML = '';
   list.appendChild(frag);
 
-  // top-right “new announcements” toast + header dot
   showAnnToast(newCount);
-  updateAnnDotVisibility();
+  updateAnnDotVisibility();       // ensure header dot reflects current unread state
 
-  // wire "Mark all read"
+  // Optional: "Mark all read" control, if present
   const markAll = document.getElementById('ann-mark-read');
   if (markAll){
     markAll.onclick = () => {
-      list.querySelectorAll('.ann-item.new').forEach(el => el.classList.remove('new'));
+      // add all ids to read set
+      const ids = Array.from(list.querySelectorAll('.ann-item')).map(li => li.dataset.id);
+      const set = getReadSet();
+      ids.forEach(id => set.add(id));
+      saveReadSet(set);
+
+      // update UI
+      list.querySelectorAll('.ann-item').forEach(el => {
+        el.classList.remove('new');
+        el.classList.add('read');
+        const btn = el.querySelector('.btn-min');
+        if (btn) btn.classList.add('marked');
+      });
+
       setLastSeenTs(Math.max(newestTs, Date.now()));
-      const dot = document.getElementById('ann-header-dot');
-      if (dot) dot.classList.remove('show');
+      updateAnnDotVisibility();
     };
   }
 }
@@ -1793,6 +1868,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
