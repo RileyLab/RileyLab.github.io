@@ -1,6 +1,6 @@
 {
   "announcements": [
-    { "text": "TETSGDDD", "when": "2025-10-28T12:00:00-04:00", "level":"warning"},
+    { "text": "a test", "when": "2025-10-30T12:00:00-04:00", "level":"warning"},
     { "text": "Please use TC rooms with the door closed!", "when": "2025-10-28T12:00:00-04:00", "level":"warning"},
     { "text": "We believe the temp issues in TC2 have been resolved! If you notice the contrary, please reach out to Max immediately.", "when": "2025-10-29T12:00:00-04:00", "level":"info" },
     { "text": "Our two new BSCs are installed and we are waiting for them to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00", "level":"urgent" },
