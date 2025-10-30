@@ -471,17 +471,34 @@
 
     /* === Rotation Date Range Styling === */
     #rot-dates {
-      background-color: #e6efff;
-      font-size: clamp(0.9rem, 2.2vw, 1.25rem); /* fluid */
-      font-weight: 600;           /* make it bolder */
-      color: #003366;                /* darker, readable text */
-      margin-bottom: 6px;
-      display: block;
-      background: linear-gradient(to bottom, #fdeaea, #f7e1e1);
-      backdrop-filter: blur(4px);
-      line-height: 1.2;
-      white-space: normal;        /* allow wrapping on small screens */
-      padding: 6px 10px;  
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef4ff;
+      color: #1a1f36;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      border: 1px solid #d0daee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+    }
+    
+    /* optional: make it look clickable on hover */
+    #rot-dates:hover {
+      background: #e1ecff;
+      border-color: #c2d5ff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* add icon style if your JS inserts one */
+    #rot-dates .ms {
+      font-size: 18px;
+      color: #4a6fd6;
+      line-height: 1;
+      position: relative;
+      top: 1px;
     }
     
     /* palette */
@@ -1868,3 +1885,4 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
