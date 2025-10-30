@@ -1302,21 +1302,36 @@ function autoLink(s){
 }
 
 function showAnnToast(count){
-  if (!count) return;
   const toast = document.getElementById('notice');
   const text  = document.getElementById('notice-text');
-  if (!toast || !text) return;
+  const dot   = document.getElementById('ann-header-dot');
 
-  toast.classList.add('ann-toast');        // reuse your fixed notice, recolored
-  text.innerHTML = `<strong>${count}</strong> new announcement${count>1?'s':''}`;
-  toast.classList.add('show');
+  // Always reset state first
+  if (dot) dot.classList.remove('show');
 
-  // also blink a dot in the header
-  const dot = document.getElementById('ann-header-dot');
-  if (dot) dot.classList.add('show');
+  // If there are new ones, show toast + dot
+  if (count > 0) {
+    if (toast && text) {
+      toast.classList.add('ann-toast');
+      text.innerHTML = `<strong>${count}</strong> new announcement${count>1?'s':''}`;
+      toast.classList.add('show');
+      setTimeout(()=> toast.classList.remove('show'), 5500);
+    }
+    if (dot) dot.classList.add('show');
+  } else {
+    // no unread → hide toast + dot
+    if (toast) toast.classList.remove('show');
+    if (dot) dot.classList.remove('show');
+  }
+}
 
-  // hide after a few seconds (still visible via header dot)
-  setTimeout(()=> toast.classList.remove('show'), 5500);
+function updateAnnDotVisibility() {
+  const list = document.getElementById('ann-banner-list');
+  const dot  = document.getElementById('ann-header-dot');
+  if (!list || !dot) return;
+  
+  const anyUnread = list.querySelector('.ann-item:not(.read)');
+  dot.classList.toggle('show', Boolean(anyUnread));
 }
 
 function renderAnnouncements(items){
@@ -1404,6 +1419,7 @@ function renderAnnouncements(items){
       li.classList.remove('new');
       li.classList.add('read'); // add fade animation
       mark.classList.add('marked');
+      updateAnnDotVisibility();
     });
     actions.appendChild(mark);
 
@@ -1421,6 +1437,7 @@ function renderAnnouncements(items){
 
   // top-right “new announcements” toast + header dot
   showAnnToast(newCount);
+  updateAnnDotVisibility();
 
   // wire "Mark all read"
   const markAll = document.getElementById('ann-mark-read');
@@ -1776,6 +1793,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
