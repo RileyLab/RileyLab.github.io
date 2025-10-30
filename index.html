@@ -11,51 +11,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
 
   <style>
-  /* =========================
-     TOKENS & GLOBALS
-  ========================= */
+  /* ===============================
+     THEME VARIABLES
+  ================================*/
   :root{
-    /* colors */
-    --bg:#f5f7fb; --card:#fff; --text:#111; --muted:#495057;
-    --accent:#0057b7; --link:#0b5ed7; --ring:rgba(0,87,183,.25);
-    --warn-bg:#fff8e1; --warn-border:#ffe082;
-  
-    /* shadows / radii */
+    --bg:#f5f7fb;
+    --card:#fff;
+    --muted:#495057;
+    --text:#111;
+    --accent:#0057b7;
+    --ring:rgba(0,87,183,.25);
+    --link:#0b5ed7;
+    --warn-bg:#fff8e1;
+    --warn-border:#ffe082;
     --shadow:0 6px 18px rgba(0,0,0,.08);
     --shadow-hover:0 10px 26px rgba(0,87,183,.15);
-    --radius:12px; --underline:linear-gradient(currentColor,currentColor);
+    --radius:12px;
+    --underline:linear-gradient(currentColor,currentColor);
   
-    /* layout */
-    --page-max:1600px;  /* overall page width */
-    --gap:22px;         /* grid gap */
-    --left:460px;       /* left column width */
+    /* page/layout */
+    --page-max:1600px;
+    --gap:22px;
+    --left:460px;
   
-    /* announcement levels */
-    --ann-info:#2979ff; --ann-warn:#ffa000; --ann-urgent:#e53935;
+    /* announcements palette */
+    --ann-info:#3976ff;
+    --ann-warn:#ff9d1a;
+    --ann-urgent:#e55039;
   }
   
+  /* ===============================
+     BASE
+  ================================*/
   html,body{height:100%}
   body{
     margin:0;
     font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
-    color:var(--text); background:var(--bg);
+    color:var(--text);
+    background:var(--bg);
   }
-  /* soft wallpaper + veil */
   body::before{
     content:""; position:fixed; inset:0; z-index:-2;
-    background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png")
-               center/cover no-repeat fixed;
+    background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center/cover no-repeat fixed;
     filter:saturate(.9) contrast(1.02);
   }
   body::after{
     content:""; position:fixed; inset:0; z-index:-1;
     background:rgba(245,247,251,.86); backdrop-filter:blur(.5px);
   }
-  
-  /* =========================
-     PAGE FRAME
-  ========================= */
-  .wrap{ max-width:var(--page-max); margin-inline:auto; padding:28px 20px 60px }
+  .wrap{ max-width:var(--page-max); margin-inline:auto; padding:28px 20px 60px; }
   
   header{
     display:grid; grid-template-columns:1fr auto; align-items:end; gap:16px;
@@ -64,6 +68,10 @@
   .title{ font-size:clamp(24px,3.5vw,36px); font-weight:800; letter-spacing:.2px }
   .subtitle{ color:var(--muted); font-size:14px; margin-top:4px }
   
+  /* icon font */
+  .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
+  
+  /* search */
   .actions{ display:flex; gap:10px; align-items:center }
   .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
   .search{
@@ -73,35 +81,32 @@
   .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:300px }
   .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
   
-  .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
-  
-  /* toast */
-  .notice{
-    display:none; align-items:center; gap:10px;
-    background:var(--warn-bg); border:1px dashed var(--warn-border);
-    color:#3b3b00; padding:10px 12px; border-radius:var(--radius); margin:0 0 16px;
-  }
-  .notice.show{ display:flex }
-  .notice-fixed{
-    position:fixed; top:20px; right:20px; width:280px; z-index:9999;
-    background:#fff8e1; border:2px solid #ffca28; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);
-    padding:14px 16px; display:flex; align-items:flex-start; gap:10px; color:#3b3b00; font-weight:600; font-size:14px;
-    opacity:0; transform:translateX(100%); transition:transform .5s ease, opacity .6s ease;
-  }
-  .notice-fixed.show{ opacity:1; transform:translateX(0) }
-  
-  /* =========================
-     LAYOUT (2 COL: LEFT CAL + MAIN GRID)
-  ========================= */
+  /* ===============================
+     LAYOUT
+  ================================*/
   .layout{
     display:grid; gap:var(--gap);
     grid-template-columns:var(--left) 1fr;
     align-items:start;
   }
+  .sidebar .card, .rightbar .card{ position:sticky; top:16px }
+  .grid{
+    display:grid; gap:var(--gap);
+    grid-template-columns:repeat(3, minmax(340px, 1fr));
+  }
+  @media (max-width:1540px){
+    :root{ --left:420px; --page-max:1500px; }
+    .grid{ grid-template-columns:repeat(2, minmax(340px,1fr)); }
+  }
+  @media (max-width:1000px){
+    .layout{ grid-template-columns:1fr; }
+    .grid{ grid-template-columns:1fr; }
+    .sidebar .card, .rightbar .card{ position:static; top:auto }
+  }
   
-  /* =========================
-     CARDS
-  ========================= */
+  /* ===============================
+     CARDS & SECTIONS
+  ================================*/
   .card{
     background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
     padding:18px; border:1px solid #e7e7e7; position:relative;
@@ -116,25 +121,20 @@
     font-size:20px; letter-spacing:.3px; margin:-18px -18px 12px -18px; padding:14px 18px;
     border-radius:var(--radius) var(--radius) 0 0; color:#222; display:flex; align-items:center; gap:10px;
     box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);
+    min-width:0;
   }
-  .card h2 .badge{ margin-left:auto }
-  .badge{
-    display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px;
-    border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff;
-  }
+  .card h2 .badge{ margin-left:auto; flex-shrink:0 }
+  .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
   
-  /* section header tints */
-  #cal-title{ background:#a8c8ff } #equip-title{ background:#a9e5c2 }
-  #duties-title{ background:#ffe69b } #cores-title{ background:#f5a3a3 }
-  #tools-title{ background:#9ee5f0 } #misc-title{ background:#ffcba4 }
+  /* Section header colors */
+  #cal-title{ background:#a8c8ff }
+  #equip-title{ background:#a9e5c2 }
+  #duties-title{ background:#ffe69b }
+  #cores-title{ background:#f5a3a3 }
+  #tools-title{ background:#9ee5f0 }
+  #misc-title{ background:#ffcba4 }
   
-  /* =========================
-     GRID & LINKS
-  ========================= */
-  .grid{
-    display:grid; gap:var(--gap);
-    grid-template-columns:repeat(3, minmax(340px,1fr));
-  }
+  /* lists/links */
   .list{ list-style:none; padding:0; margin:0 }
   .list li{ margin:8px 0 }
   .link{
@@ -149,6 +149,7 @@
   .link:hover{ background:#eaf2ff; border-color:#cfe0ff }
   .link:hover::after{ transform:scaleX(1) }
   .link:focus{ box-shadow:0 0 0 3px var(--ring) }
+  .ext::after{ content:none !important }
   .muted{ color:var(--muted); font-weight:500 }
   
   /* details */
@@ -162,102 +163,159 @@
     border-width:5px 0 5px 7px; border-style:solid; border-color:transparent transparent transparent #555; transition:transform .2s ease;
   }
   details[open] > summary::before{ transform:translateY(-50%) rotate(90deg) }
+  summary .ms{ font-size:20px; line-height:1; position:relative; top:1px }
   summary::-webkit-details-marker{ display:none }
   
-  /* =========================
-     LEFT CALENDAR
-  ========================= */
-  .sidebar .card{ position:sticky; top:16px }
-  #iframe-wrap, .iframe-wrap{ border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff }
-  .iframe-wrap iframe{ width:100%; height:840px; border:0 }
-  #live-cal-title{ background:#cfe0ff }
+  /* footer */
+  footer{ margin-top:26px; color:var(--muted); font-size:12px }
+  .stack{ display:flex; gap:8px; flex-wrap:wrap }
   
-  .calendar-toolbar{ display:flex; gap:8px; align-items:center; margin:10px 0 12px }
+  /* ===============================
+     TOAST / NOTICE
+  ================================*/
+  .notice{
+    display:none; align-items:center; gap:10px;
+    background:var(--warn-bg); border:1px dashed var(--warn-border);
+    color:#3b3b00; padding:10px 12px; border-radius:var(--radius); margin:0 0 16px;
+  }
+  .notice.show{ display:flex }
+  .notice .close{ margin-left:auto; background:transparent; border:0; cursor:pointer; font-size:18px; line-height:1; color:#6c6c3a }
+  .notice-fixed{
+    position:fixed; top:20px; right:20px; width:280px; z-index:9999;
+    background:#fff8e1; border:2px solid #ffca28; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);
+    padding:14px 16px; display:flex; align-items:flex-start; gap:10px; color:#3b3b00; font-weight:600; font-size:14px;
+    opacity:0; transform:translateX(100%); transition:transform .5s ease, opacity .6s ease;
+  }
+  .notice-fixed.show{ opacity:1; transform:translateX(0); }
+  .notice-fixed .ms{ font-size:22px; color:#ff8f00; flex-shrink:0 }
+  .notice-fixed.ann-toast{ background:#fff; border-color:#90caf9; color:#0d47a1 }
+  .notice-fixed.ann-toast .ms{ color:#2979ff }
+  
+  /* ===============================
+     CALENDAR SIDEBAR
+  ================================*/
+  #live-cal-title{ background:#cfe0ff }
+  .iframe-wrap{
+    border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff;
+    display:flex; flex-direction:column;
+  }
+  .iframe-wrap iframe{ width:100%; height:840px; border:0; flex:1 }
+  #live-cal-card{ display:flex; flex-direction:column; }
+  
+  /* calendar toolbar + colored toggles */
+  .calendar-toolbar{ display:flex; gap:8px; align-items:center; margin:10px 0 12px; }
   .calendar-toolbar .btn{
     appearance:none; border:1px solid #d6e3ff; background:#f4f8ff; color:#0b3d91;
     padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
   }
   .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
-  /* calendar quick tabs */
-  .calendar-toolbar .btn[data-cal]{
-    border:none; border-radius:8px; padding:6px 14px; margin-left:6px; font-weight:600; color:#fff; cursor:pointer; transition:.25s;
-  }
+  .calendar-toolbar .btn[data-cal]{ border:none; border-radius:8px; padding:6px 14px; margin-left:6px; font-weight:600; color:#fff; cursor:pointer; transition:all .25s ease; }
   .calendar-toolbar .btn[data-cal="MAIN"]{ background:#d32f2f } .calendar-toolbar .btn[data-cal="MAIN"]:hover{ background:#b71c1c }
   .calendar-toolbar .btn[data-cal="293T"]{ background:#fbc02d; color:#333 } .calendar-toolbar .btn[data-cal="293T"]:hover{ background:#f9a825 }
   .calendar-toolbar .btn[data-cal][aria-pressed="true"]{ box-shadow:0 0 10px rgba(0,0,0,.25); transform:scale(1.05) }
   
-  /* let the card stretch with JS height */
-  #live-cal-card{ display:flex; flex-direction:column; }
-  #live-cal-card .iframe-wrap{ flex:1; min-height:0; }
-  #live-cal-card .iframe-wrap iframe{ height:100%; }
-  
-  /* =========================
-     ANNOUNCEMENTS (Option A)
-  ========================= */
-  .card.ann-banner{ display:block; margin:0 0 28px; padding:14px 16px; box-shadow:0 4px 12px rgba(0,0,0,.06) }
-  #ann-banner-title{ background:#ffe3b3 }
-  .ann-banner h2{ display:flex; align-items:center; gap:10px; box-shadow:inset 0 -1px 0 rgba(0,0,0,.05) }
-  .ann-banner h2 .dot{
-    width:10px; height:10px; border-radius:999px; background:#ff1744; margin-left:6px; transform:translateY(1px); display:none;
-    box-shadow:0 0 0 0 rgba(255,23,68,.6);
+  /* ===============================
+     ANNOUNCEMENTS (banner + cards)
+  ================================*/
+  /* banner container */
+  .card.ann-banner{
+    display:block;
+    margin:0 0 22px 0;
+    padding-bottom:8px;
+    max-width:var(--page-max);
+    box-shadow:0 4px 12px rgba(0,0,0,.06);
   }
-  .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite }
-  @keyframes annPulse{ 0%{box-shadow:0 0 0 0 rgba(255,23,68,.5)} 70%{box-shadow:0 0 0 10px rgba(255,23,68,0)} 100%{box-shadow:0 0 0 0 rgba(255,23,68,0)} }
+  .card.ann-banner + .layout{ margin-top:28px; }
+  .ann-banner h2{ display:flex; align-items:center; gap:10px; box-shadow:inset 0 -1px 0 rgba(0,0,0,.05); }
+  .ann-banner .ann-list{
+    list-style:none; padding:0; margin:10px 0 0;
+    display:grid; gap:12px;
+    grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+  }
   
-  .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)) }
-  
-  /* base card with colored stripe */
+  /* minimalist announcement card */
   .ann-item{
-    position:relative; display:grid; gap:8px;
-    padding:12px 14px; border-radius:12px; border:1px solid #e9edf7; background:#fff; box-shadow:var(--shadow);
-    transform-origin:top left; border-left:4px solid var(--ann-info);
+    border:1px solid #e9edf7;
+    background:#fff;
+    border-radius:12px;
+    box-shadow:none;                 /* flatter */
+    padding:14px 16px;
+    display:grid; gap:8px; grid-template-columns:1fr;
+    border-left:4px solid var(--ann-info);
+    transform-origin:top left;
   }
+  .ann-item:hover{ border-color:#d6e3ff; box-shadow:0 2px 10px rgba(0,0,0,.04); }
   .ann-item.info{   border-left-color:var(--ann-info) }
   .ann-item.warn{   border-left-color:var(--ann-warn) }
   .ann-item.urgent{ border-left-color:var(--ann-urgent) }
   
-  .ann-head{ display:flex; align-items:center; gap:10px; font-weight:700; color:#1c2430 }
-  .ann-item.info   .ann-head{ color:var(--ann-info) }
-  .ann-item.warn   .ann-head{ color:var(--ann-warn) }
-  .ann-item.urgent .ann-head{ color:var(--ann-urgent) }
-  
-  .ann-time{ font-size:12px; font-weight:700 }
-  .badge-new{
-    margin-left:auto; font-size:11px; font-weight:800; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
-    padding:2px 8px; border-radius:999px; display:none;
+  /* header: date chip + NEW */
+  .ann-head{ display:flex; align-items:center; gap:10px; font-weight:700; color:#1f2a37; }
+  .ann-time{
+    background:#f3f6ff; border:1px solid #dbe5ff; color:#274690;
+    padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800;
+    white-space:nowrap;
   }
-  .ann-item.new .badge-new{ display:inline-flex }
-  .ann-body{ color:#263238; line-height:1.45 }
-  .ann-actions{ display:flex; gap:8px; margin-top:8px }
+  .ann-item.warn   .ann-time{ background:#fff7eb; border-color:#ffe3c2; color:#8a4b00 }
+  .ann-item.urgent .ann-time{ background:#ffefef; border-color:#ffd9d9; color:#9a1f1f }
+  .badge-new{
+    margin-left:auto; font-size:10.5px; font-weight:900; color:#b71c1c;
+    background:#ffebee; border:1px solid #ffcdd2; padding:2px 8px; border-radius:999px; display:none;
+  }
+  .ann-item.new .badge-new{ display:inline-flex; }
+  .ann-body{ color:#1f2937; line-height:1.45; }
+  .ann-actions{ display:flex; gap:8px; margin-top:6px; }
   .ann-actions .btn-min{
     appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
     font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
   }
-  /* hide "Mark read" after read */
-  .ann-item.read .btn-min{ opacity:0; transform:scale(0.9); pointer-events:none; transition:all .25s ease }
+  /* hide mark button once read */
+  .ann-item.read .btn-min{ opacity:0; transform:scale(.9); pointer-events:none; transition:all .3s ease; }
+  /* fully remove old icon chip look */
+  .ann-chip{ display:none !important; }
   
-  /* =========================
-     ROTATIONS
-  ========================= */
-  .card.room-rot{ display:block; max-width:var(--page-max); margin:16px auto 28px }
-  .room-rot #rot-title{ background:#e6efff }
-  #rot-dates{
-    background:#e6efff; background:linear-gradient(to bottom,#fdeaea,#f7e1e1);
-    font-size:clamp(.9rem,2.2vw,1.25rem); font-weight:600; color:#003366; line-height:1.2;
-    display:block; white-space:normal; padding:6px 10px; margin-bottom:6px;
+  /* ===============================
+     ROOM MAINTENANCE ROTATIONS
+  ================================*/
+  .card.room-rot{
+    display:block; max-width:var(--page-max);
+    margin:10px auto 24px;
   }
-  .rot-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px }
-  .rot-col{ border:1px solid #e2e6ee; border-radius:10px; overflow:hidden; background:#fff; box-shadow:var(--shadow) }
-  .rot-h{ font-weight:800; color:#111; text-align:center; padding:8px 10px; border-bottom:1px solid rgba(0,0,0,.08); font-size:18px }
-  .rot-body{ padding:10px 12px; text-align:center; font-weight:600 }
-  .rot-tc1{ background:#f8bf20 } .rot-tc2{ background:#5a84e8; color:#fff }
-  .rot-tc3{ background:#74b65a; color:#0f2a0f } .rot-main{ background:#d32f2f; color:#fff }
+  #rot-title{ background:#e6efff }
+  #rot-dates{
+    /* new quiet caption style (right aligned) */
+    background:transparent; border:0; padding:0;
+    margin:4px 6px 0 auto; display:inline-block;
+    color:#6b7280; font-weight:600; font-size:14px; letter-spacing:.2px;
+  }
+  /* (optional ghost pill, swap above block with this to enable)
+  #rot-dates{
+    background:#ffffffcc; border:1px solid #e8ecf5; border-radius:999px;
+    padding:3px 9px; margin:4px 6px 0 auto; display:inline-block;
+    color:#3b4453; font-weight:700; font-size:12.5px; box-shadow:0 1px 6px rgba(0,0,0,.04);
+  }
+  */
   
-  /* inline editor (hidden unless admin) */
+  .rot-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .rot-col{
+    border:1px solid #e2e6ee; border-radius:10px; overflow:hidden; background:#fff; box-shadow:var(--shadow);
+  }
+  .rot-h{
+    font-weight:800; color:#111; text-align:center; padding:8px 10px;
+    border-bottom:1px solid rgba(0,0,0,.08); font-size:18px;
+  }
+  .rot-body{ padding:10px 12px; text-align:center; font-weight:600; }
+  .rot-tc1{ background:#f8bf20 }  /* amber */
+  .rot-tc2{ background:#5a84e8; color:#fff }
+  .rot-tc3{ background:#74b65a; color:#0f2a0f }
+  .rot-main{ background:#d32f2f; color:#fff }
+  
+  /* editor */
   .rot-edit{ display:none; margin-top:12px; border:1px dashed #d8e1ff; border-radius:10px; padding:10px 12px; background:#f8fbff }
-  .rot-edit[open]{ background:#eef5ff } body.admin .rot-edit{ display:block }
+  .rot-edit[open]{ background:#eef5ff }
+  body.admin .rot-edit{ display:block }
   .rot-form{ display:grid; gap:12px }
-  .rot-form .row{ display:grid; gap:10px; grid-template-columns:repeat(4,minmax(0,1fr)) }
+  .rot-form .row{ display:grid; gap:10px; grid-template-columns:repeat(4, minmax(0,1fr)) }
   .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px }
   .rot-form input{ border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff }
   .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring) }
@@ -272,64 +330,75 @@
   }
   .hint{ font-size:12px; color:#6b7280 }
   
-  /* =========================
-     STICKY NOTES (kept minimal)
-  ========================= */
+  /* ===============================
+     STICKY NOTES
+  ================================*/
   .notes-dock{
     position:fixed; top:120px; width:260px; max-height:calc(100vh - 160px);
     display:flex; flex-direction:column; gap:10px; z-index:999; pointer-events:none;
   }
   .note-card{
     pointer-events:auto; background:#fffbe7; border:1px solid #e8dfb0; box-shadow:var(--shadow);
-    border-radius:12px; padding:42px 12px 40px; position:relative;
+    border-radius:12px; padding:42px 12px 40px 12px; position:relative;
   }
   .note-card .note-toolbar{
     position:absolute; top:8px; right:8px; z-index:2; display:flex; gap:6px;
     background:rgba(255,251,231,.85); border-radius:8px; padding:2px;
   }
-  .note-btn{ appearance:none; border:1px solid #ddd4a4; background:#fff7c6; font-size:12px; padding:2px 6px; border-radius:8px; cursor:pointer }
+  .note-btn{
+    appearance:none; border:1px solid #ddd4a4; background:#fff7c6; font-size:12px; padding:2px 6px; border-radius:8px; cursor:pointer;
+  }
   .note-btn:hover{ background:#fff1a1 }
-  .note-textarea,.note-editor{
-    display:block; width:100%; box-sizing:border-box; min-height:90px; border:0; resize:vertical;
-    background:transparent; outline:none; font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#3d3a2a;
+  .note-textarea, .note-editor{
+    display:block; width:100%; box-sizing:border-box; min-height:90px;
+    border:none; resize:vertical; background:transparent;
+    font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial; color:#3d3a2a; outline:none;
+    white-space:pre-wrap; padding-top:24px;
   }
   ul.checklist{ list-style:none; padding-left:0; margin:0 }
   ul.checklist li{ display:flex; align-items:center; gap:8px; margin:4px 0 }
-  
-  /* =========================
-     FOOTER
-  ========================= */
-  footer{ margin-top:26px; color:var(--muted); font-size:12px }
-  .stack{ display:flex; gap:8px; flex-wrap:wrap }
-  
-  /* =========================
-     RESPONSIVE
-  ========================= */
-  @media (max-width:1540px){
-    :root{ --left:420px; --page-max:1500px }
-    .grid{ grid-template-columns:repeat(2,minmax(340px,1fr)) }
+  ul.checklist li input[type="checkbox"]{ transform:translateY(1px) }
+  .btn-note{
+    appearance:none; border:1px solid #cfd8ea; background:#eaf2ff; color:#0b3d91; font-weight:700;
+    border-radius:10px; padding:8px 12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.06);
   }
-  @media (max-width:1000px){
-    .layout{ grid-template-columns:1fr }
-    .grid{ grid-template-columns:1fr }
-    .sidebar .card{ position:static; top:auto }
+  .btn-note:hover{ background:#dce9ff }
+  .btn-note[disabled]{ opacity:.5; cursor:not-allowed }
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(2px)}75%{transform:translateX(-2px)}}
+  .btn-note.shake{ animation:shake .25s ease-in-out }
+  
+  /* ===============================
+     RESPONSIVE
+  ================================*/
+  @media (max-width:980px){
+    .notes-dock, #add-note-fab{ display:none }
   }
   @media (max-width:768px){
+    .grid{ grid-template-columns:1fr }
     .iframe-wrap iframe{ height:600px }
   }
   @media (max-width:480px){
     .wrap{ padding:16px 12px 40px }
     header{ grid-template-columns:1fr; align-items:start; gap:8px }
-    .title{ font-size:22px; line-height:1.15 } .subtitle{ font-size:12px }
-    .actions{ width:100%; gap:8px } .search{ width:100% } .search input{ min-width:0; width:100% }
-    .card{ padding:14px } .card h2{ font-size:18px; padding:12px 14px } .badge{ font-size:11px; padding:2px 8px }
-    .rot-grid{ grid-template-columns:repeat(2,1fr); gap:6px } .rot-h{ font-size:13px; padding:6px 8px } .rot-body{ padding:8px 10px }
-    .calendar-toolbar{ gap:6px; margin:8px 0 10px } .calendar-toolbar .btn{ padding:4px 8px; font-size:13px }
+    .title{ font-size:22px; line-height:1.15 }
+    .subtitle{ font-size:12px }
+    .actions{ width:100%; gap:8px }
+    .search{ width:100% }
+    .search input{ min-width:0; width:100% }
+    .card{ padding:14px }
+    .card h2{ font-size:18px; padding:12px 14px }
+    .badge{ font-size:11px; padding:2px 8px }
+    .rot-grid{ grid-template-columns:repeat(2,1fr); gap:6px }
+    .rot-h{ font-size:13px; padding:6px 8px }
+    .rot-body{ padding:8px 10px }
+    .calendar-toolbar{ gap:6px; margin:8px 0 10px }
+    .calendar-toolbar .btn{ padding:4px 8px; font-size:13px }
     .iframe-wrap iframe{ height:520px }
-    .ann-list{ grid-template-columns:1fr }
-    .notes-dock{ display:none }
+    .ann-banner .ann-list{ grid-template-columns:1fr }
+    #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px }
   }
   </style>
+
 
 
 </head>
@@ -1360,6 +1429,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
