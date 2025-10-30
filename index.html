@@ -235,26 +235,32 @@
   
   /* minimalist announcement card */
   .ann-item{
-    border:1px solid #e9edf7;
-    background:#fff;
-    border-radius:12px;
-    box-shadow:none;                 /* flatter */
-    padding:14px 16px;
-    display:grid; gap:8px; grid-template-columns:1fr;
-    border-left:4px solid var(--ann-info);
-    transform-origin:top left;
+    box-shadow: 0 1px 6px rgba(0,0,0,.04);
+    border: 1px solid #e6ecf7;
   }
   .ann-item:hover{ border-color:#d6e3ff; box-shadow:0 2px 10px rgba(0,0,0,.04); }
-  .ann-item.info{   border-left-color:var(--ann-info) }
-  .ann-item.warn{   border-left-color:var(--ann-warn) }
-  .ann-item.urgent{ border-left-color:var(--ann-urgent) }
+  .ann-item.info{
+    background: #f6f9ff;                 /* blue tint */
+    border-left-color: var(--ann-info);
+    border-color: #dbe5ff;
+  }
+  .ann-item.warn{
+    background: #fff7eb;                 /* amber tint */
+    border-left-color: var(--ann-warn);
+    border-color: #ffe3c2;
+  }
+  .ann-item.urgent{
+    background: #ffefef;                 /* red tint */
+    border-left-color: var(--ann-urgent);
+    border-color: #ffd9d9;
+  }
   
   /* header: date chip + NEW */
   .ann-head{ display:flex; align-items:center; gap:10px; font-weight:700; color:#1f2a37; }
   .ann-time{
-    background:#f3f6ff; border:1px solid #dbe5ff; color:#274690;
-    padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800;
-    white-space:nowrap;
+    background: #ffffffa6;
+    border: 1px solid #e6ecf7;
+    color: #1f2a37;
   }
   .ann-item.warn   .ann-time{ background:#fff7eb; border-color:#ffe3c2; color:#8a4b00 }
   .ann-item.urgent .ann-time{ background:#ffefef; border-color:#ffd9d9; color:#9a1f1f }
@@ -273,15 +279,38 @@
   .ann-item.read .btn-min{ opacity:0; transform:scale(.9); pointer-events:none; transition:all .3s ease; }
   /* fully remove old icon chip look */
   .ann-chip{ display:none !important; }
+
+  /* --- Announcements header: red dot back --- */
+  .ann-banner h2{
+    display:flex; align-items:center; gap:10px;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+  }
+  .ann-banner h2 .dot{
+    width:10px; height:10px; border-radius:999px;
+    background:#ff1744;
+    box-shadow:0 0 0 0 rgba(255,23,68,.55);
+    margin-left:6px; transform:translateY(1px);
+    display:none;
+  }
+  .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite }
+  @keyframes annPulse{
+    0%{   box-shadow:0 0 0 0 rgba(255,23,68,.55) }
+    70%{  box-shadow:0 0 0 10px rgba(255,23,68,0) }
+    100%{ box-shadow:0 0 0 0 rgba(255,23,68,0) }
+  }
   
   /* ===============================
      ROOM MAINTENANCE ROTATIONS
   ================================*/
   .card.room-rot{
-    display:block; max-width:var(--page-max);
-    margin:10px auto 24px;
+    border-color:#e7eaf7;
   }
-  #rot-title{ background:#e6efff }
+  #rot-title{
+    /* Light indigo (distinct from announcements) */
+    background:#dbeafe;      /* indigo-100 vibe */
+    color:#0f1f4b;
+  }
+
   #rot-dates{
     /* new quiet caption style (right aligned) */
     background:transparent; border:0; padding:0;
@@ -1429,6 +1458,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
