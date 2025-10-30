@@ -214,150 +214,133 @@
   .calendar-toolbar .btn[data-cal="293T"]{ background:#fbc02d; color:#333 } .calendar-toolbar .btn[data-cal="293T"]:hover{ background:#f9a825 }
   .calendar-toolbar .btn[data-cal][aria-pressed="true"]{ box-shadow:0 0 10px rgba(0,0,0,.25); transform:scale(1.05) }
   
-  /* ===============================
-     ANNOUNCEMENTS (banner + cards)
-  ================================*/
-  /* banner container */
+  /* ===========================
+   Announcements (classic look)
+   =========================== */
+  
+  /* Banner */
   .card.ann-banner{
-    display:block;
-    margin:0 0 22px 0;
-    padding-bottom:8px;
-    max-width:var(--page-max);
-    box-shadow:0 4px 12px rgba(0,0,0,.06);
+    background:#ffe3b3;          /* warm peach header strip */
+    border:1px solid #ffd99a;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);
   }
-  .card.ann-banner + .layout{ margin-top:28px; }
-  .ann-banner h2{ display:flex; align-items:center; gap:10px; box-shadow:inset 0 -1px 0 rgba(0,0,0,.05); }
-  .ann-banner .ann-list{
-    list-style:none; padding:0; margin:10px 0 0;
-    display:grid; gap:12px;
-    grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
-  }
-  
-  /* minimalist announcement card */
-  .ann-item{
-    box-shadow: 0 1px 6px rgba(0,0,0,.04);
-    border: 1px solid #e6ecf7;
-  }
-  .ann-item:hover{ border-color:#d6e3ff; box-shadow:0 2px 10px rgba(0,0,0,.04); }
-  .ann-item.info{
-    background: #f6f9ff;                 /* blue tint */
-    border-left-color: var(--ann-info);
-    border-color: #dbe5ff;
-  }
-  .ann-item.warn{
-    background: #fff7eb;                 /* amber tint */
-    border-left-color: var(--ann-warn);
-    border-color: #ffe3c2;
-  }
-  .ann-item.urgent{
-    background: #ffefef;                 /* red tint */
-    border-left-color: var(--ann-urgent);
-    border-color: #ffd9d9;
-  }
-  
-  /* header: date chip + NEW */
-  .ann-head{ display:flex; align-items:center; gap:10px; font-weight:700; color:#1f2a37; }
-  .ann-time{
-    background: #ffffffa6;
-    border: 1px solid #e6ecf7;
-    color: #1f2a37;
-  }
-  .ann-item.warn   .ann-time{ background:#fff7eb; border-color:#ffe3c2; color:#8a4b00 }
-  .ann-item.urgent .ann-time{ background:#ffefef; border-color:#ffd9d9; color:#9a1f1f }
-  .badge-new{
-    margin-left:auto; font-size:10.5px; font-weight:900; color:#b71c1c;
-    background:#ffebee; border:1px solid #ffcdd2; padding:2px 8px; border-radius:999px; display:none;
-  }
-  .ann-item.new .badge-new{ display:inline-flex; }
-  .ann-body{ color:#1f2937; line-height:1.45; }
-  .ann-actions{ display:flex; gap:8px; margin-top:6px; }
-  .ann-actions .btn-min{
-    appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
-    font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
-  }
-  /* hide mark button once read */
-  .ann-item.read .btn-min{ opacity:0; transform:scale(.9); pointer-events:none; transition:all .3s ease; }
-  /* fully remove old icon chip look */
-  .ann-chip{ display:none !important; }
-
-  /* --- Announcements header: red dot back --- */
-  .ann-banner h2{
+  .card.ann-banner h2{
     display:flex; align-items:center; gap:10px;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.05);
+    margin:-18px -18px 12px -18px; padding:14px 18px;
+    border-radius:12px 12px 0 0;
+    background:#ffe3b3;
+    box-shadow:inset 0 -1px 0 rgba(0,0,0,.06);
   }
-  .ann-banner h2 .dot{
+  
+  /* Red “new” dot in the header — JS toggles `.show` */
+  .card.ann-banner h2 .dot{
     width:10px; height:10px; border-radius:999px;
-    background:#ff1744;
+    background:#ff1744; margin-left:6px; transform:translateY(1px);
     box-shadow:0 0 0 0 rgba(255,23,68,.55);
-    margin-left:6px; transform:translateY(1px);
     display:none;
   }
-  .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite }
+  .card.ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite; }
   @keyframes annPulse{
-    0%{   box-shadow:0 0 0 0 rgba(255,23,68,.55) }
-    70%{  box-shadow:0 0 0 10px rgba(255,23,68,0) }
-    100%{ box-shadow:0 0 0 0 rgba(255,23,68,0) }
+    0%{box-shadow:0 0 0 0 rgba(255,23,68,.55)}
+    70%{box-shadow:0 0 0 10px rgba(255,23,68,0)}
+    100%{box-shadow:0 0 0 0 rgba(255,23,68,0)}
   }
   
-  /* ===============================
-     ROOM MAINTENANCE ROTATIONS
-  ================================*/
+  /* Cards grid under the banner */
+  .ann-banner .ann-list{
+    display:grid; gap:14px; margin-top:10px;
+    grid-template-columns:repeat(auto-fit, minmax(320px,1fr));
+  }
+  
+  /* Card shell */
+  .ann-item{
+    position:relative;
+    display:flex; flex-direction:column; gap:10px;
+    padding:14px 16px; border-radius:12px;
+    border:1px solid #e9edf7; background:#fff;
+    box-shadow:0 1px 6px rgba(0,0,0,.05);
+    transition:box-shadow .18s ease, transform .18s ease, border-color .18s ease;
+  }
+  .ann-item:hover{
+    transform:translateY(-2px);
+    border-color:#d7e3ff;
+    box-shadow:0 10px 22px rgba(0,0,0,.08);
+  }
+  
+  /* Soft level tints (like the screenshot) */
+  .ann-item.info   { background:#f7faff; border-color:#dfe6ff; }
+  .ann-item.warn   { background:#fff7e9; border-color:#ffe3bf; }
+  .ann-item.urgent { background:#fff1f1; border-color:#ffc9c9; }
+  
+  /* Tiny blue dot + date on the left */
+  .ann-head{
+    display:flex; align-items:center; gap:8px; min-height:24px;
+    font-weight:700; color:#1c2430;
+  }
+  .ann-time{
+    display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700;
+    color:#334155;
+  }
+  .ann-time::before{
+    content:""; width:8px; height:8px; border-radius:999px; background:#1e90ff;
+  }
+  
+  /* NEW badge (only shows on .new) */
+  .badge-new{
+    margin-left:8px;
+    font-size:11px; font-weight:800; letter-spacing:.2px;
+    color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
+    padding:2px 8px; border-radius:999px; display:none;
+  }
+  .ann-item.new .badge-new{ display:inline-flex; }
+  
+  /* Body + actions anchored at bottom */
+  .ann-body{ color:#25323b; line-height:1.48; }
+  .ann-actions{ margin-top:auto; display:flex; gap:8px; flex-wrap:wrap; }
+  .ann-actions .btn-min{
+    appearance:none; border:1px solid #dfe6ef; background:#f7faff;
+    padding:6px 10px; border-radius:8px; font-size:12px; font-weight:700; color:#0b3d91;
+    cursor:pointer;
+  }
+  .ann-actions .btn-min:hover{ background:#eef4ff; border-color:#cfe0ff; }
+  /* When read, fade the button (your JS adds .read) */
+  .ann-item.read .btn-min{ opacity:0; transform:scale(.96); pointer-events:none; transition:all .24s ease; }
+  
+  /* Hide the old left icon chip if it exists */
+  .ann-chip{ display:none !important; }
+  
+  /* ==============================
+     Room Maintenance Rotations card
+     ============================== */
+  
+  /* Give this a distinct color via a CSS variable so you can tweak easily */
+  :root{
+    --rotations-head-bg: #dfe7ff;   /* pick your favorite: e.g. #e9f5ff, #eae7ff, #dfe7ff */
+    --rotations-head-fg: #12306b;
+    --rotations-head-bd: #c9d6ff;
+  }
+  
   .card.room-rot{
-    border-color:#e7eaf7;
+    border:1px solid #e3e8f3;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);
   }
-  #rot-title{
-    /* Light indigo (distinct from announcements) */
-    background:#dbeafe;      /* indigo-100 vibe */
-    color:#0f1f4b;
-  }
-
-  #rot-dates{
-    /* new quiet caption style (right aligned) */
-    background:transparent; border:0; padding:0;
-    margin:4px 6px 0 auto; display:inline-block;
-    color:#6b7280; font-weight:600; font-size:14px; letter-spacing:.2px;
-  }
-  /* (optional ghost pill, swap above block with this to enable)
-  #rot-dates{
-    background:#ffffffcc; border:1px solid #e8ecf5; border-radius:999px;
-    padding:3px 9px; margin:4px 6px 0 auto; display:inline-block;
-    color:#3b4453; font-weight:700; font-size:12.5px; box-shadow:0 1px 6px rgba(0,0,0,.04);
-  }
-  */
   
-  .rot-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-  .rot-col{
-    border:1px solid #e2e6ee; border-radius:10px; overflow:hidden; background:#fff; box-shadow:var(--shadow);
+  .card.room-rot #rot-title{
+    background:var(--rotations-head-bg);
+    color:var(--rotations-head-fg);
+    border-bottom:1px solid var(--rotations-head-bd);
   }
-  .rot-h{
-    font-weight:800; color:#111; text-align:center; padding:8px 10px;
-    border-bottom:1px solid rgba(0,0,0,.08); font-size:18px;
-  }
-  .rot-body{ padding:10px 12px; text-align:center; font-weight:600; }
-  .rot-tc1{ background:#f8bf20 }  /* amber */
-  .rot-tc2{ background:#5a84e8; color:#fff }
-  .rot-tc3{ background:#74b65a; color:#0f2a0f }
-  .rot-main{ background:#d32f2f; color:#fff }
   
-  /* editor */
-  .rot-edit{ display:none; margin-top:12px; border:1px dashed #d8e1ff; border-radius:10px; padding:10px 12px; background:#f8fbff }
-  .rot-edit[open]{ background:#eef5ff }
-  body.admin .rot-edit{ display:block }
-  .rot-form{ display:grid; gap:12px }
-  .rot-form .row{ display:grid; gap:10px; grid-template-columns:repeat(4, minmax(0,1fr)) }
-  .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px }
-  .rot-form input{ border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff }
-  .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring) }
-  .rot-form .actions{ display:flex; gap:10px; align-items:center }
-  .btn-primary{
-    appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
-    padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
+  /* keep the range pill clean and compact */
+  #rot-dates{
+    background:#fff;
+    border:1px solid #d9e2f7;
+    color:#182a4a;
+    padding:6px 10px;
+    border-radius:999px;
+    font-weight:700;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
   }
-  .btn-ghost{
-    appearance:none; border:1px solid #e0e7ef; background:#fff; color:#333;
-    padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
-  }
-  .hint{ font-size:12px; color:#6b7280 }
   
   /* ===============================
      STICKY NOTES
@@ -1458,6 +1441,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
