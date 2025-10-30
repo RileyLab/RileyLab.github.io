@@ -1554,7 +1554,7 @@ function renderRotations(obj){
   };
   const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
 
-  elDates.textContent = `${badgeDateYMD(obj.start)} – ${badgeDateYMD(obj.end)}`;
+  elDates.innerHTML = `<span class="ms" aria-hidden="true">calendar_month</span> ${badgeDateYMD(obj.start)} – ${badgeDateYMD(obj.end)}`;
   elGrid.innerHTML = `
     <div class="rot-col"><div class="rot-h rot-tc1">TC1</div><div class="rot-body">${esc(obj.tc1||'—')}</div></div>
     <div class="rot-col"><div class="rot-h rot-tc2">TC2</div><div class="rot-body">${esc(obj.tc2||'—')}</div></div>
@@ -1885,4 +1885,5 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
