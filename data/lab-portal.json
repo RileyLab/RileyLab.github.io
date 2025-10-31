@@ -2,7 +2,7 @@
   "announcements": [
     { "text": "DO NOT leave the Barney -80C freezer door open for more than a minute! If you need to dig through your rack, please remove it from the freezer to look!", "when": "2025-10-30T12:00:00-04:00", "level":"urgent" },
     { "text": "Please use TC rooms with the door closed!", "when": "2025-10-28T12:00:00-04:00", "level":"warning"},
-    { "text": "Our two new BSCs are installed and we are waiting for them to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00", "level":"urgent" },
+    { "text": "Our two new BSCs are installed and we are waiting for them to be certified. Please do not use until further notice.", "when": "2025-10-21T12:00:00-04:00", "level":"urgent" }
   ],
   "rotations": {
     "start": "2025-10-20",
