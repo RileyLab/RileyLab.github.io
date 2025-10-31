@@ -854,6 +854,64 @@
       pointer-events: none;
       transition: all 0.3s ease;
     }
+
+    /* === Make LAB ANNOUNCEMENTS + ROTATIONS more compact === */
+
+    /* Card shells + headers a bit tighter */
+    .card.ann-banner,
+    .card.room-rot { padding: 10px 12px; }
+    
+    .card.ann-banner h2,
+    .card.room-rot h2 {
+      padding: 8px 12px;
+      font-size: 16px;      /* was ~20px */
+    }
+    
+    /* Announcements: smaller items + 3-line clamp */
+    .ann-banner .ann-list { gap: 8px; }
+    .ann-item { padding: 8px 10px; }
+    .ann-head { font-size: 13px; }
+    .ann-time { font-size: 11px; }
+    
+    /* clamp long bodies to reduce height */
+    .ann-body {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;   /* show up to 3 lines */
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    /* Optional: keep announcements to a single compact row with horizontal scroll
+       (uncomment if you want an even shorter banner)
+       .ann-banner .ann-list {
+         grid-auto-flow: column;
+         grid-auto-columns: minmax(260px, 1fr);
+         overflow-x: auto;
+         overscroll-behavior-inline: contain;
+         padding-bottom: 4px;   // room for scrollbar
+       }
+    */
+    
+    /* Rotations: tighter grid + one-line names */
+    #rot-dates {
+      font-size: 13px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+    }
+    
+    .rot-grid { gap: 6px; }
+    .rot-h    { padding: 6px 8px; font-size: 14px; }
+    .rot-body {
+      padding: 6px 8px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    /* Trim the vertical gaps above/below these two sections */
+    .card.ann-banner { margin: 0 0 12px; }
+    .card.room-rot   { margin: 12px auto 16px; }
     
   </style>
 
@@ -1886,6 +1944,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
