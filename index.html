@@ -875,11 +875,46 @@
     
     /* clamp long bodies to reduce height */
     .ann-body {
+      position: relative;
+    }
+
+    .ann-body.clamp {
       display: -webkit-box;
-      -webkit-line-clamp: 3;   /* show up to 3 lines */
+      -webkit-line-clamp: 4;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* subtle fade when clamped */
+    .ann-body.clamp::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 2.2em;                 /* fade height */
+      background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
+      pointer-events: none;
+    }
+
+    /* "More/Less" button */
+    .ann-more {
+      appearance: none;
+      border: 1px solid #dfe6ef;
+      background: #f7faff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0b3d91;
+      cursor: pointer;
+    }
+    
+    /* expanded state removes clamp */
+    .ann-item.expanded .ann-body.clamp {
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+    
+    .ann-item.expanded .ann-body.clamp::after { display: none; }
     
     /* Optional: keep announcements to a single compact row with horizontal scroll
        (uncomment if you want an even shorter banner)
@@ -1575,6 +1610,44 @@ function renderAnnouncements(items){
   list.innerHTML = '';
   list.appendChild(frag);
 
+  // Enable per-item clamp + "More/Less" only when needed
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#ann-banner-list .ann-item').forEach(li => {
+      const body = li.querySelector('.ann-body');
+      const actions = li.querySelector('.ann-actions');
+      if (!body || !actions) return;
+  
+      // start clamped
+      body.classList.add('clamp');
+  
+      // create the toggle button
+      const moreBtn = document.createElement('button');
+      moreBtn.type = 'button';
+      moreBtn.className = 'ann-more';
+      moreBtn.textContent = 'More';
+      moreBtn.addEventListener('click', () => {
+        const expanded = li.classList.toggle('expanded');
+        if (expanded) {
+          body.classList.remove('clamp');
+          moreBtn.textContent = 'Less';
+        } else {
+          body.classList.add('clamp');
+          moreBtn.textContent = 'More';
+        }
+      });
+  
+      // insert the button at the start of the actions row
+      actions.prepend(moreBtn);
+  
+      // if it doesn't actually overflow at 4 lines, hide the button + unclamp
+      // (allow a tiny tolerance for rounding)
+      if (body.scrollHeight <= body.clientHeight + 1) {
+        body.classList.remove('clamp');
+        moreBtn.style.display = 'none';
+      }
+    });
+  });
+
   showAnnToast(newCount);
   updateAnnDotVisibility();       // ensure header dot reflects current unread state
 
@@ -1944,6 +2017,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
