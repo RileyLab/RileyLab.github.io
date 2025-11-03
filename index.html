@@ -1428,50 +1428,96 @@ function portalJsonUrl() {
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
 
 async function fetchPortalData() {
-  // Fetch both sources in parallel
-  const localUrl = portalJsonUrl(); // your existing helper builds data/lab-portal.json URL
+  const localUrl = portalJsonUrl(); // your helper that builds data/lab-portal.json
+  const appsUrlWithBust = APPS_URL + '?t=' + Date.now();
+  const localUrlWithBust = localUrl + '?v=' + Date.now();
+
+  // helpers
+  const safeJson = async (resp) => {
+    try {
+      const txt = await resp.text();
+      // try parse
+      const parsed = JSON.parse(txt);
+      return parsed;
+    } catch (e) {
+      console.warn('JSON parse failed for', resp && resp.url, e);
+      return null;
+    }
+  };
+
+  // default fallback object (keeps UI safe)
+  const defaultData = { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' }, rotationPlan: null };
+
+  // 1) Try Apps Script first (preferred source for announcements)
   try {
-    const [appsRes, localRes] = await Promise.allSettled([
-      fetch(APPS_URL + '?t=' + Date.now(), { cache: 'no-store' }),
-      fetch(localUrl + '?v=' + Date.now(), { cache: 'no-store' })
-    ]);
+    const appsResp = await fetch(appsUrlWithBust, { cache: 'no-store' });
+    if (appsResp.ok) {
+      const appsBody = await safeJson(appsResp);
+      console.log('[portal] apps script response shape:', appsBody);
 
-    // announcements from Apps Script (preferred)
-    let announcements = [];
-    if (appsRes.status === 'fulfilled' && appsRes.value.ok) {
-      try { announcements = await appsRes.value.json(); }
-      catch(e){ console.warn('parse apps announcements failed', e); }
+      // Accept either:
+      //  - an array (the script returns announcements as an array), or
+      //  - an object { announcements: [...], rotations: {...}, rotationPlan: ... }
+      let announcements = [];
+      let rotations = null;
+      let rotationPlan = null;
+
+      if (Array.isArray(appsBody)) {
+        announcements = appsBody;
+      } else if (appsBody && typeof appsBody === 'object') {
+        // try to locate announcements array in object
+        announcements = Array.isArray(appsBody.announcements) ? appsBody.announcements : (Array.isArray(appsBody.data) ? appsBody.data : []);
+        rotations     = appsBody.rotations ?? null;
+        rotationPlan  = appsBody.rotationPlan ?? null;
+      }
+
+      if (announcements && announcements.length > 0) {
+        console.info(`[portal] using ${announcements.length} announcements from Apps Script`);
+        // combine with rotations if provided, otherwise fallback to local file for rotations below
+        return { announcements, rotations: rotations ?? undefined, rotationPlan: rotationPlan ?? undefined };
+      } else {
+        console.info('[portal] Apps Script returned no announcements; will try local JSON as fallback');
+        // intentionally fall through to attempt local JSON for announcements/rotations
+      }
+    } else {
+      console.warn('[portal] Apps Script fetch HTTP', appsResp.status, appsResp.statusText);
     }
-
-    // fallback: if apps script failed, try the local JSON's announcements field
-    let rotationsFallback = { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
-    let rotationPlan = null;
-
-    if (localRes.status === 'fulfilled' && localRes.value.ok) {
-      try {
-        const localJson = await localRes.value.json();
-        // local file likely contains rotations or rotationPlan
-        if (Array.isArray(localJson)) {
-          // if your data file was an array of announcements, treat it as announcements fallback
-          if (!announcements.length) announcements = localJson;
-        } else {
-          // merge fields while keeping announcements from Apps Script
-          if (!announcements.length && Array.isArray(localJson.announcements)) announcements = localJson.announcements;
-          if (localJson.rotations) rotationsFallback = localJson.rotations;
-          if (localJson.rotationPlan) rotationPlan = localJson.rotationPlan;
-        }
-      } catch(e){ console.warn('parsing local json failed', e); }
-    }
-
-    // If rotationPlan exists (computed plan logic in your page), return it intact for computeRotationFromPlan()
-    const out = { announcements, rotations: rotationsFallback, rotationPlan };
-
-    return out;
   } catch (err) {
-    console.error('fetchPortalData failed', err);
-    // Safe fallback so UI doesn't explode
-    return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
+    console.warn('[portal] Apps Script fetch failed:', err);
   }
+
+  // 2) Apps Script didn't provide usable announcements → fetch local JSON (repo)
+  try {
+    const localResp = await fetch(localUrlWithBust, { cache: 'no-store' });
+    if (localResp.ok) {
+      const localBody = await safeJson(localResp);
+      console.log('[portal] local JSON response shape:', localBody);
+
+      // local file might be shaped as { announcements: [...], rotations: {...} }
+      let announcements = [];
+      let rotations = { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
+      let rotationPlan = null;
+
+      if (Array.isArray(localBody)) {
+        announcements = localBody;
+      } else if (localBody && typeof localBody === 'object') {
+        announcements = Array.isArray(localBody.announcements) ? localBody.announcements : [];
+        rotations     = localBody.rotations ?? rotations;
+        rotationPlan  = localBody.rotationPlan ?? null;
+      }
+
+      console.info(`[portal] using ${announcements.length} announcements from local JSON`);
+      return { announcements, rotations, rotationPlan };
+    } else {
+      console.warn('[portal] local JSON fetch HTTP', localResp.status, localResp.statusText);
+    }
+  } catch (err) {
+    console.warn('[portal] local JSON fetch failed:', err);
+  }
+
+  // 3) last-resort fallback
+  console.error('[portal] failed to load announcements from Apps Script and local JSON; returning empty defaults');
+  return defaultData;
 }
 
 /* Renderers */
@@ -2054,6 +2100,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
