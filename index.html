@@ -1449,78 +1449,38 @@ function ensureIds(arr){
 
   ANN_APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
 
-async function fetchPortalData(){
-  const localUrl = portalJsonUrl();
+async function fetchPortalData() {
   const appsUrl = ANN_APPS_URL + '?t=' + Date.now();
-  const localUrlBust = localUrl + '?v=' + Date.now();
+  const jsonUrl = portalJsonUrl() + '?v=' + Date.now();
 
-  // helper to parse text -> json safely
-  async function parseSafe(resp){
-    try {
-      const txt = await resp.text();
-      return JSON.parse(txt);
-    } catch(e){
-      console.warn('[portal] parseSafe failed for', resp && resp.url, e);
-      return null;
-    }
-  }
+  let announcements = [];
+  let rotations = null;
+  let rotationPlan = null;
 
-  // Try Apps Script first
+  // 1) Fetch announcements from Apps Script
   try {
-    const r = await fetch(appsUrl, { cache: 'no-store' });
-    console.log('[portal] Apps Script fetch status', r.status);
-    if (r.ok) {
-      const body = await parseSafe(r);
-      console.log('[portal] Apps Script body:', body);
-      if (Array.isArray(body) && body.length > 0) {
-        // apps returns an array directly -> treat as announcements
-        const anns = ensureIds(body);
-        console.info('[portal] using announcements array from Apps Script:', anns.length);
-        return { announcements: anns, rotations: undefined, rotationPlan: undefined };
-      } else if (body && typeof body === 'object') {
-        // apps returns object { announcements: [...], rotations: {...} }
-        const annsRaw = Array.isArray(body.announcements) ? body.announcements : (Array.isArray(body.data) ? body.data : []);
-        const anns = ensureIds(annsRaw);
-        if (anns.length > 0) {
-          console.info('[portal] using announcements from Apps Script object:', anns.length);
-          return { announcements: anns, rotations: body.rotations ?? undefined, rotationPlan: body.rotationPlan ?? undefined };
-        }
-        console.info('[portal] Apps Script object had no announcements; falling back to local JSON');
-      } else {
-        console.info('[portal] Apps Script response empty or unusable; will try local JSON');
-      }
-    } else {
-      console.warn('[portal] Apps Script fetch HTTP', r.status, r.statusText);
+    const resp = await fetch(appsUrl, { cache: 'no-store' });
+    if (resp.ok) {
+      const body = await resp.json();
+      announcements = ensureIds(body.announcements || []);
     }
-  } catch (err) {
-    console.warn('[portal] Apps Script fetch failed:', err);
+  } catch(e) {
+    console.warn('Apps Script fetch failed:', e);
   }
 
-  // Fallback: load local data/lab-portal.json like before
+  // 2) Fetch rotations & rotationPlan from GitHub JSON
   try {
-    const r2 = await fetch(localUrlBust, { cache: 'no-store' });
-    if (r2.ok) {
-      const body = await parseSafe(r2);
-      console.log('[portal] local JSON body:', body);
-      if (Array.isArray(body)) {
-        const anns = ensureIds(body);
-        return { announcements: anns, rotations: undefined, rotationPlan: undefined };
-      } else if (body && typeof body === 'object') {
-        const annsRaw = Array.isArray(body.announcements) ? body.announcements : [];
-        const anns = ensureIds(annsRaw);
-        const rotations = body.rotations ?? { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
-        const rotationPlan = body.rotationPlan ?? null;
-        return { announcements: anns, rotations, rotationPlan };
-      }
-    } else {
-      console.warn('[portal] local JSON fetch HTTP', r2.status, r2.statusText);
+    const resp = await fetch(jsonUrl, { cache: 'no-store' });
+    if (resp.ok) {
+      const body = await resp.json();
+      rotations = body.rotations || null;
+      rotationPlan = body.rotationPlan || null;
     }
-  } catch (err) {
-    console.warn('[portal] local JSON fetch failed:', err);
+  } catch(e) {
+    console.warn('GitHub JSON fetch failed:', e);
   }
 
-  // Last resort
-  return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' }, rotationPlan: null };
+  return { announcements, rotations, rotationPlan };
 }
 
 /* Renderers */
@@ -2103,6 +2063,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
