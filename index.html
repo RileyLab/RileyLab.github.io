@@ -1447,9 +1447,11 @@ function ensureIds(arr){
   });
 }
 
+  ANN_APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
+
 async function fetchPortalData(){
   const localUrl = portalJsonUrl();
-  const appsUrl = APPS_URL + '?t=' + Date.now();
+  const appsUrl = ANN_APPS_URL + '?t=' + Date.now();
   const localUrlBust = localUrl + '?v=' + Date.now();
 
   // helper to parse text -> json safely
@@ -2101,6 +2103,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
