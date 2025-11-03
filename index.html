@@ -1425,14 +1425,19 @@ function portalJsonUrl() {
   return new URL('data/lab-portal.json', base).href;
 }
 
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
+
 async function fetchPortalData() {
-  const url = `${portalJsonUrl()}?v=${Date.now()}`; // cache-bust
   try {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    const res = await fetch(APPS_URL + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const announcements = await res.json();
+    return {
+      announcements,
+      rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } // keep your current rotations flow
+    };
   } catch (e) {
-    console.error('Failed to load lab-portal.json:', e);
+    console.error('Apps Script fetch failed', e);
     return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
   }
 }
@@ -2017,6 +2022,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
