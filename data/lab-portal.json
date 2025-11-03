@@ -2,12 +2,6 @@
   "announcements": [
   ],
   "rotations": {
-    "start": "2025-10-20",
-    "end":   "2025-10-31",
-    "tc1":   "Xiaoling",
-    "tc2":   "Kaitlin",
-    "tc3":   "Mosha",
-    "main":  "Gabby"
   },
   "rotationPlan": {
     "start": "2025-10-20",
