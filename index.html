@@ -1428,16 +1428,48 @@ function portalJsonUrl() {
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
 
 async function fetchPortalData() {
+  // Fetch both sources in parallel
+  const localUrl = portalJsonUrl(); // your existing helper builds data/lab-portal.json URL
   try {
-    const res = await fetch(APPS_URL + '?t=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const announcements = await res.json();
-    return {
-      announcements,
-      rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } // keep your current rotations flow
-    };
-  } catch (e) {
-    console.error('Apps Script fetch failed', e);
+    const [appsRes, localRes] = await Promise.allSettled([
+      fetch(APPS_URL + '?t=' + Date.now(), { cache: 'no-store' }),
+      fetch(localUrl + '?v=' + Date.now(), { cache: 'no-store' })
+    ]);
+
+    // announcements from Apps Script (preferred)
+    let announcements = [];
+    if (appsRes.status === 'fulfilled' && appsRes.value.ok) {
+      try { announcements = await appsRes.value.json(); }
+      catch(e){ console.warn('parse apps announcements failed', e); }
+    }
+
+    // fallback: if apps script failed, try the local JSON's announcements field
+    let rotationsFallback = { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
+    let rotationPlan = null;
+
+    if (localRes.status === 'fulfilled' && localRes.value.ok) {
+      try {
+        const localJson = await localRes.value.json();
+        // local file likely contains rotations or rotationPlan
+        if (Array.isArray(localJson)) {
+          // if your data file was an array of announcements, treat it as announcements fallback
+          if (!announcements.length) announcements = localJson;
+        } else {
+          // merge fields while keeping announcements from Apps Script
+          if (!announcements.length && Array.isArray(localJson.announcements)) announcements = localJson.announcements;
+          if (localJson.rotations) rotationsFallback = localJson.rotations;
+          if (localJson.rotationPlan) rotationPlan = localJson.rotationPlan;
+        }
+      } catch(e){ console.warn('parsing local json failed', e); }
+    }
+
+    // If rotationPlan exists (computed plan logic in your page), return it intact for computeRotationFromPlan()
+    const out = { announcements, rotations: rotationsFallback, rotationPlan };
+
+    return out;
+  } catch (err) {
+    console.error('fetchPortalData failed', err);
+    // Safe fallback so UI doesn't explode
     return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' } };
   }
 }
@@ -2022,6 +2054,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
