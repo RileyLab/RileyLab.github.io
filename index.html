@@ -1427,97 +1427,98 @@ function portalJsonUrl() {
 
 const APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
 
-async function fetchPortalData() {
-  const localUrl = portalJsonUrl(); // your helper that builds data/lab-portal.json
-  const appsUrlWithBust = APPS_URL + '?t=' + Date.now();
-  const localUrlWithBust = localUrl + '?v=' + Date.now();
+function normalizeLevel(l){
+  if(!l) return 'info';
+  l = String(l).toLowerCase();
+  if (l.startsWith('warn')) return 'warn';
+  if (l.startsWith('urg'))  return 'urgent';
+  return 'info';
+}
+function ensureIds(arr){
+  return (arr||[]).map(a => {
+    const out = Object.assign({}, a);
+    // if id missing or empty, create a stable id from text+when
+    if (!out.id || String(out.id).trim() === '') {
+      try { out.id = btoa(unescape(encodeURIComponent(`${out.when||''}::${out.text||''}`))).slice(0,24); }
+      catch(e){ out.id = (Math.random().toString(36).slice(2,10)); }
+    }
+    out.level = normalizeLevel(out.level);
+    return out;
+  });
+}
 
-  // helpers
-  const safeJson = async (resp) => {
+async function fetchPortalData(){
+  const localUrl = portalJsonUrl();
+  const appsUrl = APPS_URL + '?t=' + Date.now();
+  const localUrlBust = localUrl + '?v=' + Date.now();
+
+  // helper to parse text -> json safely
+  async function parseSafe(resp){
     try {
       const txt = await resp.text();
-      // try parse
-      const parsed = JSON.parse(txt);
-      return parsed;
-    } catch (e) {
-      console.warn('JSON parse failed for', resp && resp.url, e);
+      return JSON.parse(txt);
+    } catch(e){
+      console.warn('[portal] parseSafe failed for', resp && resp.url, e);
       return null;
     }
-  };
+  }
 
-  // default fallback object (keeps UI safe)
-  const defaultData = { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' }, rotationPlan: null };
-
-  // 1) Try Apps Script first (preferred source for announcements)
+  // Try Apps Script first
   try {
-    const appsResp = await fetch(appsUrlWithBust, { cache: 'no-store' });
-    if (appsResp.ok) {
-      const appsBody = await safeJson(appsResp);
-      console.log('[portal] apps script response shape:', appsBody);
-
-      // Accept either:
-      //  - an array (the script returns announcements as an array), or
-      //  - an object { announcements: [...], rotations: {...}, rotationPlan: ... }
-      let announcements = [];
-      let rotations = null;
-      let rotationPlan = null;
-
-      if (Array.isArray(appsBody)) {
-        announcements = appsBody;
-      } else if (appsBody && typeof appsBody === 'object') {
-        // try to locate announcements array in object
-        announcements = Array.isArray(appsBody.announcements) ? appsBody.announcements : (Array.isArray(appsBody.data) ? appsBody.data : []);
-        rotations     = appsBody.rotations ?? null;
-        rotationPlan  = appsBody.rotationPlan ?? null;
-      }
-
-      if (announcements && announcements.length > 0) {
-        console.info(`[portal] using ${announcements.length} announcements from Apps Script`);
-        // combine with rotations if provided, otherwise fallback to local file for rotations below
-        return { announcements, rotations: rotations ?? undefined, rotationPlan: rotationPlan ?? undefined };
+    const r = await fetch(appsUrl, { cache: 'no-store' });
+    console.log('[portal] Apps Script fetch status', r.status);
+    if (r.ok) {
+      const body = await parseSafe(r);
+      console.log('[portal] Apps Script body:', body);
+      if (Array.isArray(body) && body.length > 0) {
+        // apps returns an array directly -> treat as announcements
+        const anns = ensureIds(body);
+        console.info('[portal] using announcements array from Apps Script:', anns.length);
+        return { announcements: anns, rotations: undefined, rotationPlan: undefined };
+      } else if (body && typeof body === 'object') {
+        // apps returns object { announcements: [...], rotations: {...} }
+        const annsRaw = Array.isArray(body.announcements) ? body.announcements : (Array.isArray(body.data) ? body.data : []);
+        const anns = ensureIds(annsRaw);
+        if (anns.length > 0) {
+          console.info('[portal] using announcements from Apps Script object:', anns.length);
+          return { announcements: anns, rotations: body.rotations ?? undefined, rotationPlan: body.rotationPlan ?? undefined };
+        }
+        console.info('[portal] Apps Script object had no announcements; falling back to local JSON');
       } else {
-        console.info('[portal] Apps Script returned no announcements; will try local JSON as fallback');
-        // intentionally fall through to attempt local JSON for announcements/rotations
+        console.info('[portal] Apps Script response empty or unusable; will try local JSON');
       }
     } else {
-      console.warn('[portal] Apps Script fetch HTTP', appsResp.status, appsResp.statusText);
+      console.warn('[portal] Apps Script fetch HTTP', r.status, r.statusText);
     }
   } catch (err) {
     console.warn('[portal] Apps Script fetch failed:', err);
   }
 
-  // 2) Apps Script didn't provide usable announcements → fetch local JSON (repo)
+  // Fallback: load local data/lab-portal.json like before
   try {
-    const localResp = await fetch(localUrlWithBust, { cache: 'no-store' });
-    if (localResp.ok) {
-      const localBody = await safeJson(localResp);
-      console.log('[portal] local JSON response shape:', localBody);
-
-      // local file might be shaped as { announcements: [...], rotations: {...} }
-      let announcements = [];
-      let rotations = { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
-      let rotationPlan = null;
-
-      if (Array.isArray(localBody)) {
-        announcements = localBody;
-      } else if (localBody && typeof localBody === 'object') {
-        announcements = Array.isArray(localBody.announcements) ? localBody.announcements : [];
-        rotations     = localBody.rotations ?? rotations;
-        rotationPlan  = localBody.rotationPlan ?? null;
+    const r2 = await fetch(localUrlBust, { cache: 'no-store' });
+    if (r2.ok) {
+      const body = await parseSafe(r2);
+      console.log('[portal] local JSON body:', body);
+      if (Array.isArray(body)) {
+        const anns = ensureIds(body);
+        return { announcements: anns, rotations: undefined, rotationPlan: undefined };
+      } else if (body && typeof body === 'object') {
+        const annsRaw = Array.isArray(body.announcements) ? body.announcements : [];
+        const anns = ensureIds(annsRaw);
+        const rotations = body.rotations ?? { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' };
+        const rotationPlan = body.rotationPlan ?? null;
+        return { announcements: anns, rotations, rotationPlan };
       }
-
-      console.info(`[portal] using ${announcements.length} announcements from local JSON`);
-      return { announcements, rotations, rotationPlan };
     } else {
-      console.warn('[portal] local JSON fetch HTTP', localResp.status, localResp.statusText);
+      console.warn('[portal] local JSON fetch HTTP', r2.status, r2.statusText);
     }
   } catch (err) {
     console.warn('[portal] local JSON fetch failed:', err);
   }
 
-  // 3) last-resort fallback
-  console.error('[portal] failed to load announcements from Apps Script and local JSON; returning empty defaults');
-  return defaultData;
+  // Last resort
+  return { announcements: [], rotations: { start:'', end:'', tc1:'—', tc2:'—', tc3:'—', main:'—' }, rotationPlan: null };
 }
 
 /* Renderers */
@@ -2100,6 +2101,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
