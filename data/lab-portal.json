@@ -4,5 +4,13 @@
   "rotations": {
   },
   "rotationPlan": {
+    "start": "2025-10-20",
+    "periodDays": 14,
+    "slots": {
+      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Max", "Divanshu"],
+      "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Justin G.", "Jiayi"],
+      "tc3":  ["Mosha", "Tanishk", "Justin S.", "Gabby", "Meidi"],
+      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Meidi", "Jiayi", "Divanshu", "Max"]
+    }
   }
 }
