@@ -222,14 +222,25 @@
     /* Top banner: Lab Announcements (full-width) */
     .ann-banner.card{ padding: 14px 16px; }
     #ann-banner-title{ background: #ffe3b3; }
+    /* Comfortable default: 2–3 columns but never skinnier than 400px */
     .ann-banner .ann-list{
-      display: grid; gap: 10px; margin-top: 10px;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      display:grid;
+      gap:12px;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      align-items:start;
     }
     .ann-banner .ann-list li{
       display:flex; gap:10px; align-items:flex-start;
       padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
     }
+
+    /* Slightly narrower minimum on tighter screens */
+    @media (max-width: 1200px){
+      .ann-banner .ann-list{
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      }
+    }
+    
     /* Stronger badge look, with color variants that mirror the left stripe */
     .ann-time {
       display:inline-flex;
@@ -242,6 +253,32 @@
       border:1px solid transparent;
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
       white-space:nowrap;
+    }
+
+    /* Medium population (≈7–14): force 2 cols so cards don't get too thin */
+    .ann-banner.ann-medium .ann-list{
+      grid-template-columns: repeat(2, minmax(360px, 1fr));
+    }
+    
+    /* Many items (15+): single-column feed with its own scroll */
+    .ann-banner.ann-many{
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    }
+    .ann-banner.ann-many .ann-list{
+      grid-template-columns: 1fr;
+      max-height: 420px;     /* adjust height to taste */
+      overflow: auto;
+      padding-right: 4px;    /* room for scrollbar */
+      scrollbar-gutter: stable;
+    }
+    
+    /* Optional: nicer scrollbar in “many” mode (WebKit) */
+    .ann-banner.ann-many .ann-list::-webkit-scrollbar{ width:10px }
+    .ann-banner.ann-many .ann-list::-webkit-scrollbar-thumb{
+      background:#d9e3ff; border-radius:8px;
+    }
+    .ann-banner.ann-many .ann-list::-webkit-scrollbar-thumb:hover{
+      background:#c8d6ff;
     }
     
     /* Per-level color treatments (use the same colors as border-left) */
@@ -1607,6 +1644,53 @@ function renderAnnouncements(items){
     return db - da;
   });
 
+  function applyAnnLayout(){
+    const banner = document.querySelector('.ann-banner');
+    const list   = document.getElementById('ann-banner-list');
+    if (!banner || !list) return;
+    const n = list.children.length;
+  
+    banner.classList.remove('ann-medium','ann-many');
+  
+    // Heuristics: tune the thresholds to your taste
+    if (n >= 15){
+      banner.classList.add('ann-many');     // single column feed w/ scroll
+    } else if (n >= 7){
+      banner.classList.add('ann-medium');   // forced 2 columns
+    }
+  }
+  
+  // hook overlay
+  (function wireAnnOverlay(){
+    const btn = document.getElementById('ann-view-all');
+    const ov  = document.getElementById('ann-overlay');
+    const body= document.getElementById('ann-overlay-body');
+    const close = document.getElementById('ann-close');
+    if (!btn || !ov || !body || !close) return;
+  
+    btn.addEventListener('click', () => {
+      const list = document.getElementById('ann-banner-list');
+      if (!list) return;
+      // clone the current list so it reflects read/new/clamp states
+      body.innerHTML = '';
+      const clone = list.cloneNode(true);
+      clone.style.display = 'grid';
+      clone.style.gridTemplateColumns = '1fr';
+      clone.style.gap = '12px';
+      // ensure all items are expanded for readability
+      clone.querySelectorAll('.ann-item').forEach(li=>{
+        li.classList.add('expanded');
+        const b = li.querySelector('.ann-body');
+        if (b) b.classList.remove('clamp');
+      });
+      body.appendChild(clone);
+      ov.hidden = false;
+    });
+  
+    close.addEventListener('click', ()=> ov.hidden = true);
+    ov.addEventListener('click', (e)=>{ if (e.target === ov) ov.hidden = true; });
+  })();
+
   const frag = document.createDocumentFragment();
 
   sorted.forEach(({ text, when, level, link }) => {
@@ -1807,6 +1891,7 @@ function computeRotationFromPlan(plan) {
 (async function initPortal(){
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+  applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
   
@@ -1822,6 +1907,7 @@ document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible') return;
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+  applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
   
@@ -2090,6 +2176,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
