@@ -226,16 +226,19 @@
     /* -------------------------
        Announcements
        ------------------------- */
-    .ann-banner.card{ padding:14px 16px; box-shadow:0 4px 12px rgba(0,0,0,0.06); margin:0 0 28px 0; max-width:var(--page-max); margin-inline:auto; padding-bottom:8px; }
+    .ann-banner.card { padding: 12px 14px; margin-bottom: 12px; }
     #ann-banner-title{ background:#ffe3b3; }
-    .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    .ann-list { gap: 10px; }
     
     /* announcement card */
-    .ann-item{
-      position:relative; display:grid; grid-template-columns:auto 1fr; gap:10px;
-      padding:12px 14px; border-radius:12px; border:1px solid #e9edf7; background:#ffffff; box-shadow:var(--shadow);
-      transform-origin: top left;
-      border-left:4px solid var(--ann-info);
+    .ann-banner .ann-list li,
+    .ann-item {
+      background: #fffaf0;                /* warm pale background */
+      border: 1px solid #f4e1b8;         /* soft yellow border */
+      border-radius: 10px;               /* rounded corners like screenshot */
+      padding: 10px 12px;                /* slightly roomier interior */
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04); /* softer shadow */
+      transition: transform .12s ease, box-shadow .12s ease;
     }
     .ann-item.info   { border-left-color: var(--ann-info); }
     .ann-item.warn   { border-left-color: var(--ann-warn); }
@@ -1567,6 +1570,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
