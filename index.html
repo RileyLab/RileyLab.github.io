@@ -1628,6 +1628,22 @@ function updateAnnDotVisibility(){
   dot.classList.toggle('show', unread > 0);
 }
 
+function applyAnnLayout(){
+  const banner = document.querySelector('.ann-banner');
+  const list   = document.getElementById('ann-banner-list');
+  if (!banner || !list) return;
+  const n = list.children.length;
+
+  banner.classList.remove('ann-medium','ann-many');
+
+  // Heuristics: tune the thresholds to your taste
+  if (n >= 15){
+    banner.classList.add('ann-many');     // single column feed w/ scroll
+  } else if (n >= 7){
+    banner.classList.add('ann-medium');   // forced 2 columns
+  }
+}
+
 function renderAnnouncements(items){
   const list = document.getElementById('ann-banner-list');
   if (!list) return;
@@ -1643,22 +1659,6 @@ function renderAnnouncements(items){
     const db = parseDateSafe(b.when) || new Date(0);
     return db - da;
   });
-
-  function applyAnnLayout(){
-    const banner = document.querySelector('.ann-banner');
-    const list   = document.getElementById('ann-banner-list');
-    if (!banner || !list) return;
-    const n = list.children.length;
-  
-    banner.classList.remove('ann-medium','ann-many');
-  
-    // Heuristics: tune the thresholds to your taste
-    if (n >= 15){
-      banner.classList.add('ann-many');     // single column feed w/ scroll
-    } else if (n >= 7){
-      banner.classList.add('ann-medium');   // forced 2 columns
-    }
-  }
   
   // hook overlay
   (function wireAnnOverlay(){
@@ -2176,6 +2176,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
