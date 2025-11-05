@@ -1767,6 +1767,8 @@ function renderAnnouncements(items){
   list.innerHTML = '';
   list.appendChild(frag);
 
+  applyAnnLayout();
+
   // Enable per-item clamp + "More/Less" only when needed
   requestAnimationFrame(() => {
     document.querySelectorAll('#ann-banner-list .ann-item').forEach(li => {
@@ -2176,6 +2178,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
