@@ -25,19 +25,8 @@
       --shadow-hover:0 10px 26px rgba(0,87,183,.15);
       --radius:12px;
       --underline:linear-gradient(currentColor,currentColor);
-    
-      /* layout tuning */
-      --page-max:1600px;
-      --gap:22px;
-      --left:460px;
-      --ann-info:#2979ff;
-      --ann-warn:#ffa000;
-      --ann-urgent:#e53935;
     }
-    
-    /* -------------------------
-       Base / page frame
-       ------------------------- */
+  
     html,body{height:100%}
     body{
       margin:0;
@@ -54,24 +43,18 @@
       content:""; position:fixed; inset:0; z-index:-1;
       background:rgba(245,247,251,.86); backdrop-filter:blur(.5px);
     }
-    
-    /* Page wrapper */
-    .wrap{ max-width: var(--page-max); margin-inline:auto; padding:28px 20px 60px }
-    
-    /* Header */
+  
+    /* Page frame */
+    .wrap{ max-width:1440px; margin:0 auto; padding:28px 20px 60px }
+  
     header{
       display:grid; grid-template-columns:1fr auto; align-items:end; gap:16px;
       margin:8px 0 16px;
     }
     .title{ font-size:clamp(24px,3.5vw,36px); font-weight:800; letter-spacing:.2px }
     .subtitle{ color:var(--muted); font-size:14px; margin-top:4px }
-    
-    /* Icon font */
-    .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
-    
-    /* -------------------------
-       Notices / toast
-       ------------------------- */
+  
+    /* Notice banner (toast) */
     .notice{
       display:none; align-items:center; gap:10px;
       background:var(--warn-bg); border:1px dashed var(--warn-border);
@@ -79,7 +62,6 @@
     }
     .notice.show{ display:flex }
     .notice .close{ margin-left:auto; background:transparent; border:0; cursor:pointer; font-size:18px; line-height:1; color:#6c6c3a }
-    
     .notice-fixed{
       position:fixed; top:20px; right:20px; width:280px; z-index:9999;
       background:#fff8e1; border:2px solid #ffca28; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);
@@ -92,10 +74,11 @@
       50%{ box-shadow:0 0 0 6px rgba(255,193,7,0) }
     }
     .notice-fixed .ms{ font-size:22px; color:#ff8f00; flex-shrink:0 }
-    
-    /* -------------------------
-       Search / actions
-       ------------------------- */
+  
+    /* Icon font */
+    .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
+  
+    /* Search */
     .actions{ display:flex; gap:10px; align-items:center }
     .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
     .search{
@@ -104,43 +87,40 @@
     }
     .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:300px }
     .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
-    
-    /* -------------------------
-       Layout: sidebars / grid
-       ------------------------- */
+  
+    /* === Three-column page layout: left sidebar | main grid | right sidebar === */
     .layout{
-      display: grid; gap: var(--gap);
-      grid-template-columns: var(--left) 1fr;
+      display:grid; gap:20px;
+      grid-template-columns:340px 1fr 320px;   /* adjust widths as desired */
       align-items:start;
     }
+    /* collapse right sidebar below on medium screens */
     @media (max-width:1250px){
-      :root{ --left:420px; --page-max:1500px; }
       .layout{ grid-template-columns:320px 1fr; }
-      .rightbar{ grid-column:1 / -1; }
+      .rightbar{ grid-column:1 / -1; }  /* full width under main */
     }
-    @media (max-width:1000px){
+    /* single column on small screens */
+    @media (max-width:900px){
       .layout{ grid-template-columns:1fr; }
-      .sidebar .card{ position: static; top:auto; }
+      .sidebar .card, .rightbar .card{ position:static; top:auto }
     }
-    
-    /* Sidebars stickiness */
+  
+    /* Sidebars stick to top row */
     .sidebar .card, .rightbar .card{ position:sticky; top:16px }
-    
-    /* Main center grid */
+  
+    /* Main grid (center column) */
     .grid{
-      display:grid; gap: var(--gap);
-      grid-template-columns: repeat(3, minmax(300px, 1fr));
+      display:grid; gap:20px;
+      grid-template-columns:repeat(3, minmax(300px, 1fr));
     }
     @media (max-width:1250px){
-      .grid{ grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+      .grid{ grid-template-columns:repeat(2, minmax(320px, 1fr)) }
     }
     @media (max-width:900px){
       .grid{ grid-template-columns:1fr }
     }
-    
-    /* -------------------------
-       Cards
-       ------------------------- */
+  
+    /* Cards */
     .card{
       background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
       padding:18px; border:1px solid #e7e7e7; position:relative;
@@ -158,10 +138,16 @@
     }
     .card h2 .badge{ margin-left:auto }
     .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
-    
-    /* -------------------------
-       Lists & links
-       ------------------------- */
+  
+    /* Section header colors */
+    #cal-title{ background:#a8c8ff }
+    #equip-title{ background:#a9e5c2 }
+    #duties-title{ background:#ffe69b }
+    #cores-title{ background:#f5a3a3 }
+    #tools-title{ background:#9ee5f0 }
+    #misc-title{ background:#ffcba4 }
+  
+    /* Lists & links */
     .list{ list-style:none; padding:0; margin:0 }
     .list li{ margin:8px 0 }
     .link{
@@ -178,10 +164,8 @@
     .link:focus{ box-shadow:0 0 0 3px var(--ring) }
     .ext::after{ content:none !important }
     .muted{ color:var(--muted); font-weight:500 }
-    
-    /* -------------------------
-       Details / disclosure
-       ------------------------- */
+  
+    /* Details (disclosure) */
     details{ border:1px solid #ddd; border-radius:8px; padding:10px 12px; background:#fafafa }
     details[open]{ background:#e3f2fd }
     summary{
@@ -194,18 +178,13 @@
     details[open] > summary::before{ transform:translateY(-50%) rotate(90deg) }
     summary .ms{ font-size:20px; line-height:1; position:relative; top:1px }
     summary::-webkit-details-marker{ display:none }
-    
-    /* -------------------------
-       Calendar
-       ------------------------- */
+  
+    /* Calendar sidebar */
     #live-cal-title{ background:#cfe0ff }
     .iframe-wrap{
       border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff;
-      display:flex; flex-direction:column;
     }
-    .iframe-wrap iframe{ width:100%; height:100%; border:0 }
-    .sidebar .card#live-cal-card { display:flex; flex-direction:column; min-height:720px; max-height:1000px; height:100%; }
-    #iframe-wrap { flex:1; }
+    .iframe-wrap iframe{ width:100%; height:760px; border:0 }
     .calendar-toolbar{
       display:flex; gap:8px; align-items:center; margin:10px 0 12px;
     }
@@ -214,47 +193,43 @@
       padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
     }
     .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
-    
-    /* calendar toggle colored buttons */
-    .calendar-toolbar .btn[data-cal] { border: none; border-radius: 8px; padding: 6px 14px; margin-left: 6px; font-weight: 600; color: white; cursor: pointer; transition: all .25s ease; }
-    .calendar-toolbar .btn[data-cal="MAIN"] { background-color: #d32f2f; }
-    .calendar-toolbar .btn[data-cal="MAIN"]:hover { background-color: #b71c1c; }
-    .calendar-toolbar .btn[data-cal="293T"] { background-color: #fbc02d; color: #333; }
-    .calendar-toolbar .btn[data-cal="293T"]:hover { background-color: #f9a825; }
-    .calendar-toolbar .btn[data-cal][aria-pressed="true"] { box-shadow: 0 0 10px rgba(0,0,0,0.25); transform: scale(1.05); }
-    
-    /* -------------------------
-       Announcements
-       ------------------------- */
-    .ann-banner.card { padding: 12px 14px; margin-bottom: 12px; }
-    #ann-banner-title{ background:#ffe3b3; }
-    .ann-list { gap: 10px; }
-    
-    /* announcement card */
-    .ann-banner .ann-list li,
-    .ann-item {
-      background: #fffaf0;                /* warm pale background */
-      border: 1px solid #f4e1b8;         /* soft yellow border */
-      border-radius: 10px;               /* rounded corners like screenshot */
-      padding: 10px 12px;                /* slightly roomier interior */
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04); /* softer shadow */
-      transition: transform .12s ease, box-shadow .12s ease;
+  
+    /* Announcements sidebar */
+    #ann-title{ background:#ffe3b3 }
+    .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+      margin:10px 0;
     }
-    .ann-item.info   { border-left-color: var(--ann-info); }
-    .ann-item.warn   { border-left-color: var(--ann-warn); }
-    .ann-item.urgent { border-left-color: var(--ann-urgent); }
+    .ann-time{ font-size:12px; color:#6b5d3b; font-weight:600; white-space:nowrap }
+    .ann-text{ flex:1 }
+  
+    /* Footer */
+    footer{ margin-top:26px; color:var(--muted); font-size:12px }
+    .stack{ display:flex; gap:8px; flex-wrap:wrap }
+
+    /* ==== Page centering + wider left calendar ==== */
+    /* Tweakable variables */
+    :root{
+      --page-max: 1600px;   /* overall page width for centering */
+      --gap: 22px;          /* space between columns/cards */
+      --left: 460px;        /* LEFT sidebar (calendar) width */
+    }
     
-    .ann-item.new{ animation:annPop .35s ease-out; }
-    @keyframes annPop{ 0%{transform:scale(.96); opacity:0} 100%{transform:scale(1); opacity:1} }
+    /* Page wrapper — truly centered */
+    .wrap{ max-width: var(--page-max); margin-inline: auto; }
     
-    .ann-chip{ grid-row:1 / span 2; align-self:start; display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff; }
-    .ann-chip.info   { background:#2979ff; }
-    .ann-chip.warn   { background:#ffa000; }
-    .ann-chip.urgent { background:#e53935; }
-    
-    .ann-head{ display:flex; gap:8px; align-items:center; font-weight:800; color:#1c2430; }
-    .ann-head::before { content: ""; width:8px; height:8px; border-radius:50%; flex:0 0 8px; background: currentColor; }
-    
+    /* Top banner: Lab Announcements (full-width) */
+    .ann-banner.card{ padding: 14px 16px; }
+    #ann-banner-title{ background: #ffe3b3; }
+    .ann-banner .ann-list{
+      display: grid; gap: 10px; margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .ann-banner .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+    }
     /* Stronger badge look, with color variants that mirror the left stripe */
     .ann-time {
       display:inline-flex;
@@ -283,48 +258,671 @@
       margin-right:4px;
       opacity:0.95;
     }
-    .ann-body{ color:#263238; line-height:1.45; position:relative; }
+    .ann-text{ flex:1 }
+    
+    /* Two-column layout now: LEFT sidebar (calendar) + CENTER grid (cards) */
+    .layout{
+      display: grid; gap: var(--gap);
+      grid-template-columns: var(--left) 1fr;
+      align-items: start;
+    }
+    
+    /* Make the calendar sticky and taller for the wider column */
+    .sidebar .card{ position: sticky; top: 16px; }
+    .iframe-wrap iframe{ height: 840px; }  /* was ~760-820, adjust if you like */
+    
+    /* Center grid: give cards more breathing room so badges don't overflow */
+    .grid{
+      display:grid; gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(340px, 1fr));   /* wider minimums */
+    }
+    
+    /* Avoid header/badge overflow inside narrow cards */
+    .card h2{ min-width: 0; display:flex; align-items:center; gap:10px; }
+    .card h2 .badge{ flex-shrink: 0; }        /* keep the badge from squashing title */
+    
+    /* Responsive steps: 2 cols earlier, then stack */
+    @media (max-width: 1540px){
+      :root{ --left: 420px; --page-max: 1500px; }
+      .grid{ grid-template-columns: repeat(2, minmax(340px, 1fr)); }
+    }
+    @media (max-width: 1000px){
+      .layout{ grid-template-columns: 1fr; }
+      .grid{ grid-template-columns: 1fr; }
+      .sidebar .card{ position: static; top:auto; }
+    }
+
+    /* === LAB ANNOUNCEMENTS SPACING + POLISH === */
+    .lab-announcements {
+      margin-bottom: 28px;       /* space between announcements and rest of page */
+      padding-bottom: 4px;
+    }
+    
+    .lab-announcements .card {
+      margin-bottom: 0;
+    }
+    
+    /* If your announcements bar is full-width across top */
+    .lab-announcements + .layout {
+      margin-top: 12px;          /* adds a soft gap before the main grid starts */
+    }
+    
+    /* Keep consistent alignment with page margins */
+    .lab-announcements {
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* slightly enhance background tone */
+    .lab-announcements h2 {
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
+
+    /* === SPACING BETWEEN ANNOUNCEMENTS AND MAIN LAYOUT === */
+    .lab-announcements {
+      display: block;
+      margin-bottom: 28px;      /* creates visible space before grid */
+    }
+    
+    .lab-announcements + .layout {
+      margin-top: 28px;         /* ensures consistent vertical gap */
+    }
+    
+    /* If announcements span full width, align with content and keep consistent width */
+    .lab-announcements {
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 8px;
+    }
+    
+    /* make the card slightly pop above the grid */
+    .lab-announcements .card {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    /* === Announcements banner spacing (matches: <section class="card ann-banner">) === */
+    .card.ann-banner {
+      display: block;
+      margin: 0 0 28px 0;   /* <- the gap you want */
+      padding-bottom: 8px;
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06); /* little pop */
+    }
+    
+    /* If the banner sits directly above the main .layout, add extra safety gap */
+    .card.ann-banner + .layout {
+      margin-top: 28px;
+    }
+
+    /* ===== Minimalist announcement style ===== */
+    :root {
+      --ann-info:   #2979ff;
+      --ann-warn:   #ffa000;
+      --ann-urgent: #e53935;
+    }
+    
+    /* Base card */
+    .ann-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #e9edf7;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transform-origin: top left;
+    
+      /* Level stripe */
+      border-left: 4px solid var(--ann-info);
+    }
+    .ann-item.info   { border-left-color: var(--ann-info); }
+    .ann-item.warn   { border-left-color: var(--ann-warn); }
+    .ann-item.urgent { border-left-color: var(--ann-urgent); }
+    
+    /* Header */
+    .ann-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #1c2430;
+    }
+    .ann-head::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 8px;
+      background: currentColor;
+    }
+    
+    /* Tint header by level */
+    .ann-item.info   .ann-head { color: var(--ann-info); }
+    .ann-item.warn   .ann-head { color: var(--ann-warn); }
+    .ann-item.urgent .ann-head { color: var(--ann-urgent); }
+    
+    /* Remove icon chip */
+    .ann-chip { display: none !important; }
+    
+    /* NEW pill */
+    .badge-new {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 800;
+      color: #b71c1c;
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+    .ann-item.new .badge-new { display: inline-flex; }
+    
+    /* Fade “Mark read” button when pressed or read */
+    .ann-item.read .btn-min {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+
+    /* === MATCH LAB CALENDAR HEIGHT TO TWO STACKED CARDS === */
+    .sidebar .card#live-cal-card {
+      height: calc((18px * 2) + (var(--card-height, 0px) * 2) + 40px); /* placeholder fallback */
+    }
+    
+    /* Simpler and more reliable: match overall column height visually */
+    .sidebar .card#live-cal-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 720px;    /* base height */
+      max-height: 1000px;   /* cap for long screens */
+    }
+    
+    /* Let the iframe expand to fill available space */
+    .sidebar .iframe-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar .iframe-wrap iframe {
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Calendar card fills the height we assign via JS */
+    #live-cal-card{ display:flex; flex-direction:column; }
+    #live-cal-card .iframe-wrap{ flex:1; min-height:0; }
+    #live-cal-card .iframe-wrap iframe{ height:100%; }
+
+    /* ===== Room Maintenance Rotations ===== */
+    .room-rot #rot-title { background:#e6efff; }   /* light blue header to match your theme */
+    
+    .rot-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    /* Colored headers like your screenshot */
+    .rot-col{
+      border:1px solid #e2e6ee;
+      border-radius:10px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+    
+    .rot-h{
+      font-weight:800;
+      color:#111;
+      text-align:center;
+      padding:8px 10px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      font-size:18px;
+    }
+    
+    .rot-body{
+      padding:10px 12px;
+      text-align:center;
+      font-weight:600;
+    }
+
+    /* === Rotation Date Range Styling === */
+    #rot-dates {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef4ff;
+      color: #1a1f36;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      border: 1px solid #d0daee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+    }
+    
+    /* optional: make it look clickable on hover */
+    #rot-dates:hover {
+      background: #e1ecff;
+      border-color: #c2d5ff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* add icon style if your JS inserts one */
+    #rot-dates .ms {
+      font-size: 18px;
+      color: #4a6fd6;
+      line-height: 1;
+      position: relative;
+      top: 1px;
+    }
+    
+    /* palette */
+    .rot-tc1 { background:#f8bf20; }   /* amber */
+    .rot-tc2 { background:#5a84e8; color:#fff; }
+    .rot-tc3 { background:#74b65a; color:#0f2a0f; }
+    .rot-main{ background:#d32f2f; color:#fff; }
+    
+    /* Editor */
+    .rot-edit{
+      margin-top:12px;
+      border:1px dashed #d8e1ff;
+      border-radius:10px;
+      padding:10px 12px;
+      background:#f8fbff;
+    }
+    .rot-edit[open]{ background:#eef5ff; }
+    
+    .rot-form{ display:grid; gap:12px; }
+    .rot-form .row{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+    }
+    .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; }
+    .rot-form input{
+      border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff;
+    }
+    .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
+    
+    .rot-form .actions{ display:flex; gap:10px; align-items:center; }
+    .btn-primary{
+      appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
+      padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
+    }
+    .btn-ghost{
+      appearance:none; border:1px solid #e0e7ef; background:#fff; color:#333;
+      padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
+    }
+    .hint{ font-size:12px; color:#6b7280; }
+    
+    @media (max-width: 900px){
+      .rot-form .row{ grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Hide editor by default; show only in admin mode */
+    .rot-edit { display: none; }
+    body.admin .rot-edit { display: block; }
+    
+    /* Also visually disable inputs when not admin */
+    .room-rot .rot-form input:disabled {
+      background: #f4f6fa;
+      color: #7a869a;
+      cursor: not-allowed;
+    }
+    
+    /* Tiny admin link */
+    #admin-toggle {
+      position: fixed;
+      bottom: 14px;
+      right: 16px;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #e0e7ef;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      color: #475569;
+      cursor: pointer;
+      opacity: .6;
+    }
+    #admin-toggle:hover { opacity: 1; }
+
+    .card.room-rot {
+      display:block;
+      max-width: var(--page-max);
+      margin: 16px auto 28px;   /* top gap from announcements, bottom gap from grid */
+    }
+    
+    /* Extra safety if it sits directly under the announcements banner */
+    .card.ann-banner + .card.room-rot {
+      margin-top: 18px;
+    }
+
+    /* === Calendar Toggle Buttons === */
+    .calendar-toolbar .btn[data-cal] {
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      margin-left: 6px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    
+    /* --- MAIN (Red) --- */
+    .calendar-toolbar .btn[data-cal="MAIN"] {
+      background-color: #d32f2f; /* strong red */
+    }
+    .calendar-toolbar .btn[data-cal="MAIN"]:hover {
+      background-color: #b71c1c; /* darker on hover */
+    }
+    
+    /* --- 293T (Yellow) --- */
+    .calendar-toolbar .btn[data-cal="293T"] {
+      background-color: #fbc02d; /* warm yellow */
+      color: #333; /* darker text for contrast */
+    }
+    .calendar-toolbar .btn[data-cal="293T"]:hover {
+      background-color: #f9a825; /* deeper yellow on hover */
+    }
+    
+    /* --- Active (pressed) state --- */
+    .calendar-toolbar .btn[data-cal][aria-pressed="true"] {
+      box-shadow: 0 0 10px rgba(0,0,0,0.25);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 480px){
+      #rot-dates{
+        padding: 4px 8px;
+      }
+    }
+
+    /* ===== Mobile polish (≤ 480px) ===== */
+    @media (max-width: 480px){
+      .wrap{ padding:16px 12px 40px; }
+    
+      /* Stack header; keep the title readable */
+      header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
+      .title{ font-size: 22px; line-height: 1.15; }
+      .subtitle{ font-size: 12px; }
+    
+      /* Search fills the row */
+      .actions{ width: 100%; gap:8px; }
+      .search{ width: 100%; }
+      .search input{ min-width: 0; width: 100%; }
+    
+      /* Cards/headers a bit tighter */
+      .card{ padding:14px; }
+      .card h2{ font-size: 18px; padding:12px 14px; }
+      .badge{ font-size: 11px; padding: 2px 8px; }
+    
+      /* Rotations: 2 columns on phones */
+      .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      .rot-h{ font-size: 13px; padding: 6px 8px; }
+      .rot-body{ padding: 8px 10px; }
+    
+      /* Calendar toolbar buttons smaller */
+      .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
+      .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
+    
+      /* Calendar iframe height cap for phones */
+      .iframe-wrap iframe{ height: 520px; }
+    
+      /* Announcements: single column */
+      .ann-banner .ann-list{ grid-template-columns: 1fr; }
+    
+      /* Admin chip a bit smaller/away from edge */
+      #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px; }
+    }
+    
+    /* Slightly-narrow tablets (≤ 768px) */
+    @media (max-width: 768px){
+      .grid{ grid-template-columns: 1fr; }
+      .iframe-wrap iframe{ height: 600px; }
+    }
+
+    /* ==== Sticky Notes ==== */
+    .notes-dock {
+      position: fixed;
+      top: 120px;
+      width: 260px;
+      max-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+      pointer-events: none;
+    }
+    
+    .note-card {
+      pointer-events: auto;
+      background: #fffbe7;
+      border: 1px solid #e8dfb0;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      border-radius: 12px;
+      padding: 10px 10px 36px 10px;
+      position: relative;
+    }
+    
+    .note-card .note-toolbar {
+      position: absolute;
+      right: 6px; top: 6px;
+      display: flex; gap: 4px;
+      padding: 2px 4px;
+    }
+    
+    .note-btn {
+      appearance: none;
+      border: 1px solid #ddd4a4;
+      background: #fff7c6;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .note-btn:hover { background:#fff1a1; }
+    
+    .note-textarea {
+      width: 100%;
+      min-height: 90px;
+      border: none;
+      resize: vertical;
+      background: transparent;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #3d3a2a;
+      outline: none;
+    }
+    
+    /* Header 'Add note' button */
+    .btn-note{
+      appearance:none;
+      border:1px solid #cfd8ea;
+      background:#eaf2ff;
+      color:#0b3d91;
+      font-weight:700;
+      border-radius:10px;
+      padding:8px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .btn-note:hover{ background:#dce9ff; }
+
+    /* Disable look + tiny shake hint when at max */
+    .btn-note[disabled] { opacity:.5; cursor:not-allowed; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(2px)} 75%{transform:translateX(-2px)} }
+    .btn-note.shake { animation: shake .25s ease-in-out; }
+    
+    /* Hide the dock on small screens so it doesn't cover content */
+    @media (max-width: 980px){
+      .notes-dock, #add-note-fab { display:none; }
+    }
+
+    /* Make space for the toolbar so text never sits behind it */
+    .note-card{
+      /* was: padding: 10px 10px 36px 10px; */
+      padding: 42px 12px 40px 12px;  /* ↑ extra top padding */
+      position: relative;
+    }
+    
+    /* Keep the toolbar above the text and visually tidy */
+    .note-card .note-toolbar{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 251, 231, 0.85); /* subtle bg so it reads well */
+      border-radius: 8px;
+      padding: 2px;
+    }
+    
+    /* Ensure the textarea fills the available box without overlapping */
+    .note-textarea{
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 90px;
+    }
+
+    /* editor inside a note */
+    .note-editor {
+      width: 100%;
+      min-height: 100px;
+      outline: none;
+      background: transparent;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #3d3a2a;
+      padding-top: 24px;          /* keep text clear of toolbar */
+      white-space: pre-wrap;
+    }
+    
+    /* simple checklist look */
+    ul.checklist { list-style: none; padding-left: 0; margin: 0; }
+    ul.checklist li { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    ul.checklist li input[type="checkbox"] { transform: translateY(1px); }
+
+    /* ===== Announcements: polished cards + "new" states ===== */
+    .ann-banner h2{
+      display:flex; align-items:center; gap:10px;
+    }
+    .ann-banner h2 .dot{
+      width:10px; height:10px; border-radius:999px; background:#ff1744; box-shadow:0 0 0 0 rgba(255,23,68,.6);
+      margin-left:6px; transform:translateY(1px); display:none;
+    }
+    .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite; }
+    @keyframes annPulse{ 0%{box-shadow:0 0 0 0 rgba(255,23,68,.5)} 70%{box-shadow:0 0 0 10px rgba(255,23,68,0)} 100%{box-shadow:0 0 0 0 rgba(255,23,68,0)} }
+    
+    .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    .ann-item{
+      position:relative; display:grid; grid-template-columns:auto 1fr; gap:10px;
+      padding:12px 14px; border-radius:12px; border:1px solid #e9edf7; background:#ffffff; box-shadow:var(--shadow);
+      transform-origin: top left;
+    }
+    .ann-item.new{ animation:annPop .35s ease-out; }
+    @keyframes annPop{ 0%{transform:scale(.96); opacity:.0} 100%{transform:scale(1); opacity:1} }
+    
+    .ann-chip{
+      grid-row:1 / span 2; align-self:start; display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff;
+    }
+    .ann-chip.info   { background:#2979ff; }
+    .ann-chip.warn   { background:#ffa000; }
+    .ann-chip.urgent { background:#e53935; }
+    
+    .ann-head{ display:flex; gap:8px; align-items:center; font-weight:800; color:#1c2430; }
+    .ann-time{ font-size:12px; color:#6b5d3b; font-weight:700; }
+    .ann-body{ color:#263238; line-height:1.45; }
     .ann-actions{ display:flex; gap:8px; margin-top:8px; }
     .ann-actions .btn-min{
       appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
       font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
     }
-    
-    /* NEW pill */
     .badge-new{
       margin-left:auto; font-size:11px; font-weight:900; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
       padding:2px 8px; border-radius:999px; display:none;
     }
     .ann-item.new .badge-new{ display:inline-flex; }
     
-    /* toolbar actions (header-level) */
-    .ann-toolbar{ display:flex; align-items:center; gap:8px; margin-top:8px; }
-    .ann-toolbar .pill-action{ margin-left:auto; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid #d6e3ff; background:#eef4ff; color:#0b3d91; font-weight:800; cursor:pointer; }
+    .ann-toolbar{
+      display:flex; align-items:center; gap:8px; margin-top:8px;
+    }
+    .ann-toolbar .pill-action{
+      margin-left:auto; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid #d6e3ff; background:#eef4ff;
+      color:#0b3d91; font-weight:800; cursor:pointer;
+    }
     
-    /* mark-read fade */
-    .ann-item.read .btn-min { opacity: 0; transform: scale(0.9); pointer-events: none; transition: all 0.3s ease; }
+    /* make the toast you already have feel “alerty” for announcements */
+    .notice-fixed.ann-toast{
+      background:#fff; border-color:#90caf9; color:#0d47a1;
+    }
+    .notice-fixed.ann-toast .ms{ color:#2979ff; }
+
+    /* === Fade out Mark Read button === */
+    .ann-item.read .btn-min {
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    /* === Make LAB ANNOUNCEMENTS + ROTATIONS more compact === */
+
+    /* Card shells + headers a bit tighter */
+    .card.ann-banner,
+    .card.room-rot { padding: 10px 12px; }
     
-    /* compact/alternate sizes */
-    .card.ann-banner, .card.room-rot { padding:10px 12px; }
-    .card.ann-banner h2, .card.room-rot h2 { padding:8px 12px; font-size:16px; }
+    .card.ann-banner h2,
+    .card.room-rot h2 {
+      padding: 8px 12px;
+      font-size: 16px;      /* was ~20px */
+    }
+    
+    /* Announcements: smaller items + 3-line clamp */
+    .ann-banner .ann-list { gap: 8px; }
+    .ann-item { padding: 8px 10px; }
+    .ann-head { font-size: 13px; }
+    .ann-time { font-size: 11px; }
     
     /* clamp long bodies to reduce height */
+    .ann-body {
+      position: relative;
+    }
+
     .ann-body.clamp {
       display: -webkit-box;
-      -webkit-line-clamp: 6; /* visible lines before "More" */
+      -webkit-line-clamp: 6;
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    /* subtle fade when clamped */
     .ann-body.clamp::after {
       content: "";
       position: absolute;
       inset: auto 0 0 0;
-      height: 2.2em;
+      height: 2.2em;                 /* fade height */
       background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
       pointer-events: none;
     }
-    
-    /* More / Less */
+
+    /* "More/Less" button */
     .ann-more {
       appearance: none;
       border: 1px solid #dfe6ef;
@@ -336,205 +934,46 @@
       color: #0b3d91;
       cursor: pointer;
     }
-    .ann-item.expanded .ann-body.clamp { -webkit-line-clamp: unset; overflow: visible; }
+    
+    /* expanded state removes clamp */
+    .ann-item.expanded .ann-body.clamp {
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+    
     .ann-item.expanded .ann-body.clamp::after { display: none; }
     
-    /* -------------------------
-       Rotations / Room maintenance
-       ------------------------- */
-    .card.room-rot { display:block; max-width:var(--page-max); margin:16px auto 28px; }
-    .room-rot #rot-title { background:#e6efff; }
-    .rot-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
-    .rot-col{ border:1px solid #e2e6ee; border-radius:10px; overflow:hidden; background:#fff; box-shadow:var(--shadow); }
-    .rot-h{ font-weight:800; color:#111; text-align:center; padding:8px 10px; border-bottom:1px solid rgba(0,0,0,.08); font-size:18px; }
-    .rot-body{ padding:10px 12px; text-align:center; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    /* Optional: keep announcements to a single compact row with horizontal scroll
+       (uncomment if you want an even shorter banner)
+       .ann-banner .ann-list {
+         grid-auto-flow: column;
+         grid-auto-columns: minmax(260px, 1fr);
+         overflow-x: auto;
+         overscroll-behavior-inline: contain;
+         padding-bottom: 4px;   // room for scrollbar
+       }
+    */
     
-    /* rotation date range badge */
+    /* Rotations: tighter grid + one-line names */
     #rot-dates {
-      display:inline-flex; align-items:center; gap:8px;
-      background:#eef4ff; color:#1a1f36; font-weight:600; font-size:15px; border-radius:8px;
-      padding:6px 12px; border:1px solid #d0daee; box-shadow:0 2px 6px rgba(0,0,0,0.05); margin-bottom:10px;
+      font-size: 13px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
     }
-    #rot-dates:hover { background:#e1ecff; border-color:#c2d5ff; box-shadow:0 3px 8px rgba(0,0,0,0.08); }
-    #rot-dates .ms { font-size:18px; color:#4a6fd6; line-height:1; position:relative; top:1px; }
     
-    /* rotation palette (header backgrounds) */
-    .rot-tc1 { background:#f8bf20; }   /* amber */
-    .rot-tc2 { background:#5a84e8; color:#fff; }
-    .rot-tc3 { background:#74b65a; color:#0f2a0f; }
-    .rot-main{ background:#d32f2f; color:#fff; }
-    
-    /* rotation editor */
-    .rot-edit{ margin-top:12px; border:1px dashed #d8e1ff; border-radius:10px; padding:10px 12px; background:#f8fbff; display:none; }
-    .rot-edit[open]{ background:#eef5ff; }
-    body.admin .rot-edit { display:block; }
-    
-    .rot-form{ display:grid; gap:12px; }
-    .rot-form .row{ display:grid; gap:10px; grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; }
-    .rot-form input{ border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff; }
-    .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
-    .rot-form .actions{ display:flex; gap:10px; align-items:center; }
-    .btn-primary{ appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91; padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer; }
-    .btn-ghost{ appearance:none; border:1px solid #e0e7ef; background:#fff; color:#333; padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer; }
-    .hint{ font-size:12px; color:#6b7280; }
-    .room-rot .rot-form input:disabled { background:#f4f6fa; color:#7a869a; cursor:not-allowed; }
-    
-    /* -------------------------
-       Notes dock / editor
-       ------------------------- */
-    .notes-dock {
-      position: fixed; top:120px; width:260px; max-height:calc(100vh - 160px);
-      display:flex; flex-direction:column; gap:10px; z-index:999; pointer-events:none;
+    .rot-grid { gap: 6px; }
+    .rot-h    { padding: 6px 8px; font-size: 14px; }
+    .rot-body {
+      padding: 6px 8px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .note-card {
-      pointer-events:auto; background:#fffbe7; border:1px solid #e8dfb0; box-shadow:0 6px 18px rgba(0,0,0,.08);
-      border-radius:12px; padding:42px 12px 40px 12px; position:relative;
-    }
-    .note-card .note-toolbar{ position:absolute; right:8px; top:8px; display:flex; gap:6px; z-index:2; background: rgba(255, 251, 231, 0.85); border-radius:8px; padding:2px; }
-    .note-btn{ appearance:none; border:1px solid #ddd4a4; background:#fff7c6; font-size:12px; padding:2px 6px; border-radius:8px; cursor:pointer; }
-    .note-btn:hover { background:#fff1a1; }
-    .note-textarea{ width:100%; min-height:90px; border:none; resize:vertical; background:transparent; font:14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial; color:#3d3a2a; outline:none; display:block; box-sizing:border-box; }
-    .btn-note{ appearance:none; border:1px solid #cfd8ea; background:#eaf2ff; color:#0b3d91; font-weight:700; border-radius:10px; padding:8px 12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.06); }
-    .btn-note:hover{ background:#dce9ff; }
-    .btn-note[disabled]{ opacity:.5; cursor:not-allowed; }
-    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(2px)} 75%{transform:translateX(-2px)} }
-    .btn-note.shake { animation: shake .25s ease-in-out; }
     
-    /* -------------------------
-       Utility / small tweaks
-       ------------------------- */
-    .footer{ margin-top:26px; color:var(--muted); font-size:12px }
-    .stack{ display:flex; gap:8px; flex-wrap:wrap }
-    
-    /* spacing tweaks */
+    /* Trim the vertical gaps above/below these two sections */
     .card.ann-banner { margin: 0 0 12px; }
-    .card.room-rot { margin: 12px auto 16px; }
-    
-    /* -------------------------
-       Responsive adjustments
-       ------------------------- */
-    @media (max-width: 1540px){
-      .grid{ grid-template-columns: repeat(2, minmax(340px, 1fr)); }
-    }
-    @media (max-width: 1000px){
-      .layout{ grid-template-columns: 1fr; }
-      .grid{ grid-template-columns: 1fr; }
-      .sidebar .card{ position: static; top:auto; }
-    }
-    @media (max-width: 900px){
-      .rot-form .row{ grid-template-columns: 1fr 1fr; }
-      .iframe-wrap iframe{ height:520px; }
-    }
-    @media (max-width: 768px){
-      .grid{ grid-template-columns: 1fr; }
-      .iframe-wrap iframe{ height:600px; }
-    }
-    @media (max-width: 480px){
-      .wrap{ padding:16px 12px 40px; }
-      header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
-      .title{ font-size:22px; line-height:1.15; }
-      .subtitle{ font-size:12px; }
-      .actions{ width:100%; gap:8px; }
-      .search{ width:100%; }
-      .search input{ min-width:0; width:100%; }
-      .card{ padding:14px; }
-      .card h2{ font-size:18px; padding:12px 14px; }
-      .badge{ font-size:11px; padding:2px 8px; }
-      .rot-grid{ grid-template-columns: repeat(2, 1fr); gap:6px; }
-      .rot-h{ font-size:13px; padding:6px 8px; }
-      .rot-body{ padding:8px 10px; }
-      .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
-      .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
-      .iframe-wrap iframe{ height:520px; }
-      .ann-banner .ann-list{ grid-template-columns: 1fr; }
-      #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px; }
-    }
-    @media (max-width: 980px){
-      .notes-dock, #add-note-fab { display:none; }
-    }
-
-    /* ==========================
-   Restore colored card headers
-   Targets: cal / equip / cores / duties / tools / misc
-   Paste this at the END of your stylesheet.
-   ========================== */
-
-  #cal-title,
-  #equip-title,
-  #cores-title,
-  #duties-title,
-  #tools-title,
-  #misc-title {
-    color: #111;
-    font-weight: 800;
-    padding: 10px 16px;
-    border-radius: var(--radius) var(--radius) 0 0;
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.04);
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  /* Stronger, saturated header backgrounds + readable text color */
-  #cal-title      { background: #cfe0ff; color: #0b3d91; } /* Calendar / Fortessa top */
-  #equip-title    { background: #cfe8ff; color: #08306b; } /* Shared Use Equipment */
-  #cores-title    { background: #e6f5ea; color: #155724; } /* UPenn Cores (green) */
-  #duties-title   { background: #fff4e0; color: #8a5200; } /* Lab Duties (warm) */
-  #tools-title    { background: #eaf7ff; color: #0b5ed7; } /* Tools & Docs (blue) */
-  #misc-title     { background: #fff0f2; color: #8b1f1f; } /* Other Resources (rose) */
-  
-  /* Make the small .badge inside the h2 visually match the header */
-  #cal-title .badge      { background: #d9e9ff; color: #0b3d91; border: 1px solid rgba(11,61,145,0.06); }
-  #equip-title .badge    { background: #e6f0ff; color: #08306b; border: 1px solid rgba(8,48,107,0.06); }
-  #cores-title .badge    { background: #eaf9ec; color: #155724; border: 1px solid rgba(21,87,36,0.06); }
-  #duties-title .badge   { background: #fff6e6; color: #8a5200; border: 1px solid rgba(138,82,0,0.06); }
-  #tools-title .badge    { background: #f0fbff; color: #0b5ed7; border: 1px solid rgba(11,94,215,0.06); }
-  #misc-title .badge     { background: #fff3f4; color: #8b1f1f; border: 1px solid rgba(139,31,31,0.06); }
-  
-  /* Badge styling: keep it compact and bold */
-  .card h2 .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 12px;
-    box-shadow: none;
-  }
-  
-  /* Keep card body white and with a subtle shadow so header color pops */
-  .card {
-    background: #fff;
-    border-radius: var(--radius);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    overflow: visible;
-  }
-  
-  /* Small polish: make the header bleed naturally into rounded card */
-  .card > h2 {
-    margin: -10px -10px 12px -10px;
-    padding-left: 18px;
-    padding-right: 18px;
-  }
-  
-  /* Fallback selector: if some cards don't use these IDs, target by text (less ideal)
-     Uncomment only if needed:
-  .card h2:has(.ms + text("Fortessa/Hood Bookings")) { background: #cfe0ff; }
-  */
-  
-  /* Responsive tweak: slightly reduce padding on very small screens */
-  @media (max-width: 480px) {
-    #cal-title,
-    #equip-title,
-    #cores-title,
-    #duties-title,
-    #tools-title,
-    #misc-title { padding: 8px 10px; font-size: 15px; }
-    .card h2 .badge { padding: 3px 6px; font-size: 11px; }
-  }
-
+    .card.room-rot   { margin: 12px auto 16px; }
     
   </style>
 
@@ -1651,10 +2090,6 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
-
-
-
-
 
 
 
