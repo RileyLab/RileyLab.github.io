@@ -454,6 +454,87 @@
       .notes-dock, #add-note-fab { display:none; }
     }
 
+    /* ==========================
+   Restore colored card headers
+   Targets: cal / equip / cores / duties / tools / misc
+   Paste this at the END of your stylesheet.
+   ========================== */
+
+  #cal-title,
+  #equip-title,
+  #cores-title,
+  #duties-title,
+  #tools-title,
+  #misc-title {
+    color: #111;
+    font-weight: 800;
+    padding: 10px 16px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,0.04);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Stronger, saturated header backgrounds + readable text color */
+  #cal-title      { background: #cfe0ff; color: #0b3d91; } /* Calendar / Fortessa top */
+  #equip-title    { background: #cfe8ff; color: #08306b; } /* Shared Use Equipment */
+  #cores-title    { background: #e6f5ea; color: #155724; } /* UPenn Cores (green) */
+  #duties-title   { background: #fff4e0; color: #8a5200; } /* Lab Duties (warm) */
+  #tools-title    { background: #eaf7ff; color: #0b5ed7; } /* Tools & Docs (blue) */
+  #misc-title     { background: #fff0f2; color: #8b1f1f; } /* Other Resources (rose) */
+  
+  /* Make the small .badge inside the h2 visually match the header */
+  #cal-title .badge      { background: #d9e9ff; color: #0b3d91; border: 1px solid rgba(11,61,145,0.06); }
+  #equip-title .badge    { background: #e6f0ff; color: #08306b; border: 1px solid rgba(8,48,107,0.06); }
+  #cores-title .badge    { background: #eaf9ec; color: #155724; border: 1px solid rgba(21,87,36,0.06); }
+  #duties-title .badge   { background: #fff6e6; color: #8a5200; border: 1px solid rgba(138,82,0,0.06); }
+  #tools-title .badge    { background: #f0fbff; color: #0b5ed7; border: 1px solid rgba(11,94,215,0.06); }
+  #misc-title .badge     { background: #fff3f4; color: #8b1f1f; border: 1px solid rgba(139,31,31,0.06); }
+  
+  /* Badge styling: keep it compact and bold */
+  .card h2 .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+    box-shadow: none;
+  }
+  
+  /* Keep card body white and with a subtle shadow so header color pops */
+  .card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    overflow: visible;
+  }
+  
+  /* Small polish: make the header bleed naturally into rounded card */
+  .card > h2 {
+    margin: -10px -10px 12px -10px;
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+  
+  /* Fallback selector: if some cards don't use these IDs, target by text (less ideal)
+     Uncomment only if needed:
+  .card h2:has(.ms + text("Fortessa/Hood Bookings")) { background: #cfe0ff; }
+  */
+  
+  /* Responsive tweak: slightly reduce padding on very small screens */
+  @media (max-width: 480px) {
+    #cal-title,
+    #equip-title,
+    #cores-title,
+    #duties-title,
+    #tools-title,
+    #misc-title { padding: 8px 10px; font-size: 15px; }
+    .card h2 .badge { padding: 3px 6px; font-size: 11px; }
+  }
+
     
   </style>
 
@@ -1570,6 +1651,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
