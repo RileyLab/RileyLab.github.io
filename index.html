@@ -230,12 +230,33 @@
       display:flex; gap:10px; align-items:flex-start;
       padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
     }
-    .ann-time{ 
-      background-color: #f0f4ff;
-      color: #2b4eff;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 8px;
+    /* Stronger badge look, with color variants that mirror the left stripe */
+    .ann-time {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      white-space:nowrap;
+    }
+    
+    /* Per-level color treatments (use the same colors as border-left) */
+    .ann-item.info   .ann-time { background: #eef4ff; color: #143d8d; border-color: #d5e3ff; }
+    .ann-item.warn   .ann-time { background: #fff7ea; color: #b35b00; border-color: #ffddb3; }
+    .ann-item.urgent .ann-time { background: #ffecec; color: #a41616; border-color: #ffb3b3; }
+    
+    /* add a tiny calendar glyph before the date */
+    .ann-time::before {
+      content: "🗓";
+      display:inline-block;
+      transform: translateY(1px);
+      font-size:13px;
+      margin-right:4px;
+      opacity:0.95;
     }
     .ann-text{ flex:1 }
     
@@ -2069,6 +2090,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
