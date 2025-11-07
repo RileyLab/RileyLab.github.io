@@ -1778,9 +1778,12 @@ function renderAnnouncements(items){
     li.append(head, body, actions);
     frag.appendChild(li);
   });
+  list.innerHTML = '';          // clear previous entries
+  list.appendChild(frag);       // actually render them
 
   showAnnToast(newCount);
   updateAnnDotVisibility();       // ensure header dot reflects current unread state
+  applyAnnLayout();
 
   // Optional: "Mark all read" control, if present
   const markAll = document.getElementById('ann-mark-read');
@@ -2150,6 +2153,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
