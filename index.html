@@ -1693,7 +1693,7 @@ function renderAnnouncements(items){
 
   const frag = document.createDocumentFragment();
 
-  sorted.forEach(({ text, when, level, link }) => {
+  sorted.forEach(({ id, text, html, when, level, link }) => {
     const d  = parseDateSafe(when) || new Date(0);
     const ts = d.getTime();
     if (ts > newestTs) newestTs = ts;
@@ -2183,6 +2183,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
