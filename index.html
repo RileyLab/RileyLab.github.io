@@ -1355,34 +1355,6 @@ function wrapSelection(ta, before, after){
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c])); }
 
-// very small allowlist sanitizer to avoid injecting arbitrary HTML
-function sanitizeHTML(input){
-  const allowed = new Set(['B','I','U','BR','SPAN','DIV','UL','OL','LI','INPUT']); // minimal
-  const tmp = document.createElement('div');
-  tmp.innerHTML = input || '';
-
-  (function walk(node){
-    if (node.nodeType === 1) {
-      if (!allowed.has(node.tagName)) {
-        // unwrap disallowed element but keep its children
-        const parent = node.parentNode;
-        while (node.firstChild) parent.insertBefore(node.firstChild, node);
-        parent.removeChild(node);
-        return;
-      }
-      // strip attributes we don't expect
-      for (const attr of Array.from(node.attributes)) {
-        const t = node.tagName;
-        if (t === 'INPUT' && attr.name === 'type' && node.getAttribute('type') === 'checkbox') continue;
-        else node.removeAttribute(attr.name);
-      }
-    }
-    for (const child of Array.from(node.childNodes)) walk(child);
-  })(tmp);
-
-  return tmp.innerHTML;
-}
-
 function updateHtml(id, html){
   const notes = load();
   const n = notes.find(x => x.id === id);
@@ -1511,7 +1483,7 @@ function ensureIds(arr){
   });
 }
 
-  ANN_APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
+const ANN_APPS_URL = 'https://script.google.com/macros/s/AKfycbwuVJMzPdif9iYUHNio1jKIEr6t9a9d1f9Vl-rA50-pDhe40NpJL9I4smVdKr1g2skm/exec';
 
 async function fetchPortalData() {
   const appsUrl = ANN_APPS_URL + '?t=' + Date.now();
@@ -1644,6 +1616,47 @@ function applyAnnLayout(){
   }
 }
 
+function sanitizeAnnHTML(input){
+  const tmp = document.createElement('div');
+  tmp.innerHTML = input || '';
+
+  const allowed = new Set(['B','I','U','BR','A','SPAN','DIV','UL','OL','LI']);
+
+  function cleanUrl(href){
+    try {
+      const u = new URL(href, location.origin);
+      if (u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'mailto:') return u.href;
+    } catch(_) {}
+    return '';
+  }
+
+  (function walk(node){
+    if (node.nodeType === 1) {
+      const tag = node.tagName;
+      if (!allowed.has(tag)) {
+        const parent = node.parentNode;
+        while (node.firstChild) parent.insertBefore(node.firstChild, node);
+        parent.removeChild(node);
+        return;
+      }
+      // Strip attributes except safe ones for <a>
+      for (const attr of Array.from(node.attributes)) {
+        if (tag === 'A' && attr.name.toLowerCase() === 'href') {
+          const safe = cleanUrl(node.getAttribute('href') || '');
+          node.setAttribute('href', safe);
+          node.setAttribute('target', '_blank');
+          node.setAttribute('rel', 'noopener');
+        } else {
+          node.removeAttribute(attr.name);
+        }
+      }
+    }
+    for (const child of Array.from(node.childNodes)) walk(child);
+  })(tmp);
+
+  return tmp.innerHTML;
+}
+
 function renderAnnouncements(items){
   const list = document.getElementById('ann-banner-list');
   if (!list) return;
@@ -1693,46 +1706,49 @@ function renderAnnouncements(items){
 
   const frag = document.createDocumentFragment();
 
-  sorted.forEach(({ id, text, html, when, level, link }) => {
+  sorted.forEach((a) => {
+    const { id: suppliedId, text, html, when, level, link } = a;
+  
     const d  = parseDateSafe(when) || new Date(0);
     const ts = d.getTime();
     if (ts > newestTs) newestTs = ts;
-
-    const id = hashId(text||'', when||'');
-    const isRead = readSet.has(id);
+  
+    const annId = (suppliedId && String(suppliedId).trim())
+      ? String(suppliedId).trim()
+      : hashId(text || '', when || '');
+  
+    const isRead = readSet.has(annId);
     const isNew  = !isRead && ts > lastSeen;
     if (isNew) newCount++;
-
+  
     const li = document.createElement('li');
-    const lvl = levelToClass(level);               // "info" | "warn" | "urgent"
+    const lvl = levelToClass(level);
     li.className = `ann-item ${lvl}${isNew ? ' new' : ''}`;
-    li.dataset.id = id;
-
+    li.dataset.id = annId;
+  
     // Header
     const head = document.createElement('div');
     head.className = 'ann-head';
-
     const time = document.createElement('div');
     time.className = 'ann-time';
     time.textContent = d ? fmtDayShort(d) : '';
-
     const badgeNew = document.createElement('span');
     badgeNew.className = 'badge-new';
     badgeNew.textContent = 'NEW';
     head.append(time, badgeNew);
-
+  
     // Body
     const body = document.createElement('div');
     body.className = 'ann-body';
     const safe = document.createElement('div');
     const rawHtml = (html && html.trim()) ? html : null;
     if (rawHtml) {
-      safe.innerHTML = sanitizeAnnHTML(rawHtml);   // allow <b><i><u><a><br>
+      safe.innerHTML = sanitizeAnnHTML(rawHtml); // see #2
     } else {
       safe.innerHTML = autoLink(String(text || '').replace(/[<>]/g, c => ({'<':'&lt;','>':'&gt;'}[c])));
     }
     body.appendChild(safe);
-
+  
     // Actions
     const actions = document.createElement('div');
     actions.className = 'ann-actions';
@@ -1743,73 +1759,24 @@ function renderAnnouncements(items){
       a.innerHTML = `<span class="ms" aria-hidden="true">open_in_new</span> Open`;
       actions.appendChild(a);
     }
-
-    // Mark-as-read
+  
     const mark = document.createElement('button');
     mark.type = 'button';
     mark.className = 'btn-min';
     mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
     mark.addEventListener('click', () => {
-      markAnnouncementRead(id);
+      markAnnouncementRead(annId);
       li.classList.remove('new');
-      li.classList.add('read');   // fade/hide button via CSS
+      li.classList.add('read');
       mark.classList.add('marked');
-      updateAnnDotVisibility();   // <- live toggle of red dot
+      updateAnnDotVisibility();
     });
     actions.appendChild(mark);
-
-    // If previously read, reflect that on load
-    if (isRead) {
-      mark.classList.add('marked');
-      li.classList.add('read');
-    }
-
-    // Append (no chip anymore)
+  
+    if (isRead) { mark.classList.add('marked'); li.classList.add('read'); }
+  
     li.append(head, body, actions);
     frag.appendChild(li);
-  });
-
-  list.innerHTML = '';
-  list.appendChild(frag);
-
-  applyAnnLayout();
-
-  // Enable per-item clamp + "More/Less" only when needed
-  requestAnimationFrame(() => {
-    document.querySelectorAll('#ann-banner-list .ann-item').forEach(li => {
-      const body = li.querySelector('.ann-body');
-      const actions = li.querySelector('.ann-actions');
-      if (!body || !actions) return;
-  
-      // start clamped
-      body.classList.add('clamp');
-  
-      // create the toggle button
-      const moreBtn = document.createElement('button');
-      moreBtn.type = 'button';
-      moreBtn.className = 'ann-more';
-      moreBtn.textContent = 'More';
-      moreBtn.addEventListener('click', () => {
-        const expanded = li.classList.toggle('expanded');
-        if (expanded) {
-          body.classList.remove('clamp');
-          moreBtn.textContent = 'Less';
-        } else {
-          body.classList.add('clamp');
-          moreBtn.textContent = 'More';
-        }
-      });
-  
-      // insert the button at the start of the actions row
-      actions.prepend(moreBtn);
-  
-      // if it doesn't actually overflow at 4 lines, hide the button + unclamp
-      // (allow a tiny tolerance for rounding)
-      if (body.scrollHeight <= body.clientHeight + 1) {
-        body.classList.remove('clamp');
-        moreBtn.style.display = 'none';
-      }
-    });
   });
 
   showAnnToast(newCount);
@@ -2183,6 +2150,7 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
+
 
 
 
