@@ -7,9 +7,9 @@
     "start": "2025-10-20",
     "periodDays": 14,
     "slots": {
-      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Mosha"],
+      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Edmund"],
       "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Max", "Jiayi", "Justin G."],
-      "tc3":  ["Edmund", "Tanishk", "Justin S.", "Gabby", "Meidi", "Shannon"],
+      "tc3":  ["Mosha", "Tanishk", "Justin S.", "Gabby", "Meidi", "Shannon"],
       "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Meidi", "Jiayi", "Divanshu", "Max", "Shannon"]
     }
   }
