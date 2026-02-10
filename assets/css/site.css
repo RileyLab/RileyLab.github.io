@@ -1,0 +1,1460 @@
+/* Czardoms */
+html.page-czardoms{
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #d1d9e6;
+      --row: #f3f6fa;
+      --row-alt: #ffffff;
+      --ink: #20252b;
+      --ink-dim: #66738a;
+      --accent: #1a73e8;
+      --accent-2: #118f6f;
+      --chip: #eaf1fb;
+      --warn-bg: #fff8e1;
+      --warn-border: #f9d57d;
+    }
+    html.page-czardoms *{box-sizing:border-box}
+    html.page-czardoms,html.page-czardoms body{height:100%}
+    html.page-czardoms body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height:1.5;
+    }
+    html.page-czardoms .wrap{max-width:1100px;margin:48px auto;padding:0 20px;}
+    html.page-czardoms .card{
+      background: var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      overflow:hidden;
+    }
+    html.page-czardoms header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:18px 22px;border-bottom:1px solid var(--border);
+      background:#f3f6fa;
+    }
+    html.page-czardoms .title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    html.page-czardoms .badge{
+      background:var(--accent);
+      color:#fff;
+      padding:8px 12px;
+      border-radius:8px;
+      font-weight:600;
+      font-size:14px;
+      letter-spacing:.2px;
+    }
+    html.page-czardoms .sub{color:var(--ink-dim);font-size:13px}
+    html.page-czardoms .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    html.page-czardoms input[type="search"]{
+      border:1px solid var(--border);
+      padding:9px 12px;
+      border-radius:8px;
+      font-size:14px;
+      min-width:220px;
+    }
+    html.page-czardoms input[type="search"]:focus{border-color:var(--accent);outline:none}
+    html.page-czardoms button{
+      cursor:pointer;
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      border-radius:8px;
+      padding:9px 14px;
+      font-weight:600;
+    }
+    html.page-czardoms button:hover{background:#155fc0}
+    html.page-czardoms .hint{color:var(--ink-dim);font-size:12px;margin-left:6px}
+
+    html.page-czardoms table{width:100%;border-collapse:collapse}
+    html.page-czardoms thead th{
+      text-align:left;
+      padding:12px 14px;
+      background:#f3f6fa;
+      color:#5b667a;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+      border-bottom:1px solid var(--border);
+    }
+    html.page-czardoms tbody td{padding:14px 14px;border-bottom:1px solid var(--border)}
+    html.page-czardoms tbody tr:nth-child(even){background:var(--row)}
+    html.page-czardoms tbody tr:hover{background:#e8f0fe}
+    html.page-czardoms .col-no{width:60px;color:#6d7891}
+    html.page-czardoms .task a{color:var(--accent);text-decoration:none}
+
+    /* >>> Updated: make names stand out <<< */
+    html.page-czardoms .owners{display:flex;flex-wrap:wrap;gap:8px}
+    html.page-czardoms .chip{
+      border-radius:999px;
+      padding:7px 12px;
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+      line-height:1;
+      box-shadow:0 1px 2px rgba(0,0,0,.08);
+      user-select:text;
+    }
+    /* Rotation gets its own look */
+    html.page-czardoms .warn{
+      background:linear-gradient(135deg,#ffe08a,#f8c74a);
+      color:#553d00;
+      border:1px solid var(--warn-border);
+      box-shadow:none;
+    }
+    /* Deterministic color classes for people chips */
+    html.page-czardoms .c1{background:#1a73e8;}   /* blue   */
+    html.page-czardoms .c2{background:#34a853;}   /* green  */
+    html.page-czardoms .c3{background:#f29900;}   /* orange */
+    html.page-czardoms .c4{background:#e91e63;}   /* pink   */
+    html.page-czardoms .c5{background:#6f42c1;}   /* purple */
+    html.page-czardoms .c6{background:#0097a7;}   /* teal   */
+    html.page-czardoms .c7{background:#ef5350;}   /* red    */
+    html.page-czardoms .c8{background:#2e7d32;}   /* dark green */
+    /* ------------------------------------- */
+
+    html.page-czardoms .dim{color:var(--ink-dim)}
+    html.page-czardoms .empty{padding:24px;text-align:center;color:var(--ink-dim)}
+    html.page-czardoms footer{
+      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+      padding:12px 18px;
+      font-size:12px;
+      color:var(--ink-dim);
+      background:#f3f6fa;
+    }
+    html.page-czardoms .credit a{color:var(--accent-2);text-decoration:none}
+    @media(max-width:700px){html.page-czardoms .col-notes{display:none}}
+
+
+/* Hood Booking Calendar */
+html.page-hood-booking{
+      --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
+      --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
+      --TC1b:#60a5fa; --TC1c:#93c5fd; 
+      --TC2b:#22c55e; --TC2c:#86efac;
+      --TC3b:#fbbf24; --TC3c:#fde68a;
+      --shadow:0 10px 30px rgba(0,0,0,.08);
+      --radius:16px;
+    }
+    html.page-hood-booking,html.page-hood-booking body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    html.page-hood-booking .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+    html.page-hood-booking .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    html.page-hood-booking .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
+    html.page-hood-booking .btn.primary{background:#111827;color:#fff;border-color:#111827}
+    html.page-hood-booking .title{margin-left:auto;font-weight:700;font-size:16px}
+
+    /* BIG Tabs */
+    html.page-hood-booking .tabs{display:flex;gap:12px;margin:14px 0 18px}
+    html.page-hood-booking .tab{
+      flex:0 0 auto; min-width:140px; padding:14px 18px;
+      border-radius:999px; border:2px solid var(--border); background:#fff;
+      font-weight:800; letter-spacing:.2px; text-align:center; box-shadow:var(--shadow);
+      cursor:pointer; user-select:none; transition:transform .05s ease;
+    }
+    html.page-hood-booking .tab:active{transform:translateY(1px)}
+    html.page-hood-booking .tab .dot{width:12px;height:12px;border-radius:999px;display:inline-block;margin-right:8px;vertical-align:middle}
+    html.page-hood-booking .tab[data-room="TC1"] .dot{background:var(--TC1)}
+    html.page-hood-booking .tab[data-room="TC2"] .dot{background:var(--TC2)}
+    html.page-hood-booking .tab[data-room="TC3"] .dot{background:var(--TC3)}
+    html.page-hood-booking .tab.active{border-color:#111827; color:#111827}
+    html.page-hood-booking .tab.active[data-room="TC1"]{box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow)}
+    html.page-hood-booking .tab.active[data-room="TC2"]{box-shadow:0 0 0 4px rgba(22,163,74,.12), var(--shadow)}
+    html.page-hood-booking .tab.active[data-room="TC3"]{box-shadow:0 0 0 4px rgba(245,158,11,.15), var(--shadow)}
+
+    html.page-hood-booking #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    html.page-hood-booking .legend{margin-top:8px;color:var(--muted)}
+
+    /* Modal polish */
+    html.page-hood-booking .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9999}
+    html.page-hood-booking .modal{
+      width:min(720px,94vw); background:#fff; border-radius:18px;
+      box-shadow:0 24px 64px rgba(0,0,0,.25); padding:22px 22px 18px;
+    }
+    html.page-hood-booking .modal h3{margin:0 0 14px 0; font-size:22px; letter-spacing:.2px}
+    html.page-hood-booking .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    html.page-hood-booking label{font-size:12px;color:#334155;margin-bottom:6px;font-weight:600}
+    html.page-hood-booking input[type="text"],html.page-hood-booking input[type="date"],html.page-hood-booking input[type="time"],html.page-hood-booking select{
+      width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none
+    }
+    html.page-hood-booking input:focus,html.page-hood-booking select:focus{border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.08)}
+    html.page-hood-booking .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+    html.page-hood-booking .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
+    html.page-hood-booking .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
+
+    html.page-hood-booking .room-badge{
+      width:100%;
+      padding:12px;
+      border-radius:12px;
+      text-align:center;
+      font-weight:700;
+      letter-spacing:.2px;
+      border:1px solid #e5e7eb;
+      background:#f9fafb;
+      color:#111827;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+    }
+    
+    /* Optional: contextual colors by room */
+    html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
+    html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
+    html.page-hood-booking .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); color:#0b1220; }
+
+    /* Spinner + Toast (center) */
+    html.page-hood-booking #spinner{
+      position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);
+      background:#fff;border-radius:10px;box-shadow:var(--shadow);display:none;z-index:99999
+    }
+    html.page-hood-booking #toast{
+      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+      min-width:280px;max-width:80vw;padding:14px 16px;border-radius:14px;border:1px solid var(--border);
+      display:none;align-items:center;justify-content:center;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.18);
+      font-weight:700;z-index:100000
+    }
+    html.page-hood-booking #toast.ok{border-color:#16a34a}
+    html.page-hood-booking #toast.warn{border-color:#b45309}
+    html.page-hood-booking #toast.err{border-color:#b91c1c}
+    html.page-hood-booking .hidden{display:none !important}
+
+    /* Hide TUI's blue selection/creation guides */
+    html.page-hood-booking .tui-full-calendar-timegrid-guide,html.page-hood-booking .tui-full-calendar-timegrid-guide-creation,html.page-hood-booking .tui-full-calendar-time-guide-creation,html.page-hood-booking .tui-full-calendar-time-guide-resize-handler{
+      display: none !important;
+    }
+
+    /* Make two clean columns with real spacing and safe shrinking */
+    html.page-hood-booking .grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      column-gap:18px;        /* was ~10–12, bump it */
+      row-gap:14px;
+    }
+    
+    /* Consistent field spacing + no overlap from icons */
+    html.page-hood-booking .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    
+    html.page-hood-booking input[type="text"],html.page-hood-booking input[type="date"],html.page-hood-booking input[type="time"],html.page-hood-booking select{
+      width:100%;
+      box-sizing:border-box;      /* ensure padding/borders don’t grow the box */
+      padding:12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#fff;
+      outline:none;
+    }
+    
+    /* When space gets tight, stack to one column so nothing touches */
+    @media (max-width: 900px){
+      html.page-hood-booking .grid{grid-template-columns:1fr; column-gap:0}
+    }
+
+    /* Make row columns actually shrink within the modal */
+    html.page-hood-booking .row{ display:flex; gap:12px; }
+    html.page-hood-booking .row.spaced{ margin-top:12px; }
+    html.page-hood-booking .row > .field{ flex:1 1 0; min-width:0; }   /* <-- critical */
+    
+    /* Keep the badge inside its box and center the text */
+    html.page-hood-booking .room-badge{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height:44px;                 /* consistent control height */
+      padding:0 12px;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      background:#f9fafb;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#111827;
+    
+      /* prevent overflow */
+      box-sizing:border-box;
+      max-width:100%;
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    
+    /* contextual colors (unchanged) */
+    html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
+    html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
+    html.page-hood-booking .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); }
+
+
+/* Portal */
+html.page-portal{
+      --bg:#f5f7fb;
+      --card:#fff;
+      --muted:#495057;
+      --text:#111;
+      --accent:#0057b7;
+      --ring:rgba(0,87,183,.25);
+      --link:#0b5ed7;
+      --warn-bg:#fff8e1;
+      --warn-border:#ffe082;
+      --shadow:0 6px 18px rgba(0,0,0,.08);
+      --shadow-hover:0 10px 26px rgba(0,87,183,.15);
+      --radius:12px;
+      --underline:linear-gradient(currentColor,currentColor);
+    }
+  
+    html.page-portal,html.page-portal body{height:100%}
+    html.page-portal body{
+      margin:0;
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans","Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+    }
+    html.page-portal body::before{
+      content:""; position:fixed; inset:0;
+      background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center/cover no-repeat fixed;
+      z-index:-2; filter:saturate(.9) contrast(1.02);
+    }
+    html.page-portal body::after{
+      content:""; position:fixed; inset:0; z-index:-1;
+      background:rgba(245,247,251,.86); backdrop-filter:blur(.5px);
+    }
+  
+    /* Page frame */
+    html.page-portal .wrap{ max-width:1440px; margin:0 auto; padding:28px 20px 60px }
+  
+    html.page-portal header{
+      display:grid; grid-template-columns:1fr auto; align-items:end; gap:16px;
+      margin:8px 0 16px;
+    }
+    html.page-portal .header-brand{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    html.page-portal .header-logo{
+      height: auto;       /* adjust as needed */
+      width: 350px;
+      display: block;
+    }
+
+    html.page-portal .subtitle{
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    html.page-portal .title{ font-size:clamp(24px,3.5vw,36px); font-weight:800; letter-spacing:.2px }
+    html.page-portal .subtitle{ color:var(--muted); font-size:14px; margin-top:4px }
+  
+    /* Notice banner (toast) */
+    html.page-portal .notice{
+      display:none; align-items:center; gap:10px;
+      background:var(--warn-bg); border:1px dashed var(--warn-border);
+      color:#3b3b00; padding:10px 12px; border-radius:var(--radius); margin:0 0 16px;
+    }
+    html.page-portal .notice.show{ display:flex }
+    html.page-portal .notice .close{ margin-left:auto; background:transparent; border:0; cursor:pointer; font-size:18px; line-height:1; color:#6c6c3a }
+    html.page-portal .notice-fixed{
+      position:fixed; top:20px; right:20px; width:280px; z-index:9999;
+      background:#fff8e1; border:2px solid #ffca28; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.15);
+      padding:14px 16px; display:flex; align-items:flex-start; gap:10px; color:#3b3b00; font-weight:600; font-size:14px;
+      opacity:0; transform:translateX(100%); transition:transform .5s ease, opacity .6s ease;
+    }
+    html.page-portal .notice-fixed.show{ opacity:1; transform:translateX(0); animation:pulseNotice 3s infinite }
+    @keyframes pulseNotice{
+      0%,100%{ box-shadow:0 0 0 0 rgba(255,193,7,.4) }
+      50%{ box-shadow:0 0 0 6px rgba(255,193,7,0) }
+    }
+    html.page-portal .notice-fixed .ms{ font-size:22px; color:#ff8f00; flex-shrink:0 }
+  
+    /* Icon font */
+    html.page-portal .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
+    html.page-portal .ms-lg{ font-size:2em; }
+  
+    /* Search */
+    html.page-portal .actions{ display:flex; gap:10px; align-items:center }
+    html.page-portal .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
+    html.page-portal .search{
+      display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef;
+      border-radius:999px; padding:8px 12px; box-shadow:0 2px 8px rgba(0,0,0,.04);
+    }
+    html.page-portal .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:300px }
+    html.page-portal .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
+  
+    /* === Three-column page layout: left sidebar | main grid | right sidebar === */
+    html.page-portal .layout{
+      display:grid; gap:20px;
+      grid-template-columns:340px 1fr 320px;   /* adjust widths as desired */
+      align-items:start;
+    }
+    /* collapse right sidebar below on medium screens */
+    @media (max-width:1250px){
+      html.page-portal .layout{ grid-template-columns:320px 1fr; }
+      html.page-portal .rightbar{ grid-column:1 / -1; }  /* full width under main */
+    }
+    /* single column on small screens */
+    @media (max-width:900px){
+      html.page-portal .layout{ grid-template-columns:1fr; }
+      html.page-portal .sidebar .card,html.page-portal .rightbar .card{ position:static; top:auto }
+    }
+  
+    /* Sidebars stick to top row */
+    html.page-portal .sidebar .card,html.page-portal .rightbar .card{ position:sticky; top:16px }
+  
+    /* Main grid (center column) */
+    html.page-portal .grid{
+      display:grid; gap:20px;
+      grid-template-columns:repeat(3, minmax(300px, 1fr));
+    }
+    @media (max-width:1250px){
+      html.page-portal .grid{ grid-template-columns:repeat(2, minmax(320px, 1fr)) }
+    }
+    @media (max-width:900px){
+      html.page-portal .grid{ grid-template-columns:1fr }
+    }
+  
+    /* Cards */
+    html.page-portal .card{
+      background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+      padding:18px; border:1px solid #e7e7e7; position:relative;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    html.page-portal .card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-hover); border-color:#d6e3ff }
+    @media (prefers-reduced-motion:reduce){
+      html.page-portal .card{ transition:box-shadow .18s ease, border-color .18s ease }
+      html.page-portal .card:hover{ transform:none }
+    }
+    html.page-portal .card h2{
+      font-size:20px; letter-spacing:.3px; margin:-18px -18px 12px -18px; padding:14px 18px;
+      border-radius:var(--radius) var(--radius) 0 0; color:#222; display:flex; align-items:center; gap:10px;
+      box-shadow:inset 0 -1px 0 rgba(0,0,0,.08);
+    }
+    html.page-portal .card h2 .badge{ margin-left:auto }
+    html.page-portal .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
+  
+    /* Section header colors */
+    html.page-portal #cal-title{ background:#a8c8ff }
+    html.page-portal #equip-title{ background:#a9e5c2 }
+    html.page-portal #duties-title{ background:#ffe69b }
+    html.page-portal #cores-title{ background:#f5a3a3 }
+    html.page-portal #tools-title{ background:#9ee5f0 }
+    html.page-portal #misc-title{ background:#ffcba4 }
+  
+    /* Lists & links */
+    html.page-portal .list{ list-style:none; padding:0; margin:0 }
+    html.page-portal .list li{ margin:8px 0 }
+    html.page-portal .link{
+      text-decoration:none; color:var(--link); font-weight:600; position:relative;
+      display:inline-flex; align-items:center; gap:10px; padding:6px 10px;
+      border-radius:8px; outline:none; border:1px solid transparent; transition:background .15s ease, border-color .15s ease;
+    }
+    html.page-portal .link::after{
+      content:""; position:absolute; left:10px; right:10px; bottom:6px; height:2px;
+      background:var(--underline); transform:scaleX(0); transform-origin:left; transition:transform .2s ease; opacity:.75;
+    }
+    html.page-portal .link:hover{ background:#eaf2ff; border-color:#cfe0ff }
+    html.page-portal .link:hover::after{ transform:scaleX(1) }
+    html.page-portal .link:focus{ box-shadow:0 0 0 3px var(--ring) }
+    html.page-portal .ext::after{ content:none !important }
+    html.page-portal .muted{ color:var(--muted); font-weight:500 }
+  
+    /* Details (disclosure) */
+    html.page-portal details{ border:1px solid #ddd; border-radius:8px; padding:10px 12px; background:#fafafa }
+    html.page-portal details[open]{ background:#e3f2fd }
+    html.page-portal summary{
+      cursor:pointer; list-style:none; font-weight:700; display:flex; align-items:center; gap:8px; position:relative; padding-left:20px;
+    }
+    html.page-portal summary::before{
+      content:""; position:absolute; left:0; top:50%; transform:translateY(-50%) rotate(0);
+      border-width:5px 0 5px 7px; border-style:solid; border-color:transparent transparent transparent #555; transition:transform .2s ease;
+    }
+    html.page-portal details[open] > summary::before{ transform:translateY(-50%) rotate(90deg) }
+    html.page-portal summary .ms{ font-size:20px; line-height:1; position:relative; top:1px }
+    html.page-portal summary::-webkit-details-marker{ display:none }
+  
+    /* Calendar sidebar */
+    html.page-portal #live-cal-title{ background:#cfe0ff }
+    html.page-portal .iframe-wrap{
+      border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff;
+    }
+    html.page-portal .iframe-wrap iframe{ width:100%; height:760px; border:0 }
+    html.page-portal .toolbar-sep{ margin:0 6px; opacity:.5; }
+    html.page-portal .mt-10{ margin-top:10px; }
+    html.page-portal .calendar-toolbar{
+      display:flex; gap:8px; align-items:center; margin:10px 0 12px;
+    }
+    html.page-portal .calendar-toolbar .btn{
+      appearance:none; border:1px solid #d6e3ff; background:#f4f8ff; color:#0b3d91;
+      padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
+    }
+    html.page-portal .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
+  
+    /* Announcements sidebar */
+    html.page-portal #ann-title{ background:#ffe3b3 }
+    html.page-portal .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+      margin:10px 0;
+    }
+    html.page-portal .ann-time{ font-size:12px; color:#6b5d3b; font-weight:600; white-space:nowrap }
+    html.page-portal .ann-text{ flex:1 }
+  
+    /* Footer */
+    html.page-portal footer{ margin-top:26px; color:var(--muted); font-size:12px }
+    html.page-portal .stack{ display:flex; gap:8px; flex-wrap:wrap }
+
+    /* ==== Page centering + wider left calendar ==== */
+    /* Tweakable variables */
+    html.page-portal{
+      --page-max: 1600px;   /* overall page width for centering */
+      --gap: 22px;          /* space between columns/cards */
+      --left: 460px;        /* LEFT sidebar (calendar) width */
+    }
+    
+    /* Page wrapper — truly centered */
+    html.page-portal .wrap{ max-width: var(--page-max); margin-inline: auto; }
+    
+    /* Top banner: Lab Announcements (full-width) */
+    html.page-portal .ann-banner.card{ padding: 14px 16px; }
+    html.page-portal #ann-banner-title{ background: #ffe3b3; }
+    /* Comfortable default: 2–3 columns but never skinnier than 400px */
+    html.page-portal .ann-banner .ann-list{
+      display:grid;
+      gap:6px;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      align-items:start;
+    }
+    html.page-portal .ann-banner .ann-list li{
+      display:flex; gap:10px; align-items:flex-start;
+      padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+    }
+
+    /* Slightly narrower minimum on tighter screens */
+    @media (max-width: 1200px){
+      html.page-portal .ann-banner .ann-list{
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      }
+    }
+    
+    /* Stronger badge look, with color variants that mirror the left stripe */
+    html.page-portal .ann-time{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:800;
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      white-space:nowrap;
+    }
+
+    /* Medium population (≈7–14): force 2 cols so cards don't get too thin */
+    html.page-portal .ann-banner.ann-medium .ann-list{
+      grid-template-columns: repeat(2, minmax(360px, 1fr));
+    }
+    
+    /* Many items (15+): single-column feed with its own scroll */
+    html.page-portal .ann-banner.ann-many{
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    }
+    html.page-portal .ann-banner.ann-many .ann-list{
+      grid-template-columns: 1fr;
+      max-height: 420px;     /* adjust height to taste */
+      overflow: auto;
+      padding-right: 4px;    /* room for scrollbar */
+      scrollbar-gutter: stable;
+    }
+    
+    /* Optional: nicer scrollbar in “many” mode (WebKit) */
+    html.page-portal .ann-banner.ann-many .ann-list::-webkit-scrollbar{ width:10px }
+    html.page-portal .ann-banner.ann-many .ann-list::-webkit-scrollbar-thumb{
+      background:#d9e3ff; border-radius:8px;
+    }
+    html.page-portal .ann-banner.ann-many .ann-list::-webkit-scrollbar-thumb:hover{
+      background:#c8d6ff;
+    }
+    
+    /* Per-level color treatments (use the same colors as border-left) */
+    html.page-portal .ann-item.info   .ann-time{ background: #eef4ff; color: #143d8d; border-color: #d5e3ff; }
+    html.page-portal .ann-item.warn   .ann-time{ background: #fff7ea; color: #b35b00; border-color: #ffddb3; }
+    html.page-portal .ann-item.urgent .ann-time{ background: #ffecec; color: #a41616; border-color: #ffb3b3; }
+    
+    /* add a tiny calendar glyph before the date */
+    html.page-portal .ann-time::before{
+      content: "🗓";
+      display:inline-block;
+      transform: translateY(1px);
+      font-size:13px;
+      margin-right:4px;
+      opacity:0.95;
+    }
+    html.page-portal .ann-text{ flex:1 }
+    
+    /* Two-column layout now: LEFT sidebar (calendar) + CENTER grid (cards) */
+    html.page-portal .layout{
+      display: grid; gap: var(--gap);
+      grid-template-columns: var(--left) 1fr;
+      align-items: start;
+    }
+    
+    /* Make the calendar sticky and taller for the wider column */
+    html.page-portal .sidebar .card{ position: sticky; top: 16px; }
+    html.page-portal .iframe-wrap iframe{ height: 840px; }  /* was ~760-820, adjust if you like */
+    
+    /* Center grid: give cards more breathing room so badges don't overflow */
+    html.page-portal .grid{
+      display:grid; gap: var(--gap);
+      grid-template-columns: repeat(3, minmax(340px, 1fr));   /* wider minimums */
+    }
+    
+    /* Avoid header/badge overflow inside narrow cards */
+    html.page-portal .card h2{ min-width: 0; display:flex; align-items:center; gap:10px; }
+    html.page-portal .card h2 .badge{ flex-shrink: 0; }        /* keep the badge from squashing title */
+    
+    /* Responsive steps: 2 cols earlier, then stack */
+    @media (max-width: 1540px){
+      html.page-portal{ --left: 420px; --page-max: 1500px; }
+      html.page-portal .grid{ grid-template-columns: repeat(2, minmax(340px, 1fr)); }
+    }
+    @media (max-width: 1000px){
+      html.page-portal .layout{ grid-template-columns: 1fr; }
+      html.page-portal .grid{ grid-template-columns: 1fr; }
+      html.page-portal .sidebar .card{ position: static; top:auto; }
+    }
+
+    /* === LAB ANNOUNCEMENTS SPACING + POLISH === */
+    html.page-portal .lab-announcements{
+      margin-bottom: 28px;       /* space between announcements and rest of page */
+      padding-bottom: 4px;
+    }
+    
+    html.page-portal .lab-announcements .card{
+      margin-bottom: 0;
+    }
+    
+    /* If your announcements bar is full-width across top */
+    html.page-portal .lab-announcements + .layout{
+      margin-top: 12px;          /* adds a soft gap before the main grid starts */
+    }
+    
+    /* Keep consistent alignment with page margins */
+    html.page-portal .lab-announcements{
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* slightly enhance background tone */
+    html.page-portal .lab-announcements h2{
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
+    }
+
+    /* === SPACING BETWEEN ANNOUNCEMENTS AND MAIN LAYOUT === */
+    html.page-portal .lab-announcements{
+      display: block;
+      margin-bottom: 28px;      /* creates visible space before grid */
+    }
+    
+    html.page-portal .lab-announcements + .layout{
+      margin-top: 28px;         /* ensures consistent vertical gap */
+    }
+    
+    /* If announcements span full width, align with content and keep consistent width */
+    html.page-portal .lab-announcements{
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      padding-bottom: 8px;
+    }
+    
+    /* make the card slightly pop above the grid */
+    html.page-portal .lab-announcements .card{
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    /* === Announcements banner spacing (matches: <section class="card ann-banner">) === */
+    html.page-portal .card.ann-banner{
+      display: block;
+      margin: 0 0 28px 0;   /* <- the gap you want */
+      padding-bottom: 8px;
+      max-width: var(--page-max);
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06); /* little pop */
+    }
+    
+    /* If the banner sits directly above the main .layout, add extra safety gap */
+    html.page-portal .card.ann-banner + .layout{
+      margin-top: 28px;
+    }
+
+    /* ===== Minimalist announcement style ===== */
+    html.page-portal {
+      --ann-info:   #2979ff;
+      --ann-warn:   #ffa000;
+      --ann-urgent: #e53935;
+    }
+    
+    /* Base card */
+    html.page-portal .ann-item{
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid #e9edf7;
+      background: #fff;
+      box-shadow: var(--shadow);
+      transform-origin: top left;
+    
+      /* Level stripe */
+      border-left: 4px solid var(--ann-info);
+    }
+    html.page-portal .ann-item.info{ border-left-color: var(--ann-info); }
+    html.page-portal .ann-item.warn{ border-left-color: var(--ann-warn); }
+    html.page-portal .ann-item.urgent{ border-left-color: var(--ann-urgent); }
+    
+    /* Header */
+    html.page-portal .ann-head{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: #1c2430;
+    }
+    html.page-portal .ann-head::before{
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex: 0 0 8px;
+      background: currentColor;
+    }
+    
+    /* Tint header by level */
+    html.page-portal .ann-item.info   .ann-head{ color: var(--ann-info); }
+    html.page-portal .ann-item.warn   .ann-head{ color: var(--ann-warn); }
+    html.page-portal .ann-item.urgent .ann-head{ color: var(--ann-urgent); }
+    
+    /* Remove icon chip */
+    html.page-portal .ann-chip{ display: none !important; }
+    
+    /* NEW pill */
+    html.page-portal .badge-new{
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 800;
+      color: #b71c1c;
+      background: #ffebee;
+      border: 1px solid #ffcdd2;
+      padding: 2px 8px;
+      border-radius: 999px;
+      display: none;
+    }
+    html.page-portal .ann-item.new .badge-new{ display: inline-flex; }
+    
+    /* Fade “Mark read” button when pressed or read */
+    html.page-portal .ann-item.read .btn-min{
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.25s ease;
+    }
+
+
+    /* === MATCH LAB CALENDAR HEIGHT TO TWO STACKED CARDS === */
+    html.page-portal .sidebar .card#live-cal-card{
+      height: calc((18px * 2) + (var(--card-height, 0px) * 2) + 40px); /* placeholder fallback */
+    }
+    
+    /* Simpler and more reliable: match overall column height visually */
+    html.page-portal .sidebar .card#live-cal-card{
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 720px;    /* base height */
+      max-height: 1000px;   /* cap for long screens */
+    }
+    
+    /* Let the iframe expand to fill available space */
+    html.page-portal .sidebar .iframe-wrap{
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    html.page-portal .sidebar .iframe-wrap iframe{
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Calendar card fills the height we assign via JS */
+    html.page-portal #live-cal-card{ display:flex; flex-direction:column; }
+    html.page-portal #live-cal-card .iframe-wrap{ flex:1; min-height:0; }
+    html.page-portal #live-cal-card .iframe-wrap iframe{ height:100%; }
+
+    /* ===== Room Maintenance Rotations ===== */
+    html.page-portal .room-rot #rot-title{ background:#e6efff; }   /* light blue header to match your theme */
+    
+    html.page-portal .rot-grid{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    /* Colored headers like your screenshot */
+    html.page-portal .rot-col{
+      border:1px solid #e2e6ee;
+      border-radius:10px;
+      overflow:hidden;
+      background:#fff;
+      box-shadow: var(--shadow);
+    }
+    
+    html.page-portal .rot-h{
+      font-weight:800;
+      color:#111;
+      text-align:center;
+      padding:8px 10px;
+      border-bottom:1px solid rgba(0,0,0,.08);
+      font-size:18px;
+    }
+    
+    html.page-portal .rot-body{
+      padding:10px 12px;
+      text-align:center;
+      font-weight:600;
+    }
+
+    /* === Rotation Date Range Styling === */
+    html.page-portal #rot-dates{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eef4ff;
+      color: #1a1f36;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: 8px;
+      padding: 6px 12px;
+      border: 1px solid #d0daee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+    }
+    
+    /* optional: make it look clickable on hover */
+    html.page-portal #rot-dates:hover{
+      background: #e1ecff;
+      border-color: #c2d5ff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+    
+    /* add icon style if your JS inserts one */
+    html.page-portal #rot-dates .ms{
+      font-size: 18px;
+      color: #4a6fd6;
+      line-height: 1;
+      position: relative;
+      top: 1px;
+    }
+    
+    /* palette */
+    html.page-portal .rot-tc1{ background:#f8bf20; }   /* amber */
+    html.page-portal .rot-tc2{ background:#5a84e8; color:#fff; }
+    html.page-portal .rot-tc3{ background:#74b65a; color:#0f2a0f; }
+    html.page-portal .rot-main{ background:#d32f2f; color:#fff; }
+    
+    /* Editor */
+    html.page-portal .rot-edit{
+      margin-top:12px;
+      border:1px dashed #d8e1ff;
+      border-radius:10px;
+      padding:10px 12px;
+      background:#f8fbff;
+    }
+    html.page-portal .rot-edit[open]{ background:#eef5ff; }
+    
+    html.page-portal .rot-form{ display:grid; gap:12px; }
+    html.page-portal .rot-form .row{
+      display:grid; gap:10px;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+    }
+    html.page-portal .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; }
+    html.page-portal .rot-form input{
+      border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff;
+    }
+    html.page-portal .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
+    
+    html.page-portal .rot-form .actions{ display:flex; gap:10px; align-items:center; }
+    html.page-portal .btn-primary{
+      appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
+      padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
+    }
+    html.page-portal .btn-ghost{
+      appearance:none; border:1px solid #e0e7ef; background:#fff; color:#333;
+      padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
+    }
+    html.page-portal .hint{ font-size:12px; color:#6b7280; }
+    
+    @media (max-width: 900px){
+      html.page-portal .rot-form .row{ grid-template-columns: 1fr 1fr; }
+    }
+
+    /* Hide editor by default; show only in admin mode */
+    html.page-portal .rot-edit{ display: none; }
+    html.page-portal body.admin .rot-edit { display: block; }
+    
+    /* Also visually disable inputs when not admin */
+    html.page-portal .room-rot .rot-form input:disabled{
+      background: #f4f6fa;
+      color: #7a869a;
+      cursor: not-allowed;
+    }
+    
+    /* Tiny admin link */
+    html.page-portal #admin-toggle{
+      position: fixed;
+      bottom: 14px;
+      right: 16px;
+      font-size: 12px;
+      padding: 6px 8px;
+      border: 1px solid #e0e7ef;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      color: #475569;
+      cursor: pointer;
+      opacity: .6;
+    }
+    html.page-portal #admin-toggle:hover{ opacity: 1; }
+
+    html.page-portal .card.room-rot{
+      display:block;
+      max-width: var(--page-max);
+      margin: 16px auto 28px;   /* top gap from announcements, bottom gap from grid */
+    }
+    
+    /* Extra safety if it sits directly under the announcements banner */
+    html.page-portal .card.ann-banner + .card.room-rot{
+      margin-top: 18px;
+    }
+
+    /* === Calendar Toggle Buttons === */
+    html.page-portal .calendar-toolbar .btn[data-cal]{
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      margin-left: 6px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    
+    /* --- MAIN (Red) --- */
+    html.page-portal .calendar-toolbar .btn[data-cal="MAIN"]{
+      background-color: #d32f2f; /* strong red */
+    }
+    html.page-portal .calendar-toolbar .btn[data-cal="MAIN"]:hover{
+      background-color: #b71c1c; /* darker on hover */
+    }
+    
+    /* --- 293T (Yellow) --- */
+    html.page-portal .calendar-toolbar .btn[data-cal="293T"]{
+      background-color: #fbc02d; /* warm yellow */
+      color: #333; /* darker text for contrast */
+    }
+    html.page-portal .calendar-toolbar .btn[data-cal="293T"]:hover{
+      background-color: #f9a825; /* deeper yellow on hover */
+    }
+    
+    /* --- Active (pressed) state --- */
+    html.page-portal .calendar-toolbar .btn[data-cal][aria-pressed="true"]{
+      box-shadow: 0 0 10px rgba(0,0,0,0.25);
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 480px){
+      html.page-portal #rot-dates{
+        padding: 4px 8px;
+      }
+    }
+
+    /* ===== Mobile polish (≤ 480px) ===== */
+    @media (max-width: 480px){
+      html.page-portal .wrap{ padding:16px 12px 40px; }
+    
+      /* Stack header; keep the title readable */
+      html.page-portal header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
+      html.page-portal .title{ font-size: 22px; line-height: 1.15; }
+      html.page-portal .subtitle{ font-size: 12px; }
+    
+      /* Search fills the row */
+      html.page-portal .actions{ width: 100%; gap:8px; }
+      html.page-portal .search{ width: 100%; }
+      html.page-portal .search input{ min-width: 0; width: 100%; }
+    
+      /* Cards/headers a bit tighter */
+      html.page-portal .card{ padding:14px; }
+      html.page-portal .card h2{ font-size: 18px; padding:12px 14px; }
+      html.page-portal .badge{ font-size: 11px; padding: 2px 8px; }
+    
+      /* Rotations: 2 columns on phones */
+      html.page-portal .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      html.page-portal .rot-h{ font-size: 13px; padding: 6px 8px; }
+      html.page-portal .rot-body{ padding: 8px 10px; }
+    
+      /* Calendar toolbar buttons smaller */
+      html.page-portal .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
+      html.page-portal .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
+    
+      /* Calendar iframe height cap for phones */
+      html.page-portal .iframe-wrap iframe{ height: 520px; }
+    
+      /* Announcements: single column */
+      html.page-portal .ann-banner .ann-list{ grid-template-columns: 1fr; }
+    
+      /* Admin chip a bit smaller/away from edge */
+      html.page-portal #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px; }
+    }
+    
+    /* Slightly-narrow tablets (≤ 768px) */
+    @media (max-width: 768px){
+      html.page-portal .grid{ grid-template-columns: 1fr; }
+      html.page-portal .iframe-wrap iframe{ height: 600px; }
+    }
+
+    /* ==== Sticky Notes ==== */
+    html.page-portal .notes-dock{
+      position: fixed;
+      top: 120px;
+      width: 260px;
+      max-height: calc(100vh - 160px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+      pointer-events: none;
+    }
+    
+    html.page-portal .note-card{
+      pointer-events: auto;
+      background: #fffbe7;
+      border: 1px solid #e8dfb0;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      border-radius: 12px;
+      padding: 10px 10px 36px 10px;
+      position: relative;
+    }
+    
+    html.page-portal .note-card .note-toolbar{
+      position: absolute;
+      right: 6px; top: 6px;
+      display: flex; gap: 4px;
+      padding: 2px 4px;
+    }
+    
+    html.page-portal .note-btn{
+      appearance: none;
+      border: 1px solid #ddd4a4;
+      background: #fff7c6;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    html.page-portal .note-btn:hover{ background:#fff1a1; }
+    
+    html.page-portal .note-textarea{
+      width: 100%;
+      min-height: 90px;
+      border: none;
+      resize: vertical;
+      background: transparent;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #3d3a2a;
+      outline: none;
+    }
+    
+    /* Header 'Add note' button */
+    html.page-portal .btn-note{
+      appearance:none;
+      border:1px solid #cfd8ea;
+      background:#eaf2ff;
+      color:#0b3d91;
+      font-weight:700;
+      border-radius:10px;
+      padding:8px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    html.page-portal .btn-note:hover{ background:#dce9ff; }
+
+    /* Disable look + tiny shake hint when at max */
+    html.page-portal .btn-note[disabled]{ opacity:.5; cursor:not-allowed; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(2px)} 75%{transform:translateX(-2px)} }
+    html.page-portal .btn-note.shake{ animation: shake .25s ease-in-out; }
+    
+    /* Hide the dock on small screens so it doesn't cover content */
+    @media (max-width: 980px){
+      html.page-portal .notes-dock,html.page-portal #add-note-fab{ display:none; }
+    }
+
+    /* Make space for the toolbar so text never sits behind it */
+    html.page-portal .note-card{
+      /* was: padding: 10px 10px 36px 10px; */
+      padding: 42px 12px 40px 12px;  /* ↑ extra top padding */
+      position: relative;
+    }
+    
+    /* Keep the toolbar above the text and visually tidy */
+    html.page-portal .note-card .note-toolbar{
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      display: flex;
+      gap: 6px;
+      background: rgba(255, 251, 231, 0.85); /* subtle bg so it reads well */
+      border-radius: 8px;
+      padding: 2px;
+    }
+    
+    /* Ensure the textarea fills the available box without overlapping */
+    html.page-portal .note-textarea{
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 90px;
+    }
+
+    /* editor inside a note */
+    html.page-portal .note-editor{
+      width: 100%;
+      min-height: 100px;
+      outline: none;
+      background: transparent;
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: #3d3a2a;
+      padding-top: 24px;          /* keep text clear of toolbar */
+      white-space: pre-wrap;
+    }
+    
+    /* simple checklist look */
+    html.page-portal ul.checklist{ list-style: none; padding-left: 0; margin: 0; }
+    html.page-portal ul.checklist li{ display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+    html.page-portal ul.checklist li input[type="checkbox"]{ transform: translateY(1px); }
+
+    /* ===== Announcements: polished cards + "new" states ===== */
+    html.page-portal .ann-banner h2{
+      display:flex; align-items:center; gap:10px;
+    }
+    html.page-portal .ann-banner h2 .dot{
+      width:10px; height:10px; border-radius:999px; background:#ff1744; box-shadow:0 0 0 0 rgba(255,23,68,.6);
+      margin-left:6px; transform:translateY(1px); display:none;
+    }
+    html.page-portal .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite; }
+    @keyframes annPulse{ 0%{box-shadow:0 0 0 0 rgba(255,23,68,.5)} 70%{box-shadow:0 0 0 10px rgba(255,23,68,0)} 100%{box-shadow:0 0 0 0 rgba(255,23,68,0)} }
+    
+    html.page-portal .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
+    html.page-portal .ann-item{
+      position:relative; display:grid; grid-template-columns:auto 1fr; gap:10px;
+      padding:12px 14px; border-radius:12px; border:1px solid #e9edf7; background:#ffffff; box-shadow:var(--shadow);
+      transform-origin: top left;
+    }
+    html.page-portal .ann-item.new{ animation:annPop .35s ease-out; }
+    @keyframes annPop{ 0%{transform:scale(.96); opacity:.0} 100%{transform:scale(1); opacity:1} }
+    
+    html.page-portal .ann-chip{
+      grid-row:1 / span 2; align-self:start; display:inline-flex; align-items:center; justify-content:center;
+      width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff;
+    }
+    html.page-portal .ann-chip.info{ background:#2979ff; }
+    html.page-portal .ann-chip.warn{ background:#ffa000; }
+    html.page-portal .ann-chip.urgent{ background:#e53935; }
+    
+    html.page-portal .ann-head{ display:flex; gap:8px; align-items:center; font-weight:800; color:#1c2430; }
+    html.page-portal .ann-time{ font-size:12px; color:#6b5d3b; font-weight:700; }
+    html.page-portal .ann-body{ color:#263238; line-height:1.45; }
+    html.page-portal .ann-actions{ display:flex; gap:8px; margin-top:8px; }
+    html.page-portal .ann-actions .btn-min{
+      appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
+      font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
+    }
+    html.page-portal .badge-new{
+      margin-left:auto; font-size:11px; font-weight:900; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
+      padding:2px 8px; border-radius:999px; display:none;
+    }
+    html.page-portal .ann-item.new .badge-new{ display:inline-flex; }
+    
+    html.page-portal .ann-toolbar{
+      display:flex; align-items:center; gap:8px; margin-top:8px;
+    }
+    html.page-portal .ann-toolbar .pill-action{
+      margin-left:auto; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid #d6e3ff; background:#eef4ff;
+      color:#0b3d91; font-weight:800; cursor:pointer;
+    }
+    
+    /* make the toast you already have feel “alerty” for announcements */
+    html.page-portal .notice-fixed.ann-toast{
+      background:#fff; border-color:#90caf9; color:#0d47a1;
+    }
+    html.page-portal .notice-fixed.ann-toast .ms{ color:#2979ff; }
+
+    /* === Fade out Mark Read button === */
+    html.page-portal .ann-item.read .btn-min{
+      opacity: 0;
+      transform: scale(0.9);
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    /* === Make LAB ANNOUNCEMENTS + ROTATIONS more compact === */
+
+    /* Card shells + headers a bit tighter */
+    html.page-portal .card.ann-banner,html.page-portal .card.room-rot{ padding: 10px 12px; }
+    
+    html.page-portal .card.ann-banner h2,html.page-portal .card.room-rot h2{
+      padding: 8px 12px;
+      font-size: 16px;      /* was ~20px */
+    }
+    
+    /* Announcements: smaller items + 3-line clamp */
+    html.page-portal .ann-banner .ann-list{ gap: 8px; }
+    html.page-portal .ann-item{ padding: 8px 10px; }
+    html.page-portal .ann-head{ font-size: 13px; }
+    html.page-portal .ann-time{ font-size: 11px; }
+    
+    /* clamp long bodies to reduce height */
+    html.page-portal .ann-body{
+      position: relative;
+    }
+
+    html.page-portal .ann-body.clamp{
+      display: -webkit-box;
+      -webkit-line-clamp: 6;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* subtle fade when clamped */
+    html.page-portal .ann-body.clamp::after{
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 2.2em;                 /* fade height */
+      background: linear-gradient(to bottom, rgba(255,255,255,0), #fff);
+      pointer-events: none;
+    }
+
+    /* "More/Less" button */
+    html.page-portal .ann-more{
+      appearance: none;
+      border: 1px solid #dfe6ef;
+      background: #f7faff;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0b3d91;
+      cursor: pointer;
+    }
+    
+    /* expanded state removes clamp */
+    html.page-portal .ann-item.expanded .ann-body.clamp{
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+    
+    html.page-portal .ann-item.expanded .ann-body.clamp::after{ display: none; }
+    
+    /* Optional: keep announcements to a single compact row with horizontal scroll
+       (uncomment if you want an even shorter banner)
+       .ann-banner .ann-list {
+         grid-auto-flow: column;
+         grid-auto-columns: minmax(260px, 1fr);
+         overflow-x: auto;
+         overscroll-behavior-inline: contain;
+         padding-bottom: 4px;   // room for scrollbar
+       }
+    */
+    
+    /* Rotations: tighter grid + one-line names */
+    html.page-portal #rot-dates{
+      font-size: 13px;
+      padding: 4px 8px;
+      margin-bottom: 6px;
+    }
+    
+    html.page-portal .rot-grid{ gap: 6px; }
+    html.page-portal .rot-h{ padding: 6px 8px; font-size: 14px; }
+    html.page-portal .rot-body{
+      padding: 6px 8px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    /* Trim the vertical gaps above/below these two sections */
+    html.page-portal .card.ann-banner{ margin: 0 0 12px; }
+    html.page-portal .card.room-rot{ margin: 12px auto 16px; }
+
+
+/* 293T Side-by-Side */
+html.page-293t, html.page-293t body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    html.page-293t .layout{
+      display: flex;
+      flex-direction: row;  /* desktop side-by-side */
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      gap: 0;
+    }
+
+    html.page-293t iframe{
+      flex: 1;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* --- mobile view: stack vertically --- */
+    @media (max-width: 768px) {
+      html.page-293t .layout{
+        flex-direction: column; /* top/bottom */
+      }
+
+      html.page-293t iframe{
+        width: 100vw;   /* fills the screen width */
+        height: 50vh;   /* half of viewport height each */
+        display: block;
+      }
+    }
+
+
+/* TC Assignments */
+html.page-tc-assignments{
+      --bg: #f3f6f9;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --accent: #223e57;
+      --shadow: 0 8px 20px rgba(2,12,27,.08);
+      --tc1:#f3c32b;      /* header color for TC1 */
+      --tc2:#3a66c9;      /* header color for TC2 */
+      --tc3:#2e9b59;      /* header color for TC3 */
+    }
+    html.page-tc-assignments *{box-sizing:border-box}
+    html.page-tc-assignments body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+      line-height:1.35;
+    }
+    html.page-tc-assignments header{
+      padding:32px 16px 8px;
+      text-align:center;
+    }
+    html.page-tc-assignments h1{
+      margin:0 0 8px;
+      font-weight:700;
+      letter-spacing:.2px;
+      color:#2b4456;
+    }
+    html.page-tc-assignments .sub{
+      margin:0 auto;
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    html.page-tc-assignments .wrap{
+      max-width:980px;
+      margin:18px auto 48px;
+      padding:0 16px 32px;
+    }
+    html.page-tc-assignments .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    html.page-tc-assignments .toolbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 18px;
+      border-bottom:1px solid var(--border);
+      background:linear-gradient(#ffffff, #fafbfc);
+    }
+    html.page-tc-assignments .toolbar .left{
+      display:flex; align-items:center; gap:10px;
+    }
+    html.page-tc-assignments .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:.85rem; color:var(--muted);
+    }
+    html.page-tc-assignments .btn{
+      appearance:none; border:1px solid var(--border);
+      background:#fff; padding:8px 12px; border-radius:10px;
+      font-weight:600; cursor:pointer;
+    }
+    html.page-tc-assignments .btn:hover{ box-shadow:0 2px 10px rgba(0,0,0,.06) }
+
+    html.page-tc-assignments .table-wrap{ overflow:auto; }
+    html.page-tc-assignments table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+    }
+    html.page-tc-assignments thead th{
+      position:sticky; top:0; z-index:1;
+      color:white; font-weight:700; font-size:.95rem;
+      padding:12px 14px;
+      text-align:left;
+    }
+    html.page-tc-assignments thead th:first-child{ border-top-left-radius:12px }
+    html.page-tc-assignments thead th:last-child{ border-top-right-radius:12px }
+    /* default header color; will be overridden for TC1/TC2/TC3 via JS */
+    html.page-tc-assignments thead th{ background:#3d556c }
+
+    html.page-tc-assignments tbody td{
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      background:#fff;
+      white-space:nowrap;
+    }
+    html.page-tc-assignments tbody tr:nth-child(even) td{ background:#fbfcfd }
+    html.page-tc-assignments tbody tr:hover td{ background:#f5f9ff }
+
+    html.page-tc-assignments .foot{
+      padding:12px 18px; color:var(--muted); font-size:.85rem;
+      border-top:1px solid var(--border);
+      background:#fafbfc;
+      display:flex; justify-content:space-between; align-items:center;
+      gap:10px;
+    }
+    html.page-tc-assignments .legend{ display:flex; gap:10px; align-items:center; flex-wrap:wrap }
+    html.page-tc-assignments .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; color:#fff; font-weight:600; font-size:.8rem
+    }
+    html.page-tc-assignments .chip.tc1{ background:var(--tc1); color:#1b1b1b }
+    html.page-tc-assignments .chip.tc2{ background:var(--tc2) }
+    html.page-tc-assignments .chip.tc3{ background:var(--tc3) }
+    html.page-tc-assignments .sr-only{ position:absolute; left:-9999px }
+
+
+/* TUI Test */
+html.page-tui-test, html.page-tui-test body { height: 100%; margin: 0; background: #f6f7fb; }
+        html.page-tui-test #calwrap{ max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+        html.page-tui-test #cal{ height: 80vh; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        html.page-tui-test .row{ margin: 12px 0; font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial; }
