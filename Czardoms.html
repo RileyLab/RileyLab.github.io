@@ -1,138 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="page-czardoms">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Riley Lab — Czar-dom List</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --border: #d1d9e6;
-      --row: #f3f6fa;
-      --row-alt: #ffffff;
-      --ink: #20252b;
-      --ink-dim: #66738a;
-      --accent: #1a73e8;
-      --accent-2: #118f6f;
-      --chip: #eaf1fb;
-      --warn-bg: #fff8e1;
-      --warn-border: #f9d57d;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      line-height:1.5;
-    }
-    .wrap{max-width:1100px;margin:48px auto;padding:0 20px;}
-    .card{
-      background: var(--card);
-      border:1px solid var(--border);
-      border-radius:16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.05);
-      overflow:hidden;
-    }
-    header{
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
-      padding:18px 22px;border-bottom:1px solid var(--border);
-      background:#f3f6fa;
-    }
-    .title{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .badge{
-      background:var(--accent);
-      color:#fff;
-      padding:8px 12px;
-      border-radius:8px;
-      font-weight:600;
-      font-size:14px;
-      letter-spacing:.2px;
-    }
-    .sub{color:var(--ink-dim);font-size:13px}
-    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    input[type="search"]{
-      border:1px solid var(--border);
-      padding:9px 12px;
-      border-radius:8px;
-      font-size:14px;
-      min-width:220px;
-    }
-    input[type="search"]:focus{border-color:var(--accent);outline:none}
-    button{
-      cursor:pointer;
-      background:var(--accent);
-      color:#fff;
-      border:none;
-      border-radius:8px;
-      padding:9px 14px;
-      font-weight:600;
-    }
-    button:hover{background:#155fc0}
-    .hint{color:var(--ink-dim);font-size:12px;margin-left:6px}
-
-    table{width:100%;border-collapse:collapse}
-    thead th{
-      text-align:left;
-      padding:12px 14px;
-      background:#f3f6fa;
-      color:#5b667a;
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.3px;
-      border-bottom:1px solid var(--border);
-    }
-    tbody td{padding:14px 14px;border-bottom:1px solid var(--border)}
-    tbody tr:nth-child(even){background:var(--row)}
-    tbody tr:hover{background:#e8f0fe}
-    .col-no{width:60px;color:#6d7891}
-    .task a{color:var(--accent);text-decoration:none}
-
-    /* >>> Updated: make names stand out <<< */
-    .owners{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{
-      border-radius:999px;
-      padding:7px 12px;
-      font-size:14px;
-      font-weight:700;
-      color:#fff;
-      line-height:1;
-      box-shadow:0 1px 2px rgba(0,0,0,.08);
-      user-select:text;
-    }
-    /* Rotation gets its own look */
-    .warn{
-      background:linear-gradient(135deg,#ffe08a,#f8c74a);
-      color:#553d00;
-      border:1px solid var(--warn-border);
-      box-shadow:none;
-    }
-    /* Deterministic color classes for people chips */
-    .c1{background:#1a73e8;}   /* blue   */
-    .c2{background:#34a853;}   /* green  */
-    .c3{background:#f29900;}   /* orange */
-    .c4{background:#e91e63;}   /* pink   */
-    .c5{background:#6f42c1;}   /* purple */
-    .c6{background:#0097a7;}   /* teal   */
-    .c7{background:#ef5350;}   /* red    */
-    .c8{background:#2e7d32;}   /* dark green */
-    /* ------------------------------------- */
-
-    .empty{padding:24px;text-align:center;color:var(--ink-dim)}
-    footer{
-      display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
-      padding:12px 18px;
-      font-size:12px;
-      color:var(--ink-dim);
-      background:#f3f6fa;
-    }
-    .credit a{color:var(--accent-2);text-decoration:none}
-    @media(max-width:700px){.col-notes{display:none}}
-  </style>
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
   <div class="wrap">
@@ -236,7 +110,7 @@
           <td class="col-no">${no||"&nbsp;"}</td>
           <td class="task">${taskCell}</td>
           <td><div class="owners">${ownersToChips(owner)}</div></td>
-          <td class="col-notes" style="color:var(--ink-dim)">${notes||""}</td>
+          <td class="col-notes dim">${notes||""}</td>
         </tr>`;
         shown++;
       }

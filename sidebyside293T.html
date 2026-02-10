@@ -1,45 +1,10 @@
 <!doctype html>
-<html>
+<html class="page-293t">
 <head>
   <meta charset="utf-8">
   <title>293T Request + Calendar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      width: 100%;
-    }
-
-    .layout {
-      display: flex;
-      flex-direction: row;  /* desktop side-by-side */
-      height: 100vh;
-      width: 100vw;
-      overflow: hidden;
-      gap: 0;
-    }
-
-    iframe {
-      flex: 1;
-      border: none;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* --- mobile view: stack vertically --- */
-    @media (max-width: 768px) {
-      .layout {
-        flex-direction: column; /* top/bottom */
-      }
-
-      iframe {
-        width: 100vw;   /* fills the screen width */
-        height: 50vh;   /* half of viewport height each */
-        display: block;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
   <div class="layout">

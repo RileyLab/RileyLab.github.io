@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html class="page-hood-booking">
 <head>
   <meta charset="utf-8" />
   <title>Riley Lab – TC Hood Booking</title>
@@ -14,162 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.js"></script>
-
-  <style>
-    :root{
-      --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
-      --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
-      --TC1b:#60a5fa; --TC1c:#93c5fd; 
-      --TC2b:#22c55e; --TC2c:#86efac;
-      --TC3b:#fbbf24; --TC3c:#fde68a;
-      --shadow:0 10px 30px rgba(0,0,0,.08);
-      --radius:16px;
-    }
-    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
-    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
-    .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    .title{margin-left:auto;font-weight:700;font-size:16px}
-
-    /* BIG Tabs */
-    .tabs{display:flex;gap:12px;margin:14px 0 18px}
-    .tab{
-      flex:0 0 auto; min-width:140px; padding:14px 18px;
-      border-radius:999px; border:2px solid var(--border); background:#fff;
-      font-weight:800; letter-spacing:.2px; text-align:center; box-shadow:var(--shadow);
-      cursor:pointer; user-select:none; transition:transform .05s ease;
-    }
-    .tab:active{transform:translateY(1px)}
-    .tab .dot{width:12px;height:12px;border-radius:999px;display:inline-block;margin-right:8px;vertical-align:middle}
-    .tab[data-room="TC1"] .dot{background:var(--TC1)}
-    .tab[data-room="TC2"] .dot{background:var(--TC2)}
-    .tab[data-room="TC3"] .dot{background:var(--TC3)}
-    .tab.active{border-color:#111827; color:#111827}
-    .tab.active[data-room="TC1"]{box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow)}
-    .tab.active[data-room="TC2"]{box-shadow:0 0 0 4px rgba(22,163,74,.12), var(--shadow)}
-    .tab.active[data-room="TC3"]{box-shadow:0 0 0 4px rgba(245,158,11,.15), var(--shadow)}
-
-    #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-    .legend{margin-top:8px;color:var(--muted)}
-
-    /* Modal polish */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9999}
-    .modal{
-      width:min(720px,94vw); background:#fff; border-radius:18px;
-      box-shadow:0 24px 64px rgba(0,0,0,.25); padding:22px 22px 18px;
-    }
-    .modal h3{margin:0 0 14px 0; font-size:22px; letter-spacing:.2px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    label{font-size:12px;color:#334155;margin-bottom:6px;font-weight:600}
-    input[type="text"], input[type="date"], input[type="time"], select{
-      width:100%;padding:12px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none
-    }
-    input:focus, select:focus{border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,.08)}
-    .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
-    .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
-    .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
-
-    .room-badge{
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      text-align:center;
-      font-weight:700;
-      letter-spacing:.2px;
-      border:1px solid #e5e7eb;
-      background:#f9fafb;
-      color:#111827;
-      box-shadow:0 1px 2px rgba(0,0,0,.04);
-    }
-    
-    /* Optional: contextual colors by room */
-    .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
-    .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
-    .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); color:#0b1220; }
-
-    /* Spinner + Toast (center) */
-    #spinner{
-      position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);
-      background:#fff;border-radius:10px;box-shadow:var(--shadow);display:none;z-index:99999
-    }
-    #toast{
-      position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
-      min-width:280px;max-width:80vw;padding:14px 16px;border-radius:14px;border:1px solid var(--border);
-      display:none;align-items:center;justify-content:center;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.18);
-      font-weight:700;z-index:100000
-    }
-    #toast.ok{border-color:#16a34a}
-    #toast.warn{border-color:#b45309}
-    #toast.err{border-color:#b91c1c}
-    .hidden{display:none !important}
-
-    /* Hide TUI's blue selection/creation guides */
-    .tui-full-calendar-timegrid-guide,
-    .tui-full-calendar-timegrid-guide-creation,
-    .tui-full-calendar-time-guide-creation,
-    .tui-full-calendar-time-guide-resize-handler {
-      display: none !important;
-    }
-
-    /* Make two clean columns with real spacing and safe shrinking */
-    .grid{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-      column-gap:18px;        /* was ~10–12, bump it */
-      row-gap:14px;
-    }
-    
-    /* Consistent field spacing + no overlap from icons */
-    .field{display:flex;flex-direction:column;gap:6px;min-width:0}
-    
-    input[type="text"], input[type="date"], input[type="time"], select{
-      width:100%;
-      box-sizing:border-box;      /* ensure padding/borders don’t grow the box */
-      padding:12px;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      background:#fff;
-      outline:none;
-    }
-    
-    /* When space gets tight, stack to one column so nothing touches */
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr; column-gap:0}
-    }
-
-    /* Make row columns actually shrink within the modal */
-    .row { display:flex; gap:12px; }
-    .row > .field { flex:1 1 0; min-width:0; }   /* <-- critical */
-    
-    /* Keep the badge inside its box and center the text */
-    .room-badge{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      height:44px;                 /* consistent control height */
-      padding:0 12px;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      background:#f9fafb;
-      font-weight:700;
-      letter-spacing:.2px;
-      color:#111827;
-    
-      /* prevent overflow */
-      box-sizing:border-box;
-      max-width:100%;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-    }
-    
-    /* contextual colors (unchanged) */
-    .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
-    .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
-    .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); }
-    
-  </style>
+  <link rel="stylesheet" href="assets/css/site.css">
 </head>
 <body>
 <div class="wrap">
@@ -223,12 +68,12 @@
     </div>
 
     <!-- Room (read-only badge) + Hood (select) -->
-    <div class="row" style="margin-top:12px">
-      <div class="field" style="flex:1">
+    <div class="row spaced">
+      <div class="field">
         <label>Room</label>
         <div id="roomDisplay" class="room-badge">TC1</div>
       </div>
-      <div class="field" style="flex:1">
+      <div class="field">
         <label for="hood">Hood</label>
         <select id="hood">
           <option value="1">Hood 1</option>
@@ -240,7 +85,7 @@
 
     <div class="modal-actions">
       <button class="btn muted" id="cancelBtn">Cancel</button>
-      <button class="btn danger" id="deleteBtn" style="display:none">Delete</button>
+      <button class="btn danger hidden" id="deleteBtn">Delete</button>
       <button class="btn primary" id="saveBtn">Save</button>
     </div>
   </div>
@@ -369,7 +214,7 @@
     syncRoomBadge(room);
   
     hoodEl.value  = preset?.hood || '1';
-    deleteBtn.style.display = preset?.mode === 'edit' ? 'inline-block' : 'none';
+    deleteBtn.classList.toggle('hidden', preset?.mode !== 'edit');
     setTimeout(()=>nameEl.focus(), 0);
   }
   function closeModal(){ modalBg.style.display = 'none'; }
