@@ -306,7 +306,7 @@ html.page-portal{
     }
     html.page-portal body::before{
       content:""; position:fixed; inset:0;
-      background:url("https://raw.githubusercontent.com/RileyLab/RileyLab.github.io/master/fav-background.png") center/cover no-repeat fixed;
+      background:url("/fav-background.png") center/cover no-repeat fixed;
       z-index:-2; filter:saturate(.9) contrast(1.02);
     }
     html.page-portal body::after{

@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="page-293t">
+<html lang="en" class="page-293t">
 <head>
   <meta charset="utf-8">
   <title>293T Request + Calendar</title>
@@ -9,10 +9,12 @@
 <body>
   <div class="layout">
     <iframe
+      title="293T request form"
       src="https://docs.google.com/forms/d/e/1FAIpQLScJ4uCFBKiXPZLq0iq4RGXGauqusAgZjv07Z-WmLajisXqjlg/viewform?embedded=true">
     </iframe>
 
     <iframe id="calendar"
+      title="293T calendar"
       src="https://calendar.google.com/calendar/embed?src=0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d%40group.calendar.google.com&ctz=America%2FNew_York">
     </iframe>
   </div>
@@ -43,8 +45,9 @@
     }
 
     async function startPolling() {
+      if (timer) return;
       lastSeen = await fetchLast();
-      timer = setInterval(checkForUpdate, 1000);
+      timer = setInterval(checkForUpdate, 5000);
     }
 
     function stopPolling() {
