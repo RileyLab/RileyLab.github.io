@@ -374,6 +374,160 @@ html.page-portal{
     }
     html.page-portal .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:300px }
     html.page-portal .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
+
+    /* Header quick links dropdown */
+    html.page-portal .header-quick{
+      position:relative;
+      border:1px solid #d6e3ff;
+      border-radius:999px;
+      background:#f4f8ff;
+      padding:0;
+    }
+    html.page-portal .header-quick > summary{
+      list-style:none;
+      cursor:pointer;
+      font-weight:700;
+      color:#0b3d91;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 30px 8px 12px;
+      position:relative;
+    }
+    html.page-portal .header-quick > summary::marker{
+      content:"";
+    }
+    html.page-portal .header-quick > summary::-webkit-details-marker{
+      display:none;
+    }
+    html.page-portal .header-quick > summary::before{
+      display:none;
+      content:none;
+    }
+    html.page-portal .header-quick > summary::after{
+      content:"expand_more";
+      font-family:"Material Symbols Rounded";
+      font-size:18px;
+      line-height:1;
+      position:absolute;
+      right:8px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:.85;
+      transition:transform .16s ease, opacity .16s ease;
+    }
+    html.page-portal .header-quick[open]{
+      border-color:#bcd0ff;
+      background:#eaf2ff;
+    }
+    html.page-portal .header-quick[open] > summary::after{
+      transform:translateY(-50%) rotate(180deg);
+      opacity:1;
+    }
+    html.page-portal .header-quick-panel{
+      position:absolute;
+      top:calc(100% + 8px);
+      left:0;
+      width:min(520px, 94vw);
+      display:grid;
+      gap:8px;
+      padding:10px;
+      border:1px solid #d6e3ff;
+      border-radius:12px;
+      background:#fff;
+      box-shadow:0 10px 24px rgba(0,0,0,.12);
+      z-index:30;
+    }
+    html.page-portal .quick-link{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+      font-weight:700;
+      color:#0b3d91;
+      border:1px solid #d6e3ff;
+      background:#f4f8ff;
+      border-radius:10px;
+      padding:10px 12px;
+      min-height:44px;
+    }
+    html.page-portal .quick-link:hover{
+      background:#eaf2ff;
+      border-color:#bcd0ff;
+    }
+    html.page-portal .quick-dropdown{
+      border:1px solid #d6e3ff;
+      background:#f4f8ff;
+      border-radius:10px;
+      padding:10px 12px;
+    }
+    html.page-portal .quick-dropdown[open]{
+      background:#eaf2ff;
+      border-color:#bcd0ff;
+    }
+    html.page-portal .quick-dropdown summary{
+      padding-left:0;
+      padding-right:24px;
+      font-weight:700;
+      color:#0b3d91;
+      position:relative;
+    }
+    html.page-portal .quick-dropdown summary::before{
+      display:none;
+    }
+    html.page-portal .quick-dropdown summary::after{
+      content:"expand_more";
+      font-family:"Material Symbols Rounded";
+      font-size:18px;
+      line-height:1;
+      position:absolute;
+      right:0;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:.85;
+      transition:transform .16s ease, opacity .16s ease;
+    }
+    html.page-portal .quick-dropdown[open] summary::after{
+      transform:translateY(-50%) rotate(180deg);
+      opacity:1;
+    }
+    html.page-portal .quick-dropdown-list{
+      margin-top:8px;
+    }
+    html.page-portal .quick-dropdown-list li{
+      margin:4px 0;
+    }
+    html.page-portal .quick-dropdown-list .link{
+      padding:4px 0;
+      border:none;
+      background:transparent;
+    }
+    html.page-portal .quick-dropdown-list .quick-ext{
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    html.page-portal .quick-dropdown-list .quick-ext::after{
+      content:"north_east";
+      font-family:"Material Symbols Rounded";
+      font-size:16px;
+      line-height:1;
+      opacity:.8;
+      transition:transform .16s ease, opacity .16s ease;
+    }
+    html.page-portal .quick-dropdown-list .link:hover{
+      background:transparent;
+      text-decoration:underline;
+    }
+    html.page-portal .quick-dropdown-list .quick-ext:hover::after{
+      transform:translate(1px, -1px);
+      opacity:1;
+    }
+    @media (max-width: 700px){
+      html.page-portal .header-quick-panel{
+        width:min(420px, 94vw);
+      }
+    }
   
     /* === Three-column page layout: left sidebar | main grid | right sidebar === */
     html.page-portal .layout{
