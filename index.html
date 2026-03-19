@@ -916,8 +916,9 @@ function computeRotationFromPlan(plan) {
   };
 
   const pickAnchored = (slotName, arr) => {
-    if (!Array.isArray(arr) || arr.length === 0) return '—';
     const anchorName = anchor?.[slotName];
+    if (anchorDate && anchorCycleDelta === 0 && anchorName) return anchorName;
+    if (!Array.isArray(arr) || arr.length === 0) return '—';
     if (!anchorDate || anchorCycleDelta === null || !anchorName) return pick(arr);
 
     const anchorIndex = arr.indexOf(anchorName);
