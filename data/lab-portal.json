@@ -6,12 +6,20 @@
   "rotationPlan": {
     "start": "2025-10-20",
     "periodDays": 14,
+    "slotOrder": {
+      "tc1": ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Shannon"],
+      "tc2": ["Kaitlin", "Amelia", "Caitlin", "Max", "Jiayi", "Justin G."],
+      "tc3": ["Mosha", "Tanishk", "Justin S.", "Gabby", "Edmund"],
+      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Jiayi", "Divanshu", "Max", "Edmund", "Shannon"]
+    },
     "anchor": {
       "date": "2026-03-09",
-      "tc1": "Divanshu",
-      "tc2": "Jiayi",
-      "tc3": "Mosha",
-      "main": "Kaitlin"
+      "current": {
+        "tc1": "Divanshu",
+        "tc2": "Jiayi",
+        "tc3": "Mosha",
+        "main": "Kaitlin"
+      }
     },
     "slots": {
       "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Shannon"],

@@ -909,6 +909,7 @@ function computeRotationFromPlan(plan) {
   const anchor = plan?.anchor || null;
   const anchorDate = parseYMDLocal(anchor?.date);
   const anchorCycleDelta = anchorDate ? Math.floor((today - anchorDate) / MS / period) : null;
+  const slotOrder = plan?.slotOrder || plan?.rotationOrder || null;
 
   const pick = (arr) => {
     if (!Array.isArray(arr) || arr.length === 0) return '—';
@@ -916,10 +917,36 @@ function computeRotationFromPlan(plan) {
   };
 
   const pickAnchored = (slotName, arr) => {
-    const anchorName = anchor?.[slotName];
+    const anchorName = anchor?.current?.[slotName] || anchor?.[slotName];
     if (anchorDate && anchorCycleDelta === 0 && anchorName) return anchorName;
     if (!Array.isArray(arr) || arr.length === 0) return '—';
     if (!anchorDate || anchorCycleDelta === null || !anchorName) return pick(arr);
+
+    const anchorOrder =
+      Array.isArray(slotOrder?.[slotName]) ? slotOrder[slotName]
+      : Array.isArray(anchor?.slots?.[slotName]) ? anchor.slots[slotName]
+      : null;
+    if (anchorOrder && anchorOrder.length > 0) {
+      const active = new Set(arr);
+      if (!Array.from(active).some(name => anchorOrder.includes(name))) return '—';
+
+      let idx = anchorOrder.indexOf(anchorName);
+      if (idx === -1) idx = 0;
+
+      const step = anchorCycleDelta > 0 ? 1 : -1;
+      let remaining = Math.abs(anchorCycleDelta);
+
+      while (remaining > 0) {
+        let hops = 0;
+        do {
+          idx = positiveMod(idx + step, anchorOrder.length);
+          hops++;
+        } while (!active.has(anchorOrder[idx]) && hops <= anchorOrder.length);
+        remaining--;
+      }
+
+      return active.has(anchorOrder[idx]) ? anchorOrder[idx] : '—';
+    }
 
     const anchorIndex = arr.indexOf(anchorName);
     if (anchorIndex === -1) return pick(arr);
