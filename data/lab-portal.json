@@ -21,7 +21,7 @@
         "main": "Kaitlin"
       }
     },
-    "slots": {
+    "activeRoster": {
       "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Shannon"],
       "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Max", "Justin G."],
       "tc3":  ["Mosha", "Tanishk", "Justin S.", "Gabby", "Edmund"],
