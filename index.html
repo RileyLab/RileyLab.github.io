@@ -905,19 +905,35 @@ function computeRotationFromPlan(plan) {
   const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
   const periodEnd   = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
 
+  const positiveMod = (n, m) => ((n % m) + m) % m;
+  const anchor = plan?.anchor || null;
+  const anchorDate = parseYMDLocal(anchor?.date);
+  const anchorCycleDelta = anchorDate ? Math.floor((today - anchorDate) / MS / period) : null;
+
   const pick = (arr) => {
     if (!Array.isArray(arr) || arr.length === 0) return '—';
     return arr[cycleIndex % arr.length] ?? '—';
+  };
+
+  const pickAnchored = (slotName, arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return '—';
+    const anchorName = anchor?.[slotName];
+    if (!anchorDate || anchorCycleDelta === null || !anchorName) return pick(arr);
+
+    const anchorIndex = arr.indexOf(anchorName);
+    if (anchorIndex === -1) return pick(arr);
+
+    return arr[positiveMod(anchorIndex + anchorCycleDelta, arr.length)] ?? '—';
   };
 
   const slots = plan.slots || {};
   return {
     start: toInputDateString(periodStart),
     end:   toInputDateString(periodEnd),
-    tc1:   pick(slots.tc1),
-    tc2:   pick(slots.tc2),
-    tc3:   pick(slots.tc3),
-    main:  pick(slots.main),
+    tc1:   pickAnchored('tc1', slots.tc1),
+    tc2:   pickAnchored('tc2', slots.tc2),
+    tc3:   pickAnchored('tc3', slots.tc3),
+    main:  pickAnchored('main', slots.main),
   };
 }
   
