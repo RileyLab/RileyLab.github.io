@@ -1368,6 +1368,7 @@ html.page-portal{
     html.page-portal .card.ann-banner,html.page-portal .card.room-rot{ padding: 10px 12px; }
     
     html.page-portal .card.ann-banner h2,html.page-portal .card.room-rot h2{
+      margin: -10px -12px 12px -12px;
       padding: 8px 12px;
       font-size: 16px;      /* was ~20px */
     }
