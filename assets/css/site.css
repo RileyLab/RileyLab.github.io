@@ -1202,7 +1202,54 @@ html.page-portal{
       html.page-portal .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
       html.page-portal .rot-h{ font-size: 13px; padding: 6px 8px; }
       html.page-portal .rot-body{ padding: 8px 10px; }
-      html.page-portal .rot-helper{ font-size:10px; margin-left:6px; }
+      html.page-portal .room-rot #rot-title{
+        flex-wrap:wrap;
+        align-items:center;
+        gap:6px 8px;
+      }
+      html.page-portal .rot-helper{
+        order:3;
+        flex:1 0 100%;
+        margin-left:0;
+        font-size:9px;
+        line-height:1.2;
+      }
+      html.page-portal #rot-dates{
+        margin-left:auto;
+        margin-bottom:0;
+        font-size:11px;
+        padding:4px 8px;
+        gap:5px;
+      }
+      html.page-portal #rot-dates .ms{
+        font-size:13px;
+      }
+      html.page-portal .rot-current-row{
+        gap:4px;
+      }
+      html.page-portal .rot-current-name{
+        font-size:14px;
+      }
+      html.page-portal .rot-inline-arrow{
+        font-size:16px;
+      }
+      html.page-portal .rot-inline-forecast{
+        margin-top:8px;
+        padding-top:8px;
+      }
+      html.page-portal .rot-inline-forecast-head{
+        font-size:11px;
+        margin-bottom:6px;
+      }
+      html.page-portal .rot-inline-forecast-item{
+        padding:7px 8px;
+      }
+      html.page-portal .rot-inline-forecast-name{
+        font-size:12px;
+      }
+      html.page-portal .rot-inline-forecast-dates{
+        font-size:10px;
+      }
 
       /* Calendar toolbar buttons smaller */
       html.page-portal .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
@@ -1222,6 +1269,49 @@ html.page-portal{
     @media (max-width: 768px){
       html.page-portal .grid{ grid-template-columns: 1fr; }
       html.page-portal .iframe-wrap iframe{ height: 600px; }
+    }
+
+    @media (max-width: 480px){
+      html.page-portal .room-rot{
+        padding:10px;
+      }
+      html.page-portal .room-rot #rot-title{
+        display:grid;
+        grid-template-columns:auto 1fr;
+        align-items:center;
+        gap:6px 8px;
+        margin:-10px -10px 10px -10px;
+        padding:8px 10px;
+      }
+      html.page-portal .room-rot #rot-title .ms:first-child{
+        grid-row:1;
+        grid-column:1;
+      }
+      html.page-portal .room-rot #rot-title #rot-dates{
+        grid-column:1 / -1;
+        justify-self:stretch;
+        justify-content:center;
+        margin:0;
+      }
+      html.page-portal .rot-helper{
+        display:none;
+      }
+      html.page-portal .rot-grid{
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+      html.page-portal .rot-h{
+        font-size:14px;
+      }
+      html.page-portal .rot-body{
+        padding:10px 12px;
+      }
+      html.page-portal .rot-inline-forecast{
+        text-align:center;
+      }
+      html.page-portal .rot-inline-forecast-item{
+        text-align:left;
+      }
     }
 
     /* ==== Sticky Notes ==== */
