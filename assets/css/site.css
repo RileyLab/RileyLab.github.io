@@ -949,11 +949,6 @@ html.page-portal{
     html.page-portal .rot-col:disabled{
       cursor:default;
     }
-    html.page-portal .rot-col.is-active{
-      border-color:#7aa2ff;
-      box-shadow:0 0 0 3px rgba(59,130,246,.14), 0 10px 24px rgba(15,23,42,.08);
-    }
-    
     html.page-portal .rot-h{
       font-weight:800;
       color:#111;
