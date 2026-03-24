@@ -91,12 +91,12 @@
     Room Maintenance Rotations
     <span class="badge" id="rot-dates"></span>
   </h2>
+  <p class="rot-helper">Click a room to view future rotations.</p>
 
   <!-- Display grid -->
   <div class="rot-grid" id="rot-grid">
     <!-- Filled by JS -->
   </div>
-
   <!-- Inline editor (collapsible) -->
   <details class="rot-edit" id="rot-edit">
     <summary><span class="ms" aria-hidden="true">edit</span> Update assignments</summary>
@@ -128,7 +128,7 @@
     </form>
   </details>
 </section>
-  
+
 <div class="layout">
   <!-- LEFT: sidebar calendar -->
   <aside class="sidebar" aria-label="Lab calendar">
@@ -140,12 +140,12 @@
         <button class="btn" data-cal="293T" aria-pressed="true">293T</button>
 
         <span class="toolbar-sep">|</span>
-        
+
         <button class="btn" data-mode="AGENDA" aria-pressed="false">Agenda</button>
         <button class="btn" data-mode="WEEK"   aria-pressed="false">Week</button>
         <button class="btn" data-mode="MONTH"  aria-pressed="true">Month</button>
       </div>
-      
+
       <div class="iframe-wrap mt-10">
         <iframe
           title="Riley Lab Google Calendar"
@@ -402,7 +402,7 @@ function updateHtml(id, html){
   n.text = undefined;
   save(notes);
 }
-  
+
 /* === CALENDAR VIEW TOGGLE (Agenda / Week / Month) === */
 (() => {
   const iframe = document.querySelector('.sidebar .iframe-wrap iframe');
@@ -556,6 +556,9 @@ async function fetchPortalData() {
 
   return { announcements, rotations, rotationPlan };
 }
+
+let currentRotationPlan = null;
+let selectedRotationSlot = null;
 
 /* Renderers */
 /* === Per-announcement read tracking === */
@@ -719,7 +722,7 @@ function renderAnnouncements(items){
     const db = parseDateSafe(b.when) || new Date(0);
     return db - da;
   });
-  
+
   // hook overlay
   (function wireAnnOverlay(){
     const btn = document.getElementById('ann-view-all');
@@ -727,7 +730,7 @@ function renderAnnouncements(items){
     const body= document.getElementById('ann-overlay-body');
     const close = document.getElementById('ann-close');
     if (!btn || !ov || !body || !close) return;
-  
+
     btn.addEventListener('click', () => {
       const list = document.getElementById('ann-banner-list');
       if (!list) return;
@@ -746,7 +749,7 @@ function renderAnnouncements(items){
       body.appendChild(clone);
       ov.hidden = false;
     });
-  
+
     close.addEventListener('click', ()=> ov.hidden = true);
     ov.addEventListener('click', (e)=>{ if (e.target === ov) ov.hidden = true; });
   })();
@@ -755,24 +758,24 @@ function renderAnnouncements(items){
 
   sorted.forEach((a) => {
     const { id: suppliedId, text, html, when, level, link } = a;
-  
+
     const d  = parseDateSafe(when) || new Date(0);
     const ts = d.getTime();
     if (ts > newestTs) newestTs = ts;
-  
+
     const annId = (suppliedId && String(suppliedId).trim())
       ? String(suppliedId).trim()
       : hashId(text || '', when || '');
-  
+
     const isRead = readSet.has(annId);
     const isNew  = !isRead && ts > lastSeen;
     if (isNew) newCount++;
-  
+
     const li = document.createElement('li');
     const lvl = levelToClass(level);
     li.className = `ann-item ${lvl}${isNew ? ' new' : ''}`;
     li.dataset.id = annId;
-  
+
     // Header
     const head = document.createElement('div');
     head.className = 'ann-head';
@@ -783,7 +786,7 @@ function renderAnnouncements(items){
     badgeNew.className = 'badge-new';
     badgeNew.textContent = 'NEW';
     head.append(time, badgeNew);
-  
+
     // Body
     const body = document.createElement('div');
     body.className = 'ann-body';
@@ -795,7 +798,7 @@ function renderAnnouncements(items){
       safe.innerHTML = autoLink(String(text || '').replace(/[<>]/g, c => ({'<':'&lt;','>':'&gt;'}[c])));
     }
     body.appendChild(safe);
-  
+
     // Actions
     const actions = document.createElement('div');
     actions.className = 'ann-actions';
@@ -816,7 +819,7 @@ function renderAnnouncements(items){
       actions.appendChild(a);
       }
     }
-  
+
     const mark = document.createElement('button');
     mark.type = 'button';
     mark.className = 'btn-min';
@@ -829,9 +832,9 @@ function renderAnnouncements(items){
       updateAnnDotVisibility();
     });
     actions.appendChild(mark);
-  
+
     if (isRead) { mark.classList.add('marked'); li.classList.add('read'); }
-  
+
     li.append(head, body, actions);
     frag.appendChild(li);
   });
@@ -866,23 +869,59 @@ function renderAnnouncements(items){
   }
 }
 
-function renderRotations(obj){
+function renderRotations(obj, plan){
   const elDates = document.getElementById('rot-dates');
   const elGrid  = document.getElementById('rot-grid');
   if(!elDates || !elGrid) return;
 
-  const badgeDate = (s) => {
-    const d = new Date(s);
-    return isNaN(d) ? '' : d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});
-  };
   const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  const renderInlineForecast = (slotName) => {
+    const nextRotations = plan ? computeUpcomingRotations(plan, slotName, 5) : [];
+    if (!nextRotations.length) return '';
+
+    return `
+      <div class="rot-inline-forecast">
+<!--        <div class="rot-inline-forecast-head">-->
+<!--          Upcoming rotations-->
+<!--        </div>-->
+        <div class="rot-inline-forecast-list">
+          ${nextRotations.map((item) => `
+            <div class="rot-inline-forecast-item">
+              <div class="rot-inline-forecast-name">${esc(item.name || '—')}</div>
+              <div class="rot-inline-forecast-dates">${badgeDateYMD(item.start)} – ${badgeDateYMD(item.end)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  };
+  const roomCards = [
+    { key: 'tc1', label: 'TC1', cls: 'rot-tc1', value: obj.tc1 },
+    { key: 'tc2', label: 'TC2', cls: 'rot-tc2', value: obj.tc2 },
+    { key: 'tc3', label: 'TC3', cls: 'rot-tc3', value: obj.tc3 },
+    { key: 'main', label: 'Main Lab', cls: 'rot-main', value: obj.main }
+  ];
 
   elDates.innerHTML = `<span class="ms" aria-hidden="true">calendar_month</span> ${badgeDateYMD(obj.start)} – ${badgeDateYMD(obj.end)}`;
   elGrid.innerHTML = `
-    <div class="rot-col"><div class="rot-h rot-tc1">TC1</div><div class="rot-body">${esc(obj.tc1||'—')}</div></div>
-    <div class="rot-col"><div class="rot-h rot-tc2">TC2</div><div class="rot-body">${esc(obj.tc2||'—')}</div></div>
-    <div class="rot-col"><div class="rot-h rot-tc3">TC3</div><div class="rot-body">${esc(obj.tc3||'—')}</div></div>
-    <div class="rot-col"><div class="rot-h rot-main">Main Lab</div><div class="rot-body">${esc(obj.main||'—')}</div></div>
+    ${roomCards.map((card) => `
+      <button
+        type="button"
+        class="rot-col${selectedRotationSlot === card.key ? ' is-active' : ''}"
+        data-rot-slot="${card.key}"
+        ${plan ? '' : 'disabled'}
+        aria-expanded="${selectedRotationSlot === card.key ? 'true' : 'false'}"
+      >
+        <div class="rot-h ${card.cls}">${card.label}</div>
+        <div class="rot-body">
+          <div class="rot-current-row">
+            <div class="rot-current-name">${esc(card.value || '—')}</div>
+            <span class="ms rot-inline-arrow" aria-hidden="true">expand_more</span>
+          </div>
+          ${selectedRotationSlot === card.key ? renderInlineForecast(card.key) : ''}
+        </div>
+      </button>
+    `).join('')}
   `;
 }
 
@@ -890,8 +929,7 @@ function ymd(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0
 function addDays(d,n){ return new Date(d.getFullYear(), d.getMonth(), d.getDate()+n); }
 function diffDays(a,b){ return Math.round((a - b) / 86400000); }
 
-// Function rotates the plan every periodDays; indefinitely loops through lists
-function computeRotationFromPlan(plan) {
+function computeRotationPeriod(plan, cycleOffset = 0) {
   const start = parseYMDLocal(plan?.start);
   const period = Number(plan?.periodDays) || 14;
   if (!start || period <= 0) return null;
@@ -900,7 +938,8 @@ function computeRotationFromPlan(plan) {
   const MS = 24 * 60 * 60 * 1000;
 
   const daysSinceStart = Math.floor((today - start) / MS);
-  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period));
+  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period)) + cycleOffset;
+  if (cycleIndex < 0) return null;
 
   const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
   const periodEnd   = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
@@ -908,7 +947,7 @@ function computeRotationFromPlan(plan) {
   const positiveMod = (n, m) => ((n % m) + m) % m;
   const anchor = plan?.anchor || null;
   const anchorDate = parseYMDLocal(anchor?.date);
-  const anchorCycleDelta = anchorDate ? Math.floor((today - anchorDate) / MS / period) : null;
+  const anchorCycleDelta = anchorDate ? Math.floor((periodStart - anchorDate) / MS / period) : null;
   const slotOrder = plan?.slotOrder || plan?.rotationOrder || null;
 
   const pick = (arr) => {
@@ -956,6 +995,7 @@ function computeRotationFromPlan(plan) {
 
   const activeRoster = plan.activeRoster || plan.slots || {};
   return {
+    cycleIndex,
     start: toInputDateString(periodStart),
     end:   toInputDateString(periodEnd),
     tc1:   pickAnchored('tc1', activeRoster.tc1),
@@ -964,7 +1004,39 @@ function computeRotationFromPlan(plan) {
     main:  pickAnchored('main', activeRoster.main),
   };
 }
-  
+
+function computeRotationFromPlan(plan) {
+  return computeRotationPeriod(plan, 0);
+}
+
+function computeUpcomingRotations(plan, slotName, count = 5) {
+  const out = [];
+  for (let i = 1; i <= count; i++) {
+    const period = computeRotationPeriod(plan, i);
+    if (!period) break;
+    out.push({
+      start: period.start,
+      end: period.end,
+      name: period[slotName] || '—'
+    });
+  }
+  return out;
+}
+
+document.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-rot-slot]');
+  if (!btn) return;
+
+  const slotName = btn.getAttribute('data-rot-slot');
+  if (!currentRotationPlan || !slotName) return;
+
+  selectedRotationSlot = selectedRotationSlot === slotName ? null : slotName;
+
+  let rot = computeRotationFromPlan(currentRotationPlan);
+  if (!rot) rot = {};
+  renderRotations(rot, currentRotationPlan);
+});
+
 /* Boot + refresh on tab focus */
 (async function initPortal(){
   const data = await fetchPortalData();
@@ -972,13 +1044,15 @@ function computeRotationFromPlan(plan) {
   applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
-  
+
   let rot = data.rotations || {};
+  currentRotationPlan = data.rotationPlan || null;
+  selectedRotationSlot = null;
   if (data.rotationPlan) {
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
   }
-  renderRotations(rot);
+  renderRotations(rot, currentRotationPlan);
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 })();
 document.addEventListener('visibilitychange', async () => {
@@ -988,13 +1062,15 @@ document.addEventListener('visibilitychange', async () => {
   applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
-  
+
   let rot = data.rotations || {};
+  currentRotationPlan = data.rotationPlan || null;
+  selectedRotationSlot = null;
   if (data.rotationPlan) {
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
   }
-  renderRotations(rot);
+  renderRotations(rot, currentRotationPlan);
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
 
@@ -1022,7 +1098,7 @@ window.addEventListener('resize', positionNotesDock);
 
 // /* ==== Sticky Notes (localStorage) ==== */
 // const MAX_NOTES = 6;
-  
+
 // (function stickyNotes(){
 //   const STORAGE_KEY = 'rileyNotes_v1';
 //   const MAX_NOTES = 6; // <— hard cap
@@ -1049,7 +1125,7 @@ window.addEventListener('resize', positionNotesDock);
 //     // pinned first, then newest first
 //     return (b.pinned - a.pinned) || (b.createdAt - a.createdAt);
 //   }
-  
+
 //   function render(){
 //     const notes = load().slice().sort(sortNotes);
 //     dock.innerHTML = '';
@@ -1061,32 +1137,32 @@ window.addEventListener('resize', positionNotesDock);
 //     const el = document.createElement('div');
 //     el.className = 'note-card';
 //     el.dataset.id = note.id;
-  
+
 //     const toolbar = document.createElement('div');
 //     toolbar.className = 'note-toolbar';
-  
+
 //     // editor (rich text)
 //     const editor = document.createElement('div');
 //     editor.className = 'note-editor';
 //     editor.contentEditable = 'true';
 //     editor.innerHTML = note.html ? note.html : escapeHtml(note.text || '');
 //     editor.addEventListener('input', debounce(() => updateHtml(note.id, editor.innerHTML), 200));
-  
+
 //     // formatting buttons
 //     const bBold = makeBtn('B', 'Bold', () => cmd('bold'));
 //     const bItalic = makeBtn('I', 'Italic', () => cmd('italic'));
 //     const bUnderline = makeBtn('U', 'Underline', () => cmd('underline'));
 //     const bBullet = makeBtn('•', 'Bulleted list', () => cmd('insertUnorderedList'));
 //     const bChecklist = makeBtn('☑', 'Insert checklist item', () => insertChecklistItem(editor));
-  
+
 //     // pin / delete
 //     const bPin = makeBtn(note.pinned ? 'Unpin' : 'Pin', 'Pin note', () => togglePin(note.id));
 //     const bDel = makeBtn('Delete', 'Delete note', () => deleteNote(note.id));
-  
+
 //     toolbar.append(bBold, bItalic, bUnderline, bBullet, bChecklist, bPin, bDel);
 //     el.append(toolbar, editor);
 //     return el;
-  
+
 //     function makeBtn(label, title, fn){
 //       const btn = document.createElement('button');
 //       btn.className = 'note-btn';
@@ -1102,13 +1178,13 @@ window.addEventListener('resize', positionNotesDock);
 //       });
 //       return btn;
 //     }
-  
+
 //     function cmd(name){
 //       // execCommand is deprecated but still works great for simple styling in all major browsers
 //       document.execCommand(name, false, null);
 //     }
 //   }
-  
+
 //   function makeFmtBtn(label, title, fn){
 //     const b = document.createElement('button');
 //     b.className = 'note-btn';
@@ -1172,7 +1248,7 @@ window.addEventListener('resize', positionNotesDock);
 //     const sel = window.getSelection();
 //     if (!sel || sel.rangeCount === 0) { editor.focus(); return; }
 //     const range = sel.getRangeAt(0);
-  
+
 //     // find nearest UL.checklist
 //     let ul = editor.closest('ul.checklist') || findAncestor(range.commonAncestorContainer, n => n.tagName === 'UL' && n.classList.contains('checklist'));
 //     if (!ul) {
@@ -1181,14 +1257,14 @@ window.addEventListener('resize', positionNotesDock);
 //       range.surroundContents(document.createTextNode(''));
 //       range.insertNode(ul);
 //     }
-  
+
 //     const li = document.createElement('li');
 //     const box = document.createElement('input');
 //     box.type = 'checkbox';
 //     li.appendChild(box);
 //     li.appendChild(document.createTextNode(' '));
 //     ul.appendChild(li);
-  
+
 //     // place caret at end of new li
 //     const r = document.createRange();
 //     r.selectNodeContents(li);
@@ -1196,7 +1272,7 @@ window.addEventListener('resize', positionNotesDock);
 //     sel.removeAllRanges();
 //     sel.addRange(r);
 //   }
-  
+
 //   function findAncestor(node, pred){
 //     while (node && node.nodeType === 1 || node && node.parentNode){
 //       if (node.nodeType === 1 && pred(node)) return node;
@@ -1216,7 +1292,7 @@ function syncCalendarHeight(){
 
   // On small screens, let the fixed iframe height take over
   if (window.innerWidth <= 768) return;
-  
+
   const calCard   = document.getElementById('live-cal-card');
   const topCard   = document.getElementById('card-calendars-hood');
   const bottomCard= document.getElementById('card-upenn-cores');
@@ -1248,17 +1324,12 @@ window.addEventListener('resize', () => {
 document.addEventListener('toggle', (e) => {
   if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
 }, true);
-  
+
 </script>
 
 
 </body>
 </html>
-
-
-
-
-
 
 
 

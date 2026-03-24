@@ -945,20 +945,47 @@ html.page-portal{
 
     /* ===== Room Maintenance Rotations ===== */
     html.page-portal .room-rot #rot-title{ background:#e6efff; }   /* light blue header to match your theme */
+    html.page-portal .rot-helper{
+      margin:4px 2px 10px;
+      font-size:13px;
+      font-weight:600;
+      color:#5a6b86;
+    }
     
     html.page-portal .rot-grid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+      align-items:start;
     }
     
     /* Colored headers like your screenshot */
     html.page-portal .rot-col{
+      appearance:none;
+      width:100%;
+      align-self:start;
+      padding:0;
+      text-align:inherit;
+      font:inherit;
+      color:inherit;
+      cursor:pointer;
       border:1px solid #e2e6ee;
       border-radius:10px;
       overflow:hidden;
       background:#fff;
       box-shadow: var(--shadow);
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    html.page-portal .rot-col:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 10px 24px rgba(15,23,42,.08);
+    }
+    html.page-portal .rot-col:disabled{
+      cursor:default;
+    }
+    html.page-portal .rot-col.is-active{
+      border-color:#7aa2ff;
+      box-shadow:0 0 0 3px rgba(59,130,246,.14), 0 10px 24px rgba(15,23,42,.08);
     }
     
     html.page-portal .rot-h{
@@ -974,6 +1001,67 @@ html.page-portal{
       padding:10px 12px;
       text-align:center;
       font-weight:600;
+    }
+    html.page-portal .rot-current-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+    html.page-portal .rot-current-name{
+      font-weight:700;
+    }
+    html.page-portal .rot-inline-forecast{
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid #d9e4fb;
+      text-align:left;
+    }
+    html.page-portal .rot-inline-forecast-head{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      justify-content:center;
+      font-size:12px;
+      font-weight:800;
+      color:#39527d;
+      margin-bottom:8px;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+    html.page-portal .rot-inline-arrow{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      transition:transform .18s ease;
+      transform:rotate(-90deg);
+      color:#55657f;
+    }
+    html.page-portal .rot-col.is-active .rot-inline-arrow{
+      transform:rotate(0deg);
+    }
+    html.page-portal .rot-inline-forecast-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    html.page-portal .rot-inline-forecast-item{
+      background:#f7faff;
+      border:1px solid #d7e2f7;
+      border-radius:8px;
+      padding:8px 9px;
+      min-width:0;
+    }
+    html.page-portal .rot-inline-forecast-name{
+      font-size:13px;
+      font-weight:700;
+      color:#111827;
+      margin-bottom:2px;
+    }
+    html.page-portal .rot-inline-forecast-dates{
+      font-size:11px;
+      font-weight:700;
+      color:#5a6b86;
     }
 
     /* === Rotation Date Range Styling === */
@@ -1153,7 +1241,8 @@ html.page-portal{
       html.page-portal .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
       html.page-portal .rot-h{ font-size: 13px; padding: 6px 8px; }
       html.page-portal .rot-body{ padding: 8px 10px; }
-    
+      html.page-portal .rot-helper{ font-size:12px; margin-bottom:8px; }
+
       /* Calendar toolbar buttons smaller */
       html.page-portal .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
       html.page-portal .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
