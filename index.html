@@ -650,10 +650,10 @@ function applyAnnLayout(){
   banner.classList.remove('ann-medium','ann-many');
 
   // Heuristics: tune the thresholds to your taste
-  if (n >= 15){
-    banner.classList.add('ann-many');     // single column feed w/ scroll
-  } else if (n >= 7){
-    banner.classList.add('ann-medium');   // forced 2 columns
+  if (n >= 10){
+    banner.classList.add('ann-many');
+  } else if (n >= 4){
+    banner.classList.add('ann-medium');
   }
 }
 
@@ -799,6 +799,10 @@ function renderAnnouncements(items){
     }
     body.appendChild(safe);
 
+    const contentRow = document.createElement('div');
+    contentRow.className = 'ann-content-row';
+    contentRow.appendChild(body);
+
     // Actions
     const actions = document.createElement('div');
     actions.className = 'ann-actions';
@@ -820,22 +824,33 @@ function renderAnnouncements(items){
       }
     }
 
-    const mark = document.createElement('button');
-    mark.type = 'button';
-    mark.className = 'btn-min';
-    mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
-    mark.addEventListener('click', () => {
-      markAnnouncementRead(annId);
-      li.classList.remove('new');
+    if (!isRead) {
+      const mark = document.createElement('button');
+      mark.type = 'button';
+      mark.className = 'btn-min ann-mark-read';
+      mark.innerHTML = `<span class="ms" aria-hidden="true">done</span> Mark read`;
+      mark.addEventListener('click', () => {
+        markAnnouncementRead(annId);
+        li.classList.remove('new');
+        li.classList.add('read');
+        mark.remove();
+        if (!actions.children.length) {
+          contentRow.classList.remove('has-actions');
+          actions.remove();
+        }
+        updateAnnDotVisibility();
+      });
+      actions.appendChild(mark);
+    } else {
       li.classList.add('read');
-      mark.classList.add('marked');
-      updateAnnDotVisibility();
-    });
-    actions.appendChild(mark);
+    }
 
-    if (isRead) { mark.classList.add('marked'); li.classList.add('read'); }
+    if (actions.children.length) {
+      contentRow.classList.add('has-actions');
+      contentRow.appendChild(actions);
+    }
 
-    li.append(head, body, actions);
+    li.append(head, contentRow);
     frag.appendChild(li);
   });
   list.innerHTML = '';          // clear previous entries
@@ -859,8 +874,14 @@ function renderAnnouncements(items){
       list.querySelectorAll('.ann-item').forEach(el => {
         el.classList.remove('new');
         el.classList.add('read');
-        const btn = el.querySelector('.btn-min');
-        if (btn) btn.classList.add('marked');
+        const markBtn = el.querySelector('.ann-mark-read');
+        if (markBtn) markBtn.remove();
+        const contentRow = el.querySelector('.ann-content-row');
+        const actions = el.querySelector('.ann-actions');
+        if (contentRow && actions && !actions.children.length) {
+          contentRow.classList.remove('has-actions');
+          actions.remove();
+        }
       });
 
       setLastSeenTs(Math.max(newestTs, Date.now()));
@@ -1330,8 +1351,6 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
-
-
 
 
 
