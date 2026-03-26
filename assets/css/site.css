@@ -656,7 +656,7 @@ html.page-portal{
     html.page-portal{
       --page-max: 1600px;   /* overall page width for centering */
       --gap: 22px;          /* space between columns/cards */
-      --left: 460px;        /* LEFT sidebar (calendar) width */
+      --left: 500px;        /* LEFT sidebar (calendar) width */
     }
     
     /* Page wrapper — truly centered */
@@ -728,7 +728,7 @@ html.page-portal{
     /* Center grid: give cards more breathing room so badges don't overflow */
     html.page-portal .grid{
       display:grid; gap: var(--gap);
-      grid-template-columns: repeat(3, minmax(340px, 1fr));   /* wider minimums */
+      grid-template-columns: repeat(3, minmax(300px, 1fr));
     }
     
     /* Avoid header/badge overflow inside narrow cards */
@@ -737,8 +737,8 @@ html.page-portal{
     
     /* Responsive steps: 2 cols earlier, then stack */
     @media (max-width: 1540px){
-      html.page-portal{ --left: 420px; --page-max: 1500px; }
-      html.page-portal .grid{ grid-template-columns: repeat(2, minmax(340px, 1fr)); }
+      html.page-portal{ --left: 450px; --page-max: 1500px; }
+      html.page-portal .grid{ grid-template-columns: repeat(2, minmax(300px, 1fr)); }
     }
     @media (max-width: 1000px){
       html.page-portal .layout{ grid-template-columns: 1fr; }
@@ -917,6 +917,65 @@ html.page-portal{
       color:rgba(58,75,104,.62);
       letter-spacing:.01em;
     }
+    html.page-portal .rot-toggle-all{
+      appearance:none;
+      border:1px solid #cfdcf3;
+      background:#ffffff;
+      color:#355886;
+      border-radius:999px;
+      padding:5px 12px;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+      margin-left:auto;
+      box-shadow:0 1px 2px rgba(15,23,42,.05);
+    }
+    html.page-portal .rot-toggle-all:disabled{
+      opacity:.55;
+      cursor:default;
+    }
+    html.page-portal .rot-nav{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-left:8px;
+    }
+    html.page-portal .rot-nav-btn{
+      appearance:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:auto;
+      height:auto;
+      border:none;
+      background:transparent;
+      color:#5371aa;
+      cursor:pointer;
+      padding:0;
+    }
+    html.page-portal .rot-nav-btn:disabled{
+      opacity:.32;
+      cursor:default;
+    }
+    html.page-portal .rot-nav-btn .ms{
+      font-size:28px;
+      line-height:1;
+    }
+    html.page-portal .rot-reset-btn{
+      appearance:none;
+      border:none;
+      background:transparent;
+      color:#4968a2;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+      padding:0 4px;
+      line-height:1;
+    }
+    html.page-portal .rot-reset-btn:disabled{
+      opacity:.38;
+      cursor:default;
+    }
     
     html.page-portal .rot-grid{
       display:grid;
@@ -975,20 +1034,8 @@ html.page-portal{
     html.page-portal .rot-inline-forecast{
       margin-top:10px;
       padding-top:10px;
-      border-top:1px solid #d9e4fb;
-      text-align:left;
-    }
-    html.page-portal .rot-inline-forecast-head{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      justify-content:center;
-      font-size:12px;
-      font-weight:800;
-      color:#39527d;
-      margin-bottom:8px;
-      letter-spacing:.02em;
-      text-transform:uppercase;
+      border-top:1px solid #e3eaf7;
+      text-align:center;
     }
     html.page-portal .rot-inline-arrow{
       display:inline-flex;
@@ -1007,22 +1054,31 @@ html.page-portal{
       gap:6px;
     }
     html.page-portal .rot-inline-forecast-item{
-      background:#f7faff;
-      border:1px solid #d7e2f7;
+      background:#f8fafc;
+      border:1px solid #e3eaf5;
       border-radius:8px;
-      padding:8px 9px;
+      padding:8px 8px 7px;
       min-width:0;
+      text-align:center;
     }
     html.page-portal .rot-inline-forecast-name{
-      font-size:13px;
+      font-size:14px;
       font-weight:700;
       color:#111827;
-      margin-bottom:2px;
+      margin-bottom:3px;
     }
     html.page-portal .rot-inline-forecast-dates{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
       font-size:11px;
-      font-weight:700;
-      color:#5a6b86;
+      font-weight:600;
+      color:#64748b;
+    }
+    html.page-portal .rot-inline-forecast-dates .ms{
+      font-size:13px;
+      color:#8aa0c5;
     }
 
     /* === Rotation Date Range Styling === */
@@ -1038,7 +1094,9 @@ html.page-portal{
       padding: 6px 12px;
       border: 1px solid #d0daee;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 10px;
+      margin-bottom: 0;
+      position: relative;
+      top: 1px;
     }
     
     /* optional: make it look clickable on hover */
@@ -1214,8 +1272,26 @@ html.page-portal{
         font-size:9px;
         line-height:1.2;
       }
-      html.page-portal #rot-dates{
+      html.page-portal .rot-toggle-all{
+        order:2;
+        margin-left:0;
+        padding:4px 10px;
+        font-size:10px;
+      }
+      html.page-portal .rot-nav{
+        order:2;
         margin-left:auto;
+        gap:2px;
+      }
+      html.page-portal .rot-nav-btn{
+        width:auto;
+        height:auto;
+      }
+      html.page-portal .rot-reset-btn{
+        font-size:10px;
+      }
+      html.page-portal #rot-dates{
+        margin-left:0;
         margin-bottom:0;
         font-size:11px;
         padding:4px 8px;
@@ -1237,12 +1313,8 @@ html.page-portal{
         margin-top:8px;
         padding-top:8px;
       }
-      html.page-portal .rot-inline-forecast-head{
-        font-size:11px;
-        margin-bottom:6px;
-      }
       html.page-portal .rot-inline-forecast-item{
-        padding:7px 8px;
+        padding:7px 7px 6px;
       }
       html.page-portal .rot-inline-forecast-name{
         font-size:12px;
@@ -1288,13 +1360,24 @@ html.page-portal{
         grid-column:1;
       }
       html.page-portal .room-rot #rot-title #rot-dates{
-        grid-column:1 / -1;
         justify-self:stretch;
         justify-content:center;
         margin:0;
       }
       html.page-portal .rot-helper{
         display:none;
+      }
+      html.page-portal .rot-toggle-all{
+        grid-column:2;
+        justify-self:end;
+        margin:0;
+      }
+      html.page-portal .rot-nav{
+        grid-column:1 / -1;
+        justify-self:stretch;
+        justify-content:center;
+        margin:0;
+        gap:0;
       }
       html.page-portal .rot-grid{
         grid-template-columns:1fr;

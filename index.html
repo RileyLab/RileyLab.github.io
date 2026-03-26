@@ -90,7 +90,17 @@
     <span class="ms" aria-hidden="true">cleaning_services</span>
     Room Maintenance Rotations
     <span class="rot-helper">Click a room to view future rotations.</span>
-    <span class="badge" id="rot-dates"></span>
+    <button type="button" class="rot-toggle-all" id="rot-toggle-all">Expand all</button>
+    <span class="rot-nav" id="rot-nav">
+      <button type="button" class="rot-reset-btn" id="rot-reset">Today</button>
+      <button type="button" class="rot-nav-btn" id="rot-prev" aria-label="Previous rotation period">
+        <span class="ms" aria-hidden="true">chevron_left</span>
+      </button>
+      <span class="badge" id="rot-dates"></span>
+      <button type="button" class="rot-nav-btn" id="rot-next" aria-label="Next rotation period">
+        <span class="ms" aria-hidden="true">chevron_right</span>
+      </button>
+    </span>
   </h2>
 
   <!-- Display grid -->
@@ -558,7 +568,8 @@ async function fetchPortalData() {
 }
 
 let currentRotationPlan = null;
-let selectedRotationSlot = null;
+let openRotationSlots = new Set();
+let rotationViewOffset = 0;
 
 /* Renderers */
 /* === Per-announcement read tracking === */
@@ -893,23 +904,27 @@ function renderAnnouncements(items){
 function renderRotations(obj, plan){
   const elDates = document.getElementById('rot-dates');
   const elGrid  = document.getElementById('rot-grid');
+  const elToggleAll = document.getElementById('rot-toggle-all');
+  const elPrev = document.getElementById('rot-prev');
+  const elNext = document.getElementById('rot-next');
+  const elReset = document.getElementById('rot-reset');
   if(!elDates || !elGrid) return;
 
   const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
   const renderInlineForecast = (slotName) => {
-    const nextRotations = plan ? computeUpcomingRotations(plan, slotName, 5) : [];
+    const nextRotations = plan ? computeUpcomingRotations(plan, slotName, 5, rotationViewOffset) : [];
     if (!nextRotations.length) return '';
 
     return `
       <div class="rot-inline-forecast">
-<!--        <div class="rot-inline-forecast-head">-->
-<!--          Upcoming rotations-->
-<!--        </div>-->
         <div class="rot-inline-forecast-list">
           ${nextRotations.map((item) => `
             <div class="rot-inline-forecast-item">
               <div class="rot-inline-forecast-name">${esc(item.name || '—')}</div>
-              <div class="rot-inline-forecast-dates">${badgeDateYMD(item.start)} – ${badgeDateYMD(item.end)}</div>
+              <div class="rot-inline-forecast-dates">
+                <span class="ms" aria-hidden="true">calendar_month</span>
+                ${badgeDateYMD(item.start)} – ${badgeDateYMD(item.end)}
+              </div>
             </div>
           `).join('')}
         </div>
@@ -922,16 +937,24 @@ function renderRotations(obj, plan){
     { key: 'tc3', label: 'TC3', cls: 'rot-tc3', value: obj.tc3 },
     { key: 'main', label: 'Main Lab', cls: 'rot-main', value: obj.main }
   ];
+  const allOpen = roomCards.every((card) => openRotationSlots.has(card.key));
 
   elDates.innerHTML = `<span class="ms" aria-hidden="true">calendar_month</span> ${badgeDateYMD(obj.start)} – ${badgeDateYMD(obj.end)}`;
+  if (elToggleAll) {
+    elToggleAll.textContent = allOpen ? 'Collapse all' : 'Expand all';
+    elToggleAll.disabled = !plan;
+  }
+  if (elPrev) elPrev.disabled = !plan || rotationViewOffset <= 0;
+  if (elNext) elNext.disabled = !plan;
+  if (elReset) elReset.disabled = !plan || rotationViewOffset === 0;
   elGrid.innerHTML = `
     ${roomCards.map((card) => `
       <button
         type="button"
-        class="rot-col${selectedRotationSlot === card.key ? ' is-active' : ''}"
+        class="rot-col${openRotationSlots.has(card.key) ? ' is-active' : ''}"
         data-rot-slot="${card.key}"
         ${plan ? '' : 'disabled'}
-        aria-expanded="${selectedRotationSlot === card.key ? 'true' : 'false'}"
+        aria-expanded="${openRotationSlots.has(card.key) ? 'true' : 'false'}"
       >
         <div class="rot-h ${card.cls}">${card.label}</div>
         <div class="rot-body">
@@ -939,7 +962,7 @@ function renderRotations(obj, plan){
             <div class="rot-current-name">${esc(card.value || '—')}</div>
             <span class="ms rot-inline-arrow" aria-hidden="true">expand_more</span>
           </div>
-          ${selectedRotationSlot === card.key ? renderInlineForecast(card.key) : ''}
+          ${openRotationSlots.has(card.key) ? renderInlineForecast(card.key) : ''}
         </div>
       </button>
     `).join('')}
@@ -1027,13 +1050,13 @@ function computeRotationPeriod(plan, cycleOffset = 0) {
 }
 
 function computeRotationFromPlan(plan) {
-  return computeRotationPeriod(plan, 0);
+  return computeRotationPeriod(plan, rotationViewOffset);
 }
 
-function computeUpcomingRotations(plan, slotName, count = 5) {
+function computeUpcomingRotations(plan, slotName, count = 5, startOffset = 0) {
   const out = [];
   for (let i = 1; i <= count; i++) {
-    const period = computeRotationPeriod(plan, i);
+    const period = computeRotationPeriod(plan, startOffset + i);
     if (!period) break;
     out.push({
       start: period.start,
@@ -1045,13 +1068,60 @@ function computeUpcomingRotations(plan, slotName, count = 5) {
 }
 
 document.addEventListener('click', (event) => {
+  const prevBtn = event.target.closest('#rot-prev');
+  if (prevBtn) {
+    if (!currentRotationPlan) return;
+    rotationViewOffset = Math.max(0, rotationViewOffset - 1);
+
+    let rot = computeRotationFromPlan(currentRotationPlan);
+    if (!rot) rot = {};
+    renderRotations(rot, currentRotationPlan);
+    return;
+  }
+
+  const nextBtn = event.target.closest('#rot-next');
+  if (nextBtn) {
+    if (!currentRotationPlan) return;
+    rotationViewOffset += 1;
+
+    let rot = computeRotationFromPlan(currentRotationPlan);
+    if (!rot) rot = {};
+    renderRotations(rot, currentRotationPlan);
+    return;
+  }
+
+  const resetBtn = event.target.closest('#rot-reset');
+  if (resetBtn) {
+    if (!currentRotationPlan) return;
+    rotationViewOffset = 0;
+
+    let rot = computeRotationFromPlan(currentRotationPlan);
+    if (!rot) rot = {};
+    renderRotations(rot, currentRotationPlan);
+    return;
+  }
+
+  const toggleAllBtn = event.target.closest('#rot-toggle-all');
+  if (toggleAllBtn) {
+    if (!currentRotationPlan) return;
+    const allSlots = ['tc1', 'tc2', 'tc3', 'main'];
+    const allOpen = allSlots.every((slot) => openRotationSlots.has(slot));
+    openRotationSlots = allOpen ? new Set() : new Set(allSlots);
+
+    let rot = computeRotationFromPlan(currentRotationPlan);
+    if (!rot) rot = {};
+    renderRotations(rot, currentRotationPlan);
+    return;
+  }
+
   const btn = event.target.closest('[data-rot-slot]');
   if (!btn) return;
 
   const slotName = btn.getAttribute('data-rot-slot');
   if (!currentRotationPlan || !slotName) return;
 
-  selectedRotationSlot = selectedRotationSlot === slotName ? null : slotName;
+  if (openRotationSlots.has(slotName)) openRotationSlots.delete(slotName);
+  else openRotationSlots.add(slotName);
 
   let rot = computeRotationFromPlan(currentRotationPlan);
   if (!rot) rot = {};
@@ -1068,7 +1138,8 @@ document.addEventListener('click', (event) => {
 
   let rot = data.rotations || {};
   currentRotationPlan = data.rotationPlan || null;
-  selectedRotationSlot = null;
+  openRotationSlots = new Set();
+  rotationViewOffset = 0;
   if (data.rotationPlan) {
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
@@ -1086,7 +1157,8 @@ document.addEventListener('visibilitychange', async () => {
 
   let rot = data.rotations || {};
   currentRotationPlan = data.rotationPlan || null;
-  selectedRotationSlot = null;
+  openRotationSlots = new Set();
+  rotationViewOffset = 0;
   if (data.rotationPlan) {
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
@@ -1351,13 +1423,6 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
