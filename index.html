@@ -332,14 +332,20 @@ function badgeDateYMD(s) {
   return d ? d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 }
 
-// Returns "today" at local midnight. Can be overridden via URL ?asof=YYYY-MM-DD
-// or localStorage.debugDate = "YYYY-MM-DD"
+// Dev-only override for previewing date-sensitive UI locally.
+// Leave blank in normal use.
+const DEV_TODAY_OVERRIDE = '2026-03-28';
+
+// Returns "today" at local midnight. Can be overridden via:
+// 1. DEV_TODAY_OVERRIDE
+// 2. URL ?asof=YYYY-MM-DD
+// 3. localStorage.debugDate = "YYYY-MM-DD"
 function getTodayLocal() {
   const qs = new URLSearchParams(location.search);
   const fromQS = qs.get('asof');
   const fromLS = localStorage.getItem('debugDate');
 
-  const val = fromQS || fromLS;
+  const val = DEV_TODAY_OVERRIDE || fromQS || fromLS;
   if (val && /^\d{4}-\d{2}-\d{2}$/.test(val)) {
     const d = parseYMDLocal(val);
     if (d) return d;
@@ -1046,10 +1052,10 @@ function render293TSchedule(){
 
   const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
   list.innerHTML = current293TSchedule.items.map((item) => `
-    <div class="rot-293t-item">
+    <div class="rot-293t-item${item.isToday ? ' is-today' : ''}">
       <div class="rot-293t-main">
         <div class="rot-293t-passage">${esc(item.passage)}</div>
-        <div class="rot-293t-date">${esc(item.dateLabel)}</div>
+        <div class="rot-293t-date">${esc(item.dateLabel)}${item.isToday ? '<span class="rot-293t-today">TODAY</span>' : ''}</div>
         <div class="rot-293t-name">${esc(item.name)}</div>
       </div>
       ${Array.isArray(item.support) && item.support.length ? `
@@ -1064,6 +1070,7 @@ function render293TSchedule(){
 
 async function load293TSchedule(){
   const today = getTodayLocal();
+  const todayKey = ymd(today);
   const weekStart = startOfWeekSunday(today);
   const weekEnd = endOfWeekSunday(today);
   current293TSchedule = {
@@ -1136,6 +1143,7 @@ async function load293TSchedule(){
           passage: passageItem.passage,
           name: passageItem.name,
           dateLabel: bucket.dateLabel,
+          isToday: bucket.dateKey === todayKey,
           support: index === 0 ? bucket.support : []
         }))
       ))
@@ -1643,12 +1651,16 @@ function syncTopFeatureCardHeights(force = false){
   const stack = document.getElementById('portal-top-stack');
   const meetingCard = document.getElementById('next-meeting-card');
   const scheduleCard = document.getElementById('rot-293t-card');
+  const meetingBody = document.getElementById('meeting-body');
+  const scheduleBody = scheduleCard ? scheduleCard.querySelector('.rot-293t-body') : null;
   if (!stack || !scheduleCard) return;
 
   if (window.innerWidth <= 768) {
     topFeatureCardBaselineHeight = 0;
     scheduleCard.style.height = '';
     if (meetingCard) meetingCard.style.height = '';
+    if (meetingBody) meetingBody.classList.remove('is-overflowing');
+    if (scheduleBody) scheduleBody.classList.remove('is-overflowing');
     return;
   }
 
@@ -1663,6 +1675,12 @@ function syncTopFeatureCardHeights(force = false){
   scheduleCard.style.height = `${target}px`;
   if (meetingCard) {
     meetingCard.style.height = meetingCard.hidden ? '' : `${target}px`;
+  }
+  if (meetingBody && !meetingCard?.hidden) {
+    meetingBody.classList.toggle('is-overflowing', meetingBody.scrollHeight > meetingBody.clientHeight + 2);
+  }
+  if (scheduleBody) {
+    scheduleBody.classList.toggle('is-overflowing', scheduleBody.scrollHeight > scheduleBody.clientHeight + 2);
   }
 }
 

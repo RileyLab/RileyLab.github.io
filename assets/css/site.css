@@ -740,6 +740,12 @@ html.page-portal{
       align-items:center;
       gap:16px;
       padding-top:2px;
+      min-height:0;
+      overflow:auto;
+      scrollbar-gutter:stable;
+    }
+    html.page-portal .meeting-body.is-overflowing{
+      justify-content:flex-start;
     }
     html.page-portal .meeting-media{
       width:100%;
@@ -826,6 +832,12 @@ html.page-portal{
       display:flex;
       flex-direction:column;
       justify-content:center;
+      min-height:0;
+      overflow:auto;
+      scrollbar-gutter:stable;
+    }
+    html.page-portal .rot-293t-body.is-overflowing{
+      justify-content:flex-start;
     }
 
     /* Slightly narrower minimum on tighter screens */
@@ -1216,6 +1228,15 @@ html.page-portal{
       padding:12px 14px;
       text-align:left;
     }
+    html.page-portal .rot-293t-item.is-today{
+      border-color:#f0b6b6;
+      background:#fff3f3;
+      box-shadow:0 0 0 1px rgba(228,87,87,.08);
+    }
+    html.page-portal .rot-293t-item.is-today .rot-293t-main{
+      flex-wrap:wrap;
+      row-gap:8px;
+    }
     html.page-portal .rot-293t-main{
       display:flex;
       align-items:center;
@@ -1230,6 +1251,9 @@ html.page-portal{
       white-space:nowrap;
     }
     html.page-portal .rot-293t-date{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
       font-size:12px;
       font-weight:700;
       color:#64748b;
@@ -1238,6 +1262,18 @@ html.page-portal{
       letter-spacing:.04em;
       white-space:nowrap;
       flex:0 0 auto;
+    }
+    html.page-portal .rot-293t-today{
+      display:inline-flex;
+      align-items:center;
+      padding:2px 6px;
+      border-radius:999px;
+      background:#dc2626;
+      color:#fff;
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.05em;
+      line-height:1;
     }
     html.page-portal .rot-293t-name{
       font-size:15px;
@@ -1248,6 +1284,12 @@ html.page-portal{
       text-overflow:ellipsis;
       min-width:0;
       flex:1 1 auto;
+    }
+    html.page-portal .rot-293t-item.is-today .rot-293t-name{
+      flex:1 0 100%;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
     }
     html.page-portal .rot-293t-support-list{
       display:flex;
