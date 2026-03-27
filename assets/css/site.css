@@ -1607,9 +1607,14 @@ html.page-portal{
       html.page-portal .card{ padding:14px; }
       html.page-portal .card h2{ font-size: 18px; padding:12px 14px; }
       html.page-portal .badge{ font-size: 11px; padding: 2px 8px; }
+      html.page-portal .portal-top,
+      html.page-portal .portal-top-main,
+      html.page-portal .portal-top-stack{
+        gap:14px;
+      }
 
-      /* Rotations: 2 columns on phones */
-      html.page-portal .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      /* Rotations: single column on phones */
+      html.page-portal .rot-grid{ grid-template-columns: 1fr; gap: 8px; }
       html.page-portal .rot-293t-list{ grid-template-columns:1fr; }
       html.page-portal .rot-293t-item{ padding:9px 10px; }
       html.page-portal .rot-293t-main{ gap:10px; }
@@ -1620,34 +1625,52 @@ html.page-portal{
       html.page-portal .rot-h{ font-size: 13px; padding: 6px 8px; }
       html.page-portal .rot-body{ padding: 8px 10px; }
       html.page-portal .room-rot #rot-title{
-        flex-wrap:wrap;
+        display:grid;
+        grid-template-columns:auto minmax(0, 1fr) auto;
+        grid-template-areas:
+          "icon title toggle"
+          "nav nav nav";
         align-items:center;
-        gap:6px 8px;
+        gap:8px 10px;
       }
-      html.page-portal .rot-helper{
-        order:3;
-        flex:1 0 100%;
-        margin-left:0;
-        font-size:9px;
-        line-height:1.2;
+      html.page-portal .room-rot #rot-title > .ms:first-child{
+        grid-area:icon;
+      }
+      html.page-portal .room-rot .rot-title-text{
+        grid-area:title;
+        min-width:0;
+        font-size:16px;
+        line-height:1.15;
       }
       html.page-portal .rot-toggle-all{
-        order:2;
+        grid-area:toggle;
+        justify-self:end;
         margin-left:0;
-        padding:4px 10px;
+        padding:5px 10px;
         font-size:10px;
       }
       html.page-portal .rot-nav{
-        order:2;
-        margin-left:auto;
-        gap:2px;
+        grid-area:nav;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        justify-self:center;
+        margin-left:0;
+        gap:4px;
+        width:max-content;
+        max-width:100%;
+        flex-wrap:wrap;
       }
       html.page-portal .rot-nav-btn{
         width:auto;
         height:auto;
       }
+      html.page-portal .rot-nav-btn .ms{
+        font-size:24px;
+      }
       html.page-portal .rot-reset-btn{
         font-size:10px;
+        padding:0 2px;
       }
       html.page-portal #rot-dates{
         margin-left:0;
@@ -1680,6 +1703,10 @@ html.page-portal{
       }
       html.page-portal .rot-inline-forecast-dates{
         font-size:10px;
+      }
+      html.page-portal .next-meeting,
+      html.page-portal .rot-293t-card{
+        height:auto !important;
       }
 
       /* Calendar toolbar buttons smaller */
@@ -1725,6 +1752,19 @@ html.page-portal{
       html.page-portal .next-meeting{
         padding:10px;
       }
+      html.page-portal .next-meeting h2{
+        display:grid;
+        grid-template-columns:auto minmax(0, 1fr);
+        align-items:center;
+        gap:8px;
+        margin:-10px -10px 10px -10px;
+        padding:10px;
+      }
+      html.page-portal .next-meeting .meeting-title-text{
+        min-width:0;
+        font-size:16px;
+        line-height:1.15;
+      }
       html.page-portal .meeting-media{
         max-width:none;
       }
@@ -1749,35 +1789,65 @@ html.page-portal{
       }
       html.page-portal .room-rot #rot-title{
         display:grid;
-        grid-template-columns:auto 1fr;
+        grid-template-columns:auto minmax(0, 1fr) auto;
+        grid-template-areas:
+          "icon title toggle"
+          "nav nav nav";
         align-items:center;
-        gap:6px 8px;
+        gap:8px 10px;
         margin:-10px -10px 10px -10px;
-        padding:8px 10px;
+        padding:10px;
+        width:auto;
       }
       html.page-portal .room-rot #rot-title .ms:first-child{
-        grid-row:1;
-        grid-column:1;
+        grid-area:icon;
       }
-      html.page-portal .room-rot #rot-title #rot-dates{
-        justify-self:stretch;
-        justify-content:center;
-        margin:0;
+      html.page-portal .room-rot .rot-title-text{
+        grid-area:title;
+        min-width:0;
+        font-size:16px;
+        line-height:1.15;
       }
       html.page-portal .rot-helper{
         display:none;
       }
       html.page-portal .rot-toggle-all{
-        grid-column:2;
+        grid-area:toggle;
         justify-self:end;
         margin:0;
+        padding:5px 10px;
+        font-size:10px;
       }
       html.page-portal .rot-nav{
-        grid-column:1 / -1;
-        justify-self:stretch;
+        grid-area:nav;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        justify-self:center;
+        margin:0;
+        gap:4px;
+        width:max-content;
+        max-width:100%;
+        flex-wrap:wrap;
+      }
+      html.page-portal .rot-reset-btn{
+        font-size:10px;
+        padding:0 2px;
+      }
+      html.page-portal .room-rot #rot-prev{
+      }
+      html.page-portal .room-rot #rot-dates{
         justify-content:center;
         margin:0;
-        gap:0;
+        margin-bottom:0;
+        font-size:11px;
+        padding:4px 8px;
+        gap:5px;
+      }
+      html.page-portal .room-rot #rot-next{
+      }
+      html.page-portal .rot-nav-btn .ms{
+        font-size:24px;
       }
       html.page-portal .rot-grid{
         grid-template-columns:1fr;
