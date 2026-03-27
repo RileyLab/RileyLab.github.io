@@ -577,29 +577,38 @@ async function fetchPortalData() {
   let labMeetings = [];
   let googleCalendarApiKey = '';
 
-  // 1) Fetch announcements from Apps Script
-  try {
-    const resp = await fetch(appsUrl, { cache: 'no-store' });
-    if (resp.ok) {
-      const body = await resp.json();
-      announcements = ensureIds(body.announcements || []);
+  const [annResp, jsonResp] = await Promise.allSettled([
+    fetch(appsUrl, { cache: 'no-store' }),
+    fetch(jsonUrl, { cache: 'no-store' })
+  ]);
+
+  if (annResp.status === 'fulfilled') {
+    try {
+      if (annResp.value.ok) {
+        const body = await annResp.value.json();
+        announcements = ensureIds(body.announcements || []);
+      }
+    } catch(e) {
+      console.warn('Apps Script parse failed:', e);
     }
-  } catch(e) {
-    console.warn('Apps Script fetch failed:', e);
+  } else {
+    console.warn('Apps Script fetch failed:', annResp.reason);
   }
 
-  // 2) Fetch rotations & rotationPlan from GitHub JSON
-  try {
-    const resp = await fetch(jsonUrl, { cache: 'no-store' });
-    if (resp.ok) {
-      const body = await resp.json();
-      rotations = body.rotations || null;
-      rotationPlan = body.rotationPlan || null;
-      labMeetings = body.labMeetings || [];
-      googleCalendarApiKey = body.googleCalendarApiKey || '';
+  if (jsonResp.status === 'fulfilled') {
+    try {
+      if (jsonResp.value.ok) {
+        const body = await jsonResp.value.json();
+        rotations = body.rotations || null;
+        rotationPlan = body.rotationPlan || null;
+        labMeetings = body.labMeetings || [];
+        googleCalendarApiKey = body.googleCalendarApiKey || '';
+      }
+    } catch(e) {
+      console.warn('GitHub JSON parse failed:', e);
     }
-  } catch(e) {
-    console.warn('GitHub JSON fetch failed:', e);
+  } else {
+    console.warn('GitHub JSON fetch failed:', jsonResp.reason);
   }
 
   return { announcements, rotations, rotationPlan, labMeetings, googleCalendarApiKey };
