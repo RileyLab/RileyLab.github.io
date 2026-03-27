@@ -771,6 +771,8 @@ html.page-portal{
     html.page-portal .meeting-copy{
       min-width:0;
       width:100%;
+      max-width:360px;
+      margin:0 auto;
       text-align:center;
     }
     html.page-portal .meeting-meta{
@@ -832,12 +834,20 @@ html.page-portal{
       display:flex;
       flex-direction:column;
       justify-content:center;
+      align-items:center;
       min-height:0;
       overflow:auto;
       scrollbar-gutter:stable;
     }
     html.page-portal .rot-293t-body.is-overflowing{
       justify-content:flex-start;
+    }
+    html.page-portal .rot-293t-head,
+    html.page-portal .rot-293t-list,
+    html.page-portal .rot-293t-actions{
+      width:100%;
+      max-width:360px;
+      margin-inline:auto;
     }
 
     /* Slightly narrower minimum on tighter screens */
