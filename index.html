@@ -21,51 +21,50 @@
   </div>
 
   <header>
+    <details class="header-quick">
+      <summary>
+        <span class="ms" aria-hidden="true">bolt</span>
+        Quick Links
+      </summary>
+      <div class="header-quick-panel" role="group" aria-label="Commonly Used Links">
+        <a class="quick-link" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/instrument/41?researcher=11539692" target="_blank" rel="noopener noreferrer">
+          <span class="ms" aria-hidden="true">waterfall_chart</span>
+          Riley Lab Fortessa Scheduler
+        </a>
+
+        <details class="quick-dropdown">
+          <summary>
+            <span class="ms" aria-hidden="true">lab_profile</span>
+            Riley Lab Hood Bookings
+          </summary>
+          <ul class="list quick-dropdown-list" aria-label="Riley Lab Hood Bookings">
+            <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/HIVRoom" target="_blank" rel="noopener noreferrer">TC1</a></li>
+            <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/CancerRoom" target="_blank" rel="noopener noreferrer">TC2</a></li>
+            <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/translationalroom" target="_blank" rel="noopener noreferrer">TC3</a></li>
+          </ul>
+        </details>
+
+        <a class="quick-link" href="sidebyside293T.html" target="_blank" rel="noopener noreferrer">
+          <span class="ms" aria-hidden="true">assignment_add</span>
+          293T Request Form
+        </a>
+
+        <a class="quick-link" href="https://pathbio.med.upenn.edu/hic/hiccell/" target="_blank" rel="noopener noreferrer">
+          <span class="ms" aria-hidden="true">bloodtype</span>
+          HIC Cell Ordering
+        </a>
+      </div>
+    </details>
+
     <div class="header-brand">
       <img
               src="/assets/images/riley-lab-logo.png"
               alt="Riley Lab"
               class="header-logo"
       />
-      <div class="subtitle">Riley Lab essentials all in one place</div>
     </div>
 
     <div class="actions">
-      <details class="header-quick">
-        <summary>
-          <span class="ms" aria-hidden="true">bolt</span>
-          Quick Links
-        </summary>
-        <div class="header-quick-panel" role="group" aria-label="Commonly Used Links">
-          <a class="quick-link" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/instrument/41?researcher=11539692" target="_blank" rel="noopener noreferrer">
-            <span class="ms" aria-hidden="true">waterfall_chart</span>
-            Riley Lab Fortessa Scheduler
-          </a>
-
-          <details class="quick-dropdown">
-            <summary>
-              <span class="ms" aria-hidden="true">lab_profile</span>
-              Riley Lab Hood Bookings
-            </summary>
-            <ul class="list quick-dropdown-list" aria-label="Riley Lab Hood Bookings">
-              <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/HIVRoom" target="_blank" rel="noopener noreferrer">TC1</a></li>
-              <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/CancerRoom" target="_blank" rel="noopener noreferrer">TC2</a></li>
-              <li><a class="link ext quick-ext" href="https://www.brownbearsw.com/cal/translationalroom" target="_blank" rel="noopener noreferrer">TC3</a></li>
-            </ul>
-          </details>
-
-          <a class="quick-link" href="sidebyside293T.html" target="_blank" rel="noopener noreferrer">
-            <span class="ms" aria-hidden="true">assignment_add</span>
-            293T Request Form
-          </a>
-
-          <a class="quick-link" href="https://pathbio.med.upenn.edu/hic/hiccell/" target="_blank" rel="noopener noreferrer">
-            <span class="ms" aria-hidden="true">bloodtype</span>
-            HIC Cell Ordering
-          </a>
-        </div>
-      </details>
-
       <div class="search" role="search">
         <span class="ms" aria-hidden="true">search</span>
         <input id="q" type="search" placeholder="Quick find links…" aria-label="Search links">
@@ -76,6 +75,17 @@
     </div>
   </header>
 
+<div class="portal-top" id="portal-top">
+<section class="card next-meeting" id="next-meeting-card" aria-labelledby="meeting-title" hidden>
+  <h2 id="meeting-title">
+    <span class="ms" aria-hidden="true">groups</span>
+    Next Lab Talk
+  </h2>
+  <div class="meeting-body" id="meeting-body"></div>
+</section>
+
+<div class="portal-top-main">
+<div class="portal-top-stack">
 <section class="card ann-banner" aria-labelledby="ann-banner-title">
   <h2 id="ann-banner-title">
     <span class="ms ms-lg" aria-hidden="true">campaign</span>
@@ -89,7 +99,6 @@
   <h2 id="rot-title">
     <span class="ms" aria-hidden="true">cleaning_services</span>
     Room Maintenance Rotations
-    <span class="rot-helper">Click a room to view future rotations.</span>
     <button type="button" class="rot-toggle-all" id="rot-toggle-all">Expand all</button>
     <span class="rot-nav" id="rot-nav">
       <button type="button" class="rot-reset-btn" id="rot-reset">Today</button>
@@ -107,6 +116,7 @@
   <div class="rot-grid" id="rot-grid">
     <!-- Filled by JS -->
   </div>
+
   <!-- Inline editor (collapsible) -->
   <details class="rot-edit" id="rot-edit">
     <summary><span class="ms" aria-hidden="true">edit</span> Update assignments</summary>
@@ -138,6 +148,24 @@
     </form>
   </details>
 </section>
+</div>
+
+<section class="card rot-293t-card" id="rot-293t-card" aria-labelledby="rot-293t-card-title">
+  <h2 id="rot-293t-card-title">
+    <span class="ms" aria-hidden="true">science</span>
+    293T Schedule
+  </h2>
+  <div class="rot-293t-body">
+    <div class="rot-293t-head">
+      <div class="rot-293t-title">This Week</div>
+    </div>
+    <div class="rot-293t-list" id="rot-293t-list"></div>
+    <div class="rot-293t-actions">
+    </div>
+  </div>
+</section>
+</div>
+</div>
 
 <div class="layout">
   <!-- LEFT: sidebar calendar -->
@@ -540,6 +568,8 @@ async function fetchPortalData() {
   let announcements = [];
   let rotations = null;
   let rotationPlan = null;
+  let labMeetings = [];
+  let googleCalendarApiKey = '';
 
   // 1) Fetch announcements from Apps Script
   try {
@@ -559,17 +589,24 @@ async function fetchPortalData() {
       const body = await resp.json();
       rotations = body.rotations || null;
       rotationPlan = body.rotationPlan || null;
+      labMeetings = body.labMeetings || [];
+      googleCalendarApiKey = body.googleCalendarApiKey || '';
     }
   } catch(e) {
     console.warn('GitHub JSON fetch failed:', e);
   }
 
-  return { announcements, rotations, rotationPlan };
+  return { announcements, rotations, rotationPlan, labMeetings, googleCalendarApiKey };
 }
 
 let currentRotationPlan = null;
 let openRotationSlots = new Set();
 let rotationViewOffset = 0;
+let googleCalendarApiKey = '';
+let current293TSchedule = { status: 'idle', items: [], rangeLabel: '', error: '' };
+let topFeatureCardBaselineHeight = 0;
+
+const CAL_293T = '0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d@group.calendar.google.com';
 
 /* Renderers */
 /* === Per-announcement read tracking === */
@@ -654,18 +691,8 @@ function updateAnnDotVisibility(){
 
 function applyAnnLayout(){
   const banner = document.querySelector('.ann-banner');
-  const list   = document.getElementById('ann-banner-list');
-  if (!banner || !list) return;
-  const n = list.children.length;
-
+  if (!banner) return;
   banner.classList.remove('ann-medium','ann-many');
-
-  // Heuristics: tune the thresholds to your taste
-  if (n >= 10){
-    banner.classList.add('ann-many');
-  } else if (n >= 4){
-    banner.classList.add('ann-medium');
-  }
 }
 
 function sanitizeAnnHTML(input){
@@ -901,6 +928,230 @@ function renderAnnouncements(items){
   }
 }
 
+function getNextLabMeeting(meetings){
+  const today = getTodayLocal();
+  const sorted = (meetings || [])
+    .filter((meeting) => parseYMDLocal(meeting?.date))
+    .slice()
+    .sort((a, b) => parseYMDLocal(a.date) - parseYMDLocal(b.date));
+
+  return sorted.find((meeting) => {
+    const meetingDate = parseYMDLocal(meeting.date);
+    return meetingDate && meetingDate >= today;
+  }) || null;
+}
+
+function renderNextLabMeeting(meetings){
+  const card = document.getElementById('next-meeting-card');
+  const body = document.getElementById('meeting-body');
+  const top = document.getElementById('portal-top');
+  if (!card || !body || !top) return;
+
+  const meeting = getNextLabMeeting(meetings);
+  if (!meeting) {
+    card.hidden = true;
+    card.style.height = '';
+    body.innerHTML = '';
+    top.classList.remove('has-meeting');
+    setTimeout(() => syncTopFeatureCardHeights(true), 0);
+    return;
+  }
+
+  const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  const presenter = esc(meeting.presenter || 'TBD');
+  const title = esc(meeting.title || 'Lab meeting');
+  const description = typeof meeting.description === 'string' ? meeting.description.trim() : '';
+  const dateText = badgeDateYMD(meeting.date);
+  const image = typeof meeting.image === 'string' ? meeting.image.trim() : '';
+
+  card.hidden = false;
+  top.classList.add('has-meeting');
+  body.innerHTML = `
+    <div class="meeting-media">
+      ${image
+        ? `<img src="${esc(image)}" alt="${presenter}" class="meeting-photo">`
+        : `<div class="meeting-photo meeting-photo-fallback"><span class="ms" aria-hidden="true">person</span></div>`}
+    </div>
+    <div class="meeting-copy">
+      <div class="meeting-meta">
+        <span class="meeting-date"><span class="ms" aria-hidden="true">calendar_month</span>${dateText}</span>
+        <span class="meeting-presenter"><span class="meeting-presenter-label">Presenter:</span> <span class="meeting-presenter-name">${presenter}</span></span>
+      </div>
+      <div class="meeting-name">${title}</div>
+      ${description ? `<p class="meeting-description">${esc(description)}</p>` : ''}
+    </div>
+  `;
+  setTimeout(() => syncTopFeatureCardHeights(true), 0);
+}
+
+function startOfWeekSunday(d){
+  const out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  out.setDate(out.getDate() - out.getDay());
+  return out;
+}
+
+function endOfWeekSaturday(d){
+  const start = startOfWeekSunday(d);
+  const out = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  out.setHours(23, 59, 59, 999);
+  return out;
+}
+
+function isoUtc(d){ return d.toISOString(); }
+
+function fmtWeekRange(start, end){
+  return `${start.toLocaleDateString(undefined,{month:'short',day:'numeric'})} – ${end.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}`;
+}
+
+function parse293TSummary(summary){
+  const raw = String(summary || '').trim();
+  const m = raw.match(/\b(P\d+)\b/i);
+  if (m) {
+    let name = raw.replace(m[0], '').replace(/^[\s:,-]+|[\s:,-]+$/g, '').trim();
+    return {
+      kind: 'passage',
+      passage: m[1].toUpperCase(),
+      name: name || raw || 'Unassigned'
+    };
+  }
+
+  if (/^\d/.test(raw)) {
+    return {
+      kind: 'support',
+      detail: raw
+    };
+  }
+
+  return null;
+}
+
+function render293TSchedule(){
+  const list = document.getElementById('rot-293t-list');
+  if (!list) return;
+
+  if (current293TSchedule.status === 'loading') {
+    list.innerHTML = `<div class="rot-293t-empty">Loading this week's 293T schedule…</div>`;
+    return;
+  }
+
+  if (current293TSchedule.status === 'error') {
+    list.innerHTML = `<div class="rot-293t-empty">${String(current293TSchedule.error || 'Unable to load 293T schedule.')}</div>`;
+    return;
+  }
+
+  if (!current293TSchedule.items.length) {
+    list.innerHTML = `<div class="rot-293t-empty">No 293T events found for this week.</div>`;
+    return;
+  }
+
+  const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+  list.innerHTML = current293TSchedule.items.map((item) => `
+    <div class="rot-293t-item">
+      <div class="rot-293t-main">
+        <div class="rot-293t-passage">${esc(item.passage)}</div>
+        <div class="rot-293t-date">${esc(item.dateLabel)}</div>
+        <div class="rot-293t-name">${esc(item.name)}</div>
+      </div>
+      ${Array.isArray(item.support) && item.support.length ? `
+        <div class="rot-293t-support-list">
+          ${item.support.map((detail) => `<div class="rot-293t-support-item">${esc(detail)}</div>`).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+  setTimeout(() => syncTopFeatureCardHeights(openRotationSlots.size === 0), 0);
+}
+
+async function load293TSchedule(){
+  const today = getTodayLocal();
+  const weekStart = startOfWeekSunday(today);
+  const weekEnd = endOfWeekSaturday(today);
+  current293TSchedule = {
+    status: 'loading',
+    items: [],
+    rangeLabel: fmtWeekRange(weekStart, weekEnd),
+    error: ''
+  };
+  render293TSchedule();
+
+  if (!googleCalendarApiKey) {
+    current293TSchedule = {
+      status: 'error',
+      items: [],
+      rangeLabel: fmtWeekRange(weekStart, weekEnd),
+      error: 'Add `googleCalendarApiKey` in site data to display the 293T schedule.'
+    };
+    render293TSchedule();
+    return;
+  }
+
+  try {
+    const params = new URLSearchParams({
+      singleEvents: 'true',
+      orderBy: 'startTime',
+      timeMin: isoUtc(weekStart),
+      timeMax: isoUtc(weekEnd),
+      key: googleCalendarApiKey
+    });
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_293T)}/events?${params.toString()}`;
+    const resp = await fetch(url, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`Calendar API responded with ${resp.status}`);
+    const body = await resp.json();
+    const items = Array.isArray(body.items) ? body.items : [];
+
+    const grouped = new Map();
+    items.forEach((event) => {
+      const startDateTime = event?.start?.dateTime || '';
+      const startDateOnly = event?.start?.date || '';
+      const start = startDateTime
+        ? new Date(startDateTime)
+        : (startDateOnly ? parseYMDLocal(startDateOnly) : null);
+      if (!start || isNaN(start)) return;
+
+      const parsed = parse293TSummary(event?.summary || '');
+      if (!parsed) return;
+
+      const dateKey = ymd(start);
+      const dateLabel = start.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+      const bucket = grouped.get(dateKey) || { dateKey, dateLabel, passages: [], support: [] };
+
+      if (parsed.kind === 'passage') {
+        bucket.passages.push({
+          passage: parsed.passage,
+          name: parsed.name
+        });
+      } else if (parsed.kind === 'support') {
+        bucket.support.push(parsed.detail);
+      }
+
+      grouped.set(dateKey, bucket);
+    });
+
+    current293TSchedule = {
+      status: 'ready',
+      rangeLabel: fmtWeekRange(weekStart, weekEnd),
+      error: '',
+      items: Array.from(grouped.values()).flatMap((bucket) => (
+        bucket.passages.map((passageItem, index) => ({
+          passage: passageItem.passage,
+          name: passageItem.name,
+          dateLabel: bucket.dateLabel,
+          support: index === 0 ? bucket.support : []
+        }))
+      ))
+    };
+  } catch (e) {
+    current293TSchedule = {
+      status: 'error',
+      items: [],
+      rangeLabel: fmtWeekRange(weekStart, weekEnd),
+      error: 'Unable to load 293T schedule right now.'
+    };
+  }
+
+  render293TSchedule();
+}
+
 function renderRotations(obj, plan){
   const elDates = document.getElementById('rot-dates');
   const elGrid  = document.getElementById('rot-grid');
@@ -967,6 +1218,7 @@ function renderRotations(obj, plan){
       </button>
     `).join('')}
   `;
+  setTimeout(() => syncTopFeatureCardHeights(openRotationSlots.size === 0), 0);
 }
 
 function ymd(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
@@ -1132,12 +1384,14 @@ document.addEventListener('click', (event) => {
 (async function initPortal(){
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+  renderNextLabMeeting(data.labMeetings || []);
   applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
 
   let rot = data.rotations || {};
   currentRotationPlan = data.rotationPlan || null;
+  googleCalendarApiKey = data.googleCalendarApiKey || '';
   openRotationSlots = new Set();
   rotationViewOffset = 0;
   if (data.rotationPlan) {
@@ -1145,18 +1399,21 @@ document.addEventListener('click', (event) => {
     if (computed) rot = computed;   // computed period + looped assignees
   }
   renderRotations(rot, currentRotationPlan);
+  load293TSchedule();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 })();
 document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState !== 'visible') return;
   const data = await fetchPortalData();
   renderAnnouncements(data.announcements || []);
+  renderNextLabMeeting(data.labMeetings || []);
   applyAnnLayout();
 
   if (!getLastSeenTs()) setLastSeenTs(Date.now());
 
   let rot = data.rotations || {};
   currentRotationPlan = data.rotationPlan || null;
+  googleCalendarApiKey = data.googleCalendarApiKey || '';
   openRotationSlots = new Set();
   rotationViewOffset = 0;
   if (data.rotationPlan) {
@@ -1164,6 +1421,7 @@ document.addEventListener('visibilitychange', async () => {
     if (computed) rot = computed;   // computed period + looped assignees
   }
   renderRotations(rot, currentRotationPlan);
+  load293TSchedule();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
 
@@ -1381,6 +1639,33 @@ window.addEventListener('resize', positionNotesDock);
 // })();
 
 /* === Calendar height sync === */
+function syncTopFeatureCardHeights(force = false){
+  const stack = document.getElementById('portal-top-stack');
+  const meetingCard = document.getElementById('next-meeting-card');
+  const scheduleCard = document.getElementById('rot-293t-card');
+  if (!stack || !scheduleCard) return;
+
+  if (window.innerWidth <= 768) {
+    topFeatureCardBaselineHeight = 0;
+    scheduleCard.style.height = '';
+    if (meetingCard) meetingCard.style.height = '';
+    return;
+  }
+
+  const measured = Math.ceil(stack.getBoundingClientRect().height);
+  if ((force || openRotationSlots.size === 0) && measured > 0) {
+    topFeatureCardBaselineHeight = measured;
+  }
+
+  const target = topFeatureCardBaselineHeight || measured;
+  if (target <= 0) return;
+
+  scheduleCard.style.height = `${target}px`;
+  if (meetingCard) {
+    meetingCard.style.height = meetingCard.hidden ? '' : `${target}px`;
+  }
+}
+
 function syncCalendarHeight(){
 
   // On small screens, let the fixed iframe height take over
@@ -1410,12 +1695,16 @@ function syncCalendarHeight(){
   }
 }
 window.addEventListener('load',  syncCalendarHeight);
+window.addEventListener('load',  () => syncTopFeatureCardHeights(true));
 window.addEventListener('resize', () => {
   clearTimeout(syncCalendarHeight._t);
   syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
+  clearTimeout(syncTopFeatureCardHeights._t);
+  syncTopFeatureCardHeights._t = setTimeout(() => syncTopFeatureCardHeights(true), 120);
 });
 document.addEventListener('toggle', (e) => {
   if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
+  if (e.target.tagName === 'DETAILS') setTimeout(() => syncTopFeatureCardHeights(true), 120);
 }, true);
 
 </script>
@@ -1423,15 +1712,3 @@ document.addEventListener('toggle', (e) => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

@@ -24,6 +24,16 @@ collections:
             fields:
               - { label: "Text", name: "text", widget: string }
               - { label: "When (ISO)", name: "when", widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ" }
+          - label: "Lab Meetings"
+            name: "labMeetings"
+            widget: list
+            fields:
+              - { label: "Meeting Date", name: "date", widget: date, format: "YYYY-MM-DD" }
+              - { label: "Presenter", name: "presenter", widget: string }
+              - { label: "Meeting Title", name: "title", widget: string }
+              - { label: "Meeting Description", name: "description", widget: text, required: false }
+              - { label: "Presenter Photo", name: "image", widget: image, required: false }
+          - { label: "Google Calendar API Key", name: "googleCalendarApiKey", widget: string, required: false }
           - label: "Rotations"
             name: "rotations"
             widget: object

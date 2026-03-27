@@ -131,7 +131,7 @@ html.page-czardoms{
 html.page-hood-booking{
       --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
       --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
-      --TC1b:#60a5fa; --TC1c:#93c5fd; 
+      --TC1b:#60a5fa; --TC1c:#93c5fd;
       --TC2b:#22c55e; --TC2c:#86efac;
       --TC3b:#fbbf24; --TC3c:#fde68a;
       --shadow:0 10px 30px rgba(0,0,0,.08);
@@ -194,7 +194,7 @@ html.page-hood-booking{
       color:#111827;
       box-shadow:0 1px 2px rgba(0,0,0,.04);
     }
-    
+
     /* Optional: contextual colors by room */
     html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
     html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
@@ -228,10 +228,10 @@ html.page-hood-booking{
       column-gap:18px;        /* was ~10–12, bump it */
       row-gap:14px;
     }
-    
+
     /* Consistent field spacing + no overlap from icons */
     html.page-hood-booking .field{display:flex;flex-direction:column;gap:6px;min-width:0}
-    
+
     html.page-hood-booking input[type="text"],html.page-hood-booking input[type="date"],html.page-hood-booking input[type="time"],html.page-hood-booking select{
       width:100%;
       box-sizing:border-box;      /* ensure padding/borders don’t grow the box */
@@ -241,7 +241,7 @@ html.page-hood-booking{
       background:#fff;
       outline:none;
     }
-    
+
     /* When space gets tight, stack to one column so nothing touches */
     @media (max-width: 900px){
       html.page-hood-booking .grid{grid-template-columns:1fr; column-gap:0}
@@ -251,7 +251,7 @@ html.page-hood-booking{
     html.page-hood-booking .row{ display:flex; gap:12px; }
     html.page-hood-booking .row.spaced{ margin-top:12px; }
     html.page-hood-booking .row > .field{ flex:1 1 0; min-width:0; }   /* <-- critical */
-    
+
     /* Keep the badge inside its box and center the text */
     html.page-hood-booking .room-badge{
       display:flex;
@@ -265,7 +265,7 @@ html.page-hood-booking{
       font-weight:700;
       letter-spacing:.2px;
       color:#111827;
-    
+
       /* prevent overflow */
       box-sizing:border-box;
       max-width:100%;
@@ -273,7 +273,7 @@ html.page-hood-booking{
       white-space:nowrap;
       text-overflow:ellipsis;
     }
-    
+
     /* contextual colors (unchanged) */
     html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
     html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
@@ -296,7 +296,7 @@ html.page-portal{
       --radius:12px;
       --underline:linear-gradient(currentColor,currentColor);
     }
-  
+
     html.page-portal,html.page-portal body{height:100%}
     html.page-portal body{
       margin:0;
@@ -313,23 +313,33 @@ html.page-portal{
       content:""; position:fixed; inset:0; z-index:-1;
       background:rgba(245,247,251,.86); backdrop-filter:blur(.5px);
     }
-  
+
     /* Page frame */
     html.page-portal .wrap{ max-width:1440px; margin:0 auto; padding:28px 20px 60px }
-  
+
     html.page-portal header{
-      display:grid; grid-template-columns:1fr auto; align-items:end; gap:16px;
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      grid-template-areas:
+        "brand brand brand"
+        "quick . actions";
+      align-items:center;
+      gap:12px 16px;
       margin:8px 0 16px;
     }
     html.page-portal .header-brand{
+      grid-area:brand;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      align-items:center;
+      justify-self:center;
+      text-align:center;
     }
 
     html.page-portal .header-logo{
-      height: auto;       /* adjust as needed */
-      width: 350px;
+      height: auto;
+      width: 300px;
       display: block;
     }
 
@@ -339,7 +349,7 @@ html.page-portal{
     }
     html.page-portal .title{ font-size:clamp(24px,3.5vw,36px); font-weight:800; letter-spacing:.2px }
     html.page-portal .subtitle{ color:var(--muted); font-size:14px; margin-top:4px }
-  
+
     /* Notice banner (toast) */
     html.page-portal .notice{
       display:none; align-items:center; gap:10px;
@@ -360,13 +370,13 @@ html.page-portal{
       50%{ box-shadow:0 0 0 6px rgba(255,193,7,0) }
     }
     html.page-portal .notice-fixed .ms{ font-size:22px; color:#ff8f00; flex-shrink:0 }
-  
+
     /* Icon font */
     html.page-portal .ms{ font-family:"Material Symbols Rounded"; font-weight:400; font-style:normal; font-size:20px; line-height:1 }
     html.page-portal .ms-lg{ font-size:2em; }
-  
+
     /* Search */
-    html.page-portal .actions{ display:flex; gap:10px; align-items:center }
+    html.page-portal .actions{ grid-area:actions; display:flex; gap:10px; align-items:center; justify-self:end }
     html.page-portal .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
     html.page-portal .search{
       display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef;
@@ -377,11 +387,13 @@ html.page-portal{
 
     /* Header quick links dropdown */
     html.page-portal .header-quick{
+      grid-area:quick;
       position:relative;
       border:1px solid #d6e3ff;
       border-radius:999px;
       background:#f4f8ff;
       padding:0;
+      justify-self:start;
     }
     html.page-portal .header-quick > summary{
       list-style:none;
@@ -528,7 +540,7 @@ html.page-portal{
         width:min(420px, 94vw);
       }
     }
-  
+
     /* === Three-column page layout: left sidebar | main grid | right sidebar === */
     html.page-portal .layout{
       display:grid; gap:20px;
@@ -545,10 +557,10 @@ html.page-portal{
       html.page-portal .layout{ grid-template-columns:1fr; }
       html.page-portal .sidebar .card,html.page-portal .rightbar .card{ position:static; top:auto }
     }
-  
+
     /* Sidebars stick to top row */
     html.page-portal .sidebar .card,html.page-portal .rightbar .card{ position:sticky; top:16px }
-  
+
     /* Main grid (center column) */
     html.page-portal .grid{
       display:grid; gap:20px;
@@ -560,7 +572,7 @@ html.page-portal{
     @media (max-width:900px){
       html.page-portal .grid{ grid-template-columns:1fr }
     }
-  
+
     /* Cards */
     html.page-portal .card{
       background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
@@ -579,7 +591,7 @@ html.page-portal{
     }
     html.page-portal .card h2 .badge{ margin-left:auto }
     html.page-portal .badge{ display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:3px 10px; border-radius:999px; background:#eef4ff; color:#143d8d; border:1px solid #d5e3ff }
-  
+
     /* Section header colors */
     html.page-portal #cal-title{ background:#a8c8ff }
     html.page-portal #equip-title{ background:#a9e5c2 }
@@ -587,7 +599,7 @@ html.page-portal{
     html.page-portal #cores-title{ background:#f5a3a3 }
     html.page-portal #tools-title{ background:#9ee5f0 }
     html.page-portal #misc-title{ background:#ffcba4 }
-  
+
     /* Lists & links */
     html.page-portal .list{ list-style:none; padding:0; margin:0 }
     html.page-portal .list li{ margin:8px 0 }
@@ -605,7 +617,7 @@ html.page-portal{
     html.page-portal .link:focus{ box-shadow:0 0 0 3px var(--ring) }
     html.page-portal .ext::after{ content:none !important }
     html.page-portal .muted{ color:var(--muted); font-weight:500 }
-  
+
     /* Details (disclosure) */
     html.page-portal details{ border:1px solid #ddd; border-radius:8px; padding:10px 12px; background:#fafafa }
     html.page-portal details[open]{ background:#e3f2fd }
@@ -619,7 +631,7 @@ html.page-portal{
     html.page-portal details[open] > summary::before{ transform:translateY(-50%) rotate(90deg) }
     html.page-portal summary .ms{ font-size:20px; line-height:1; position:relative; top:1px }
     html.page-portal summary::-webkit-details-marker{ display:none }
-  
+
     /* Calendar sidebar */
     html.page-portal #live-cal-title{ background:#cfe0ff }
     html.page-portal .iframe-wrap{
@@ -636,7 +648,7 @@ html.page-portal{
       padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
     }
     html.page-portal .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
-  
+
     /* Announcements sidebar */
     html.page-portal #ann-title{ background:#ffe3b3 }
     html.page-portal .ann-list li{
@@ -646,7 +658,7 @@ html.page-portal{
     }
     html.page-portal .ann-time{ font-size:12px; color:#6b5d3b; font-weight:600; white-space:nowrap }
     html.page-portal .ann-text{ flex:1 }
-  
+
     /* Footer */
     html.page-portal footer{ margin-top:26px; color:var(--muted); font-size:12px }
     html.page-portal .stack{ display:flex; gap:8px; flex-wrap:wrap }
@@ -658,10 +670,10 @@ html.page-portal{
       --gap: 22px;          /* space between columns/cards */
       --left: 500px;        /* LEFT sidebar (calendar) width */
     }
-    
+
     /* Page wrapper — truly centered */
     html.page-portal .wrap{ max-width: var(--page-max); margin-inline: auto; }
-    
+
     /* Top banner: Lab Announcements (full-width) */
     html.page-portal .ann-banner.card{ padding: 14px 16px; }
     html.page-portal #ann-banner-title{ background: #ffe3b3; }
@@ -669,12 +681,151 @@ html.page-portal{
     html.page-portal .ann-banner .ann-list{
       display:grid;
       gap:6px;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: 1fr;
       align-items:start;
     }
     html.page-portal .ann-banner .ann-list li{
       display:flex; gap:10px; align-items:flex-start;
       padding:10px 12px; border:1px solid #f4e1b8; border-radius:10px; background:#fffaf0;
+    }
+    html.page-portal .portal-top{
+      max-width: var(--page-max);
+      margin: 0 auto 24px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:18px;
+      align-items:start;
+    }
+    html.page-portal .portal-top.has-meeting{
+      grid-template-columns: 290px minmax(0, 1fr);
+    }
+    html.page-portal .portal-top-main{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) 300px;
+      gap:18px;
+      min-width:0;
+      align-items:start;
+    }
+    html.page-portal .portal-top-stack{
+      display:grid;
+      gap:18px;
+      min-width:0;
+    }
+    html.page-portal .portal-top .ann-banner.card,
+    html.page-portal .portal-top .card.room-rot,
+    html.page-portal .portal-top .card.rot-293t-card{
+      max-width:none;
+      margin:0;
+    }
+    html.page-portal .next-meeting{
+      margin:0;
+      max-width:none;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-self:start;
+    }
+    html.page-portal .next-meeting h2{
+      background:#dfead8;
+    }
+    html.page-portal .rot-293t-card h2{
+      background:#e98787;
+      color:#5f1010;
+    }
+    html.page-portal .meeting-body{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:16px;
+      padding-top:2px;
+    }
+    html.page-portal .meeting-media{
+      width:100%;
+      max-width:250px;
+      margin:0 auto;
+    }
+    html.page-portal .meeting-photo{
+      display:block;
+      width:100%;
+      aspect-ratio: 4 / 3;
+      object-fit:cover;
+      border-radius:14px;
+      border:1px solid #d9e6d2;
+      background:#eef5ea;
+    }
+    html.page-portal .meeting-photo-fallback{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#5e7a5e;
+      font-size:56px;
+    }
+    html.page-portal .meeting-copy{
+      min-width:0;
+      width:100%;
+      text-align:center;
+    }
+    html.page-portal .meeting-meta{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+    html.page-portal .meeting-date{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#eef4ff;
+      border:1px solid #d8e3fb;
+      color:#284777;
+      font-size:14px;
+      font-weight:800;
+    }
+    html.page-portal .meeting-presenter{
+      font-size:15px;
+      color:#446042;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+    html.page-portal .meeting-presenter-label{
+      font-weight:900;
+    }
+    html.page-portal .meeting-presenter-name{
+      font-weight:700;
+    }
+    html.page-portal .meeting-name{
+      font-size:24px;
+      line-height:1.08;
+      font-weight:900;
+      color:#15202b;
+      margin-bottom:10px;
+      text-align:center;
+      text-wrap:balance;
+    }
+    html.page-portal .meeting-description{
+      margin:0;
+      font-size:15px;
+      line-height:1.5;
+      color:#475569;
+      max-width:none;
+      text-align:center;
+    }
+    html.page-portal .rot-293t-card{
+      display:flex;
+      flex-direction:column;
+      align-self:start;
+    }
+    html.page-portal .rot-293t-body{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
     }
 
     /* Slightly narrower minimum on tighter screens */
@@ -682,8 +833,70 @@ html.page-portal{
       html.page-portal .ann-banner .ann-list{
         grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
       }
+      html.page-portal .portal-top.has-meeting{
+        grid-template-columns: 250px minmax(0, 1fr);
+      }
+      html.page-portal .portal-top-main{
+        grid-template-columns:minmax(0, 1fr) 280px;
+      }
+      html.page-portal .meeting-name{
+        font-size:19px;
+      }
     }
-    
+
+    @media (max-width: 1380px){
+      html.page-portal .portal-top-main{
+        grid-template-columns:minmax(0, 1fr) 270px;
+      }
+      html.page-portal .room-rot #rot-title{
+        display:grid;
+        grid-template-columns:auto minmax(0, 1fr) auto;
+        align-items:center;
+        row-gap:6px;
+        align-items:center;
+        gap:8px 10px;
+      }
+      html.page-portal .room-rot .rot-helper{
+        order:3;
+        grid-column:1 / -1;
+        margin-left:0;
+        font-size:10px;
+      }
+      html.page-portal .room-rot .rot-toggle-all{
+        justify-self:end;
+        margin-left:0;
+        padding:4px 10px;
+        font-size:10px;
+      }
+      html.page-portal .room-rot .rot-nav{
+        justify-self:end;
+        margin-left:0;
+        gap:2px;
+        min-width:0;
+      }
+      html.page-portal .room-rot .rot-nav-btn .ms{
+        font-size:24px;
+      }
+      html.page-portal .room-rot .rot-reset-btn{
+        font-size:10px;
+        padding:0 2px;
+      }
+      html.page-portal .room-rot #rot-dates{
+        margin:0;
+        font-size:12px;
+        padding:4px 8px;
+        gap:4px;
+        top:0;
+      }
+      html.page-portal .room-rot #rot-dates .ms{
+        font-size:14px;
+      }
+      html.page-portal .room-rot .rot-grid{
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:8px;
+      }
+    }
+
     /* Stronger badge look, with color variants that mirror the left stripe */
     html.page-portal .ann-time{
       display:inline-flex;
@@ -702,7 +915,7 @@ html.page-portal{
     html.page-portal .ann-item.info   .ann-time{ background: #eef4ff; color: #143d8d; border-color: #d5e3ff; }
     html.page-portal .ann-item.warn   .ann-time{ background: #fff7ea; color: #b35b00; border-color: #ffddb3; }
     html.page-portal .ann-item.urgent .ann-time{ background: #ffecec; color: #a41616; border-color: #ffb3b3; }
-    
+
     /* add a tiny calendar glyph before the date */
     html.page-portal .ann-time::before{
       content: "🗓";
@@ -713,28 +926,28 @@ html.page-portal{
       opacity:0.95;
     }
     html.page-portal .ann-text{ flex:1 }
-    
+
     /* Two-column layout now: LEFT sidebar (calendar) + CENTER grid (cards) */
     html.page-portal .layout{
       display: grid; gap: var(--gap);
       grid-template-columns: var(--left) 1fr;
       align-items: start;
     }
-    
+
     /* Make the calendar sticky and taller for the wider column */
     html.page-portal .sidebar .card{ position: sticky; top: 16px; }
     html.page-portal .iframe-wrap iframe{ height: 840px; }  /* was ~760-820, adjust if you like */
-    
+
     /* Center grid: give cards more breathing room so badges don't overflow */
     html.page-portal .grid{
       display:grid; gap: var(--gap);
       grid-template-columns: repeat(3, minmax(300px, 1fr));
     }
-    
+
     /* Avoid header/badge overflow inside narrow cards */
     html.page-portal .card h2{ min-width: 0; display:flex; align-items:center; gap:10px; }
     html.page-portal .card h2 .badge{ flex-shrink: 0; }        /* keep the badge from squashing title */
-    
+
     /* Responsive steps: 2 cols earlier, then stack */
     @media (max-width: 1540px){
       html.page-portal{ --left: 450px; --page-max: 1500px; }
@@ -751,23 +964,23 @@ html.page-portal{
       margin-bottom: 28px;       /* space between announcements and rest of page */
       padding-bottom: 4px;
     }
-    
+
     html.page-portal .lab-announcements .card{
       margin-bottom: 0;
     }
-    
+
     /* If your announcements bar is full-width across top */
     html.page-portal .lab-announcements + .layout{
       margin-top: 12px;          /* adds a soft gap before the main grid starts */
     }
-    
+
     /* Keep consistent alignment with page margins */
     html.page-portal .lab-announcements{
       max-width: var(--page-max);
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     /* slightly enhance background tone */
     html.page-portal .lab-announcements h2{
       box-shadow: inset 0 -1px 0 rgba(0,0,0,0.05);
@@ -778,11 +991,11 @@ html.page-portal{
       display: block;
       margin-bottom: 28px;      /* creates visible space before grid */
     }
-    
+
     html.page-portal .lab-announcements + .layout{
       margin-top: 28px;         /* ensures consistent vertical gap */
     }
-    
+
     /* If announcements span full width, align with content and keep consistent width */
     html.page-portal .lab-announcements{
       max-width: var(--page-max);
@@ -790,7 +1003,7 @@ html.page-portal{
       margin-right: auto;
       padding-bottom: 8px;
     }
-    
+
     /* make the card slightly pop above the grid */
     html.page-portal .lab-announcements .card{
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
@@ -806,7 +1019,7 @@ html.page-portal{
       margin-right: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06); /* little pop */
     }
-    
+
     /* If the banner sits directly above the main .layout, add extra safety gap */
     html.page-portal .card.ann-banner + .layout{
       margin-top: 28px;
@@ -818,7 +1031,7 @@ html.page-portal{
       --ann-warn:   #ffa000;
       --ann-urgent: #e53935;
     }
-    
+
     /* Base card */
     html.page-portal .ann-item{
       position: relative;
@@ -831,14 +1044,14 @@ html.page-portal{
       background: #fff;
       box-shadow: var(--shadow);
       transform-origin: top left;
-    
+
       /* Level stripe */
       border-left: 4px solid var(--ann-info);
     }
     html.page-portal .ann-item.info{ border-left-color: var(--ann-info); }
     html.page-portal .ann-item.warn{ border-left-color: var(--ann-warn); }
     html.page-portal .ann-item.urgent{ border-left-color: var(--ann-urgent); }
-    
+
     /* Header */
     html.page-portal .ann-head{
       display: flex;
@@ -855,15 +1068,15 @@ html.page-portal{
       flex: 0 0 8px;
       background: currentColor;
     }
-    
+
     /* Tint header by level */
     html.page-portal .ann-item.info   .ann-head{ color: var(--ann-info); }
     html.page-portal .ann-item.warn   .ann-head{ color: var(--ann-warn); }
     html.page-portal .ann-item.urgent .ann-head{ color: var(--ann-urgent); }
-    
+
     /* Remove icon chip */
     html.page-portal .ann-chip{ display: none !important; }
-    
+
     /* NEW pill */
     html.page-portal .badge-new{
       margin-left: auto;
@@ -877,12 +1090,12 @@ html.page-portal{
       display: none;
     }
     html.page-portal .ann-item.new .badge-new{ display: inline-flex; }
-    
+
     /* === MATCH LAB CALENDAR HEIGHT TO TWO STACKED CARDS === */
     html.page-portal .sidebar .card#live-cal-card{
       height: calc((18px * 2) + (var(--card-height, 0px) * 2) + 40px); /* placeholder fallback */
     }
-    
+
     /* Simpler and more reliable: match overall column height visually */
     html.page-portal .sidebar .card#live-cal-card{
       display: flex;
@@ -891,7 +1104,7 @@ html.page-portal{
       min-height: 720px;    /* base height */
       max-height: 1000px;   /* cap for long screens */
     }
-    
+
     /* Let the iframe expand to fill available space */
     html.page-portal .sidebar .iframe-wrap{
       flex: 1;
@@ -976,14 +1189,111 @@ html.page-portal{
       opacity:.38;
       cursor:default;
     }
-    
+    html.page-portal .rot-293t-head{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+    html.page-portal .rot-293t-title{
+      font-size:18px;
+      font-weight:800;
+      color:#1d3557;
+    }
+    html.page-portal .rot-293t-list{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    html.page-portal .rot-293t-item{
+      display:grid;
+      gap:10px;
+      border:1px solid #e2e8f4;
+      border-radius:10px;
+      background:#f8fafc;
+      padding:12px 14px;
+      text-align:left;
+    }
+    html.page-portal .rot-293t-main{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+    html.page-portal .rot-293t-passage{
+      font-size:20px;
+      font-weight:900;
+      color:#1d4ed8;
+      margin-bottom:0;
+      white-space:nowrap;
+    }
+    html.page-portal .rot-293t-date{
+      font-size:12px;
+      font-weight:700;
+      color:#64748b;
+      margin-bottom:0;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      white-space:nowrap;
+      flex:0 0 auto;
+    }
+    html.page-portal .rot-293t-name{
+      font-size:15px;
+      font-weight:700;
+      color:#111827;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      min-width:0;
+      flex:1 1 auto;
+    }
+    html.page-portal .rot-293t-support-list{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding-top:10px;
+      border-top:1px solid #e2e8f4;
+    }
+    html.page-portal .rot-293t-support-item{
+      font-size:13px;
+      font-weight:700;
+      color:#51637f;
+      padding-left:10px;
+      position:relative;
+    }
+    html.page-portal .rot-293t-support-item::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.5em;
+      width:4px;
+      height:4px;
+      border-radius:50%;
+      background:#8ca0c3;
+    }
+    html.page-portal .rot-293t-empty{
+      border:1px dashed #d8e3f7;
+      border-radius:10px;
+      padding:18px 14px;
+      text-align:center;
+      color:#64748b;
+      background:#fbfdff;
+    }
+    html.page-portal .rot-293t-actions{
+      margin-top:10px;
+      display:flex;
+      justify-content:center;
+    }
+
     html.page-portal .rot-grid{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 8px;
       align-items:start;
     }
-    
+
     /* Colored headers like your screenshot */
     html.page-portal .rot-col{
       appearance:none;
@@ -1016,7 +1326,7 @@ html.page-portal{
       border-bottom:1px solid rgba(0,0,0,.08);
       font-size:18px;
     }
-    
+
     html.page-portal .rot-body{
       padding:10px 12px;
       text-align:center;
@@ -1098,14 +1408,14 @@ html.page-portal{
       position: relative;
       top: 1px;
     }
-    
+
     /* optional: make it look clickable on hover */
     html.page-portal #rot-dates:hover{
       background: #e1ecff;
       border-color: #c2d5ff;
       box-shadow: 0 3px 8px rgba(0,0,0,0.08);
     }
-    
+
     /* add icon style if your JS inserts one */
     html.page-portal #rot-dates .ms{
       font-size: 18px;
@@ -1114,13 +1424,13 @@ html.page-portal{
       position: relative;
       top: 1px;
     }
-    
+
     /* palette */
     html.page-portal .rot-tc1{ background:#f8bf20; }   /* amber */
     html.page-portal .rot-tc2{ background:#5a84e8; color:#fff; }
     html.page-portal .rot-tc3{ background:#74b65a; color:#0f2a0f; }
     html.page-portal .rot-main{ background:#d32f2f; color:#fff; }
-    
+
     /* Editor */
     html.page-portal .rot-edit{
       margin-top:12px;
@@ -1130,7 +1440,7 @@ html.page-portal{
       background:#f8fbff;
     }
     html.page-portal .rot-edit[open]{ background:#eef5ff; }
-    
+
     html.page-portal .rot-form{ display:grid; gap:12px; }
     html.page-portal .rot-form .row{
       display:grid; gap:10px;
@@ -1141,7 +1451,7 @@ html.page-portal{
       border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff;
     }
     html.page-portal .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
-    
+
     html.page-portal .rot-form .actions{ display:flex; gap:10px; align-items:center; }
     html.page-portal .btn-primary{
       appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
@@ -1152,7 +1462,7 @@ html.page-portal{
       padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
     }
     html.page-portal .hint{ font-size:12px; color:#6b7280; }
-    
+
     @media (max-width: 900px){
       html.page-portal .rot-form .row{ grid-template-columns: 1fr 1fr; }
     }
@@ -1160,14 +1470,14 @@ html.page-portal{
     /* Hide editor by default; show only in admin mode */
     html.page-portal .rot-edit{ display: none; }
     html.page-portal body.admin .rot-edit { display: block; }
-    
+
     /* Also visually disable inputs when not admin */
     html.page-portal .room-rot .rot-form input:disabled{
       background: #f4f6fa;
       color: #7a869a;
       cursor: not-allowed;
     }
-    
+
     /* Tiny admin link */
     html.page-portal #admin-toggle{
       position: fixed;
@@ -1190,7 +1500,7 @@ html.page-portal{
       max-width: var(--page-max);
       margin: 16px auto 28px;   /* top gap from announcements, bottom gap from grid */
     }
-    
+
     /* Extra safety if it sits directly under the announcements banner */
     html.page-portal .card.ann-banner + .card.room-rot{
       margin-top: 18px;
@@ -1207,7 +1517,7 @@ html.page-portal{
       cursor: pointer;
       transition: all 0.25s ease;
     }
-    
+
     /* --- MAIN (Red) --- */
     html.page-portal .calendar-toolbar .btn[data-cal="MAIN"]{
       background-color: #d32f2f; /* strong red */
@@ -1215,7 +1525,7 @@ html.page-portal{
     html.page-portal .calendar-toolbar .btn[data-cal="MAIN"]:hover{
       background-color: #b71c1c; /* darker on hover */
     }
-    
+
     /* --- 293T (Yellow) --- */
     html.page-portal .calendar-toolbar .btn[data-cal="293T"]{
       background-color: #fbc02d; /* warm yellow */
@@ -1224,7 +1534,7 @@ html.page-portal{
     html.page-portal .calendar-toolbar .btn[data-cal="293T"]:hover{
       background-color: #f9a825; /* deeper yellow on hover */
     }
-    
+
     /* --- Active (pressed) state --- */
     html.page-portal .calendar-toolbar .btn[data-cal][aria-pressed="true"]{
       box-shadow: 0 0 10px rgba(0,0,0,0.25);
@@ -1240,24 +1550,31 @@ html.page-portal{
     /* ===== Mobile polish (≤ 480px) ===== */
     @media (max-width: 480px){
       html.page-portal .wrap{ padding:16px 12px 40px; }
-    
+
       /* Stack header; keep the title readable */
       html.page-portal header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
       html.page-portal .title{ font-size: 22px; line-height: 1.15; }
       html.page-portal .subtitle{ font-size: 12px; }
-    
+
       /* Search fills the row */
       html.page-portal .actions{ width: 100%; gap:8px; }
       html.page-portal .search{ width: 100%; }
       html.page-portal .search input{ min-width: 0; width: 100%; }
-    
+
       /* Cards/headers a bit tighter */
       html.page-portal .card{ padding:14px; }
       html.page-portal .card h2{ font-size: 18px; padding:12px 14px; }
       html.page-portal .badge{ font-size: 11px; padding: 2px 8px; }
-    
+
       /* Rotations: 2 columns on phones */
       html.page-portal .rot-grid{ grid-template-columns: repeat(2, 1fr); gap: 6px; }
+      html.page-portal .rot-293t-list{ grid-template-columns:1fr; }
+      html.page-portal .rot-293t-item{ padding:9px 10px; }
+      html.page-portal .rot-293t-main{ gap:10px; }
+      html.page-portal .rot-293t-passage{ font-size:16px; }
+      html.page-portal .rot-293t-date{ font-size:10px; }
+      html.page-portal .rot-293t-name{ font-size:13px; }
+      html.page-portal .rot-293t-support-item{ font-size:11px; }
       html.page-portal .rot-h{ font-size: 13px; padding: 6px 8px; }
       html.page-portal .rot-body{ padding: 8px 10px; }
       html.page-portal .room-rot #rot-title{
@@ -1326,24 +1643,65 @@ html.page-portal{
       /* Calendar toolbar buttons smaller */
       html.page-portal .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
       html.page-portal .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
-    
+
       /* Calendar iframe height cap for phones */
       html.page-portal .iframe-wrap iframe{ height: 520px; }
-    
+
       /* Announcements: single column */
       html.page-portal .ann-banner .ann-list{ grid-template-columns: 1fr; }
-    
+
       /* Admin chip a bit smaller/away from edge */
       html.page-portal #admin-toggle{ right:10px; bottom:10px; font-size:11px; padding:4px 6px; }
     }
-    
+
     /* Slightly-narrow tablets (≤ 768px) */
     @media (max-width: 768px){
       html.page-portal .grid{ grid-template-columns: 1fr; }
       html.page-portal .iframe-wrap iframe{ height: 600px; }
+      html.page-portal .portal-top.has-meeting{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .portal-top-main{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .meeting-body{
+        grid-template-columns:1fr;
+        gap:14px;
+      }
+      html.page-portal .meeting-media{
+        max-width:180px;
+      }
+      html.page-portal .meeting-name{
+        font-size:22px;
+      }
+      html.page-portal .meeting-description{
+        font-size:14px;
+      }
     }
 
     @media (max-width: 480px){
+      html.page-portal .next-meeting{
+        padding:10px;
+      }
+      html.page-portal .meeting-media{
+        max-width:none;
+      }
+      html.page-portal .meeting-photo{
+        aspect-ratio:16 / 11;
+      }
+      html.page-portal .meeting-meta{
+        gap:8px;
+        margin-bottom:8px;
+      }
+      html.page-portal .meeting-date{
+        font-size:12px;
+      }
+      html.page-portal .meeting-presenter{
+        font-size:12px;
+      }
+      html.page-portal .meeting-name{
+        font-size:20px;
+      }
       html.page-portal .room-rot{
         padding:10px;
       }
@@ -1395,6 +1753,9 @@ html.page-portal{
       html.page-portal .rot-inline-forecast-item{
         text-align:left;
       }
+      html.page-portal .rot-293t-head{
+        justify-content:center;
+      }
     }
 
     /* ==== Sticky Notes ==== */
@@ -1409,7 +1770,7 @@ html.page-portal{
       z-index: 999;
       pointer-events: none;
     }
-    
+
     html.page-portal .note-card{
       pointer-events: auto;
       background: #fffbe7;
@@ -1419,14 +1780,14 @@ html.page-portal{
       padding: 10px 10px 36px 10px;
       position: relative;
     }
-    
+
     html.page-portal .note-card .note-toolbar{
       position: absolute;
       right: 6px; top: 6px;
       display: flex; gap: 4px;
       padding: 2px 4px;
     }
-    
+
     html.page-portal .note-btn{
       appearance: none;
       border: 1px solid #ddd4a4;
@@ -1437,7 +1798,7 @@ html.page-portal{
       cursor: pointer;
     }
     html.page-portal .note-btn:hover{ background:#fff1a1; }
-    
+
     html.page-portal .note-textarea{
       width: 100%;
       min-height: 90px;
@@ -1448,7 +1809,7 @@ html.page-portal{
       color: #3d3a2a;
       outline: none;
     }
-    
+
     /* Header 'Add note' button */
     html.page-portal .btn-note{
       appearance:none;
@@ -1470,7 +1831,7 @@ html.page-portal{
     html.page-portal .btn-note[disabled]{ opacity:.5; cursor:not-allowed; }
     @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(2px)} 75%{transform:translateX(-2px)} }
     html.page-portal .btn-note.shake{ animation: shake .25s ease-in-out; }
-    
+
     /* Hide the dock on small screens so it doesn't cover content */
     @media (max-width: 980px){
       html.page-portal .notes-dock,html.page-portal #add-note-fab{ display:none; }
@@ -1482,7 +1843,7 @@ html.page-portal{
       padding: 42px 12px 40px 12px;  /* ↑ extra top padding */
       position: relative;
     }
-    
+
     /* Keep the toolbar above the text and visually tidy */
     html.page-portal .note-card .note-toolbar{
       position: absolute;
@@ -1495,7 +1856,7 @@ html.page-portal{
       border-radius: 8px;
       padding: 2px;
     }
-    
+
     /* Ensure the textarea fills the available box without overlapping */
     html.page-portal .note-textarea{
       display: block;
@@ -1515,7 +1876,7 @@ html.page-portal{
       padding-top: 24px;          /* keep text clear of toolbar */
       white-space: pre-wrap;
     }
-    
+
     /* simple checklist look */
     html.page-portal ul.checklist{ list-style: none; padding-left: 0; margin: 0; }
     html.page-portal ul.checklist li{ display: flex; align-items: center; gap: 8px; margin: 4px 0; }
@@ -1531,7 +1892,7 @@ html.page-portal{
     }
     html.page-portal .ann-banner h2 .dot.show{ display:inline-block; animation:annPulse 1.8s infinite; }
     @keyframes annPulse{ 0%{box-shadow:0 0 0 0 rgba(255,23,68,.5)} 70%{box-shadow:0 0 0 10px rgba(255,23,68,0)} 100%{box-shadow:0 0 0 0 rgba(255,23,68,0)} }
-    
+
     html.page-portal .ann-list{ list-style:none; padding:0; margin:10px 0 0; display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); }
     html.page-portal .ann-item{
       position:relative; display:grid; grid-template-columns:auto 1fr; gap:10px;
@@ -1540,7 +1901,7 @@ html.page-portal{
     }
     html.page-portal .ann-item.new{ animation:annPop .35s ease-out; }
     @keyframes annPop{ 0%{transform:scale(.96); opacity:.0} 100%{transform:scale(1); opacity:1} }
-    
+
     html.page-portal .ann-chip{
       grid-row:1 / span 2; align-self:start; display:inline-flex; align-items:center; justify-content:center;
       width:34px; height:34px; border-radius:10px; font-weight:800; color:#fff;
@@ -1548,7 +1909,7 @@ html.page-portal{
     html.page-portal .ann-chip.info{ background:#2979ff; }
     html.page-portal .ann-chip.warn{ background:#ffa000; }
     html.page-portal .ann-chip.urgent{ background:#e53935; }
-    
+
     html.page-portal .ann-head{ display:flex; gap:8px; align-items:center; font-weight:800; color:#1c2430; }
     html.page-portal .ann-time{ font-size:12px; color:#6b5d3b; font-weight:700; }
     html.page-portal .ann-content-row{
@@ -1577,7 +1938,7 @@ html.page-portal{
       padding:2px 8px; border-radius:999px; display:none;
     }
     html.page-portal .ann-item.new .badge-new{ display:inline-flex; }
-    
+
     html.page-portal .ann-toolbar{
       display:flex; align-items:center; gap:8px; margin-top:8px;
     }
@@ -1585,7 +1946,7 @@ html.page-portal{
       margin-left:auto; font-size:12px; padding:5px 10px; border-radius:999px; border:1px solid #d6e3ff; background:#eef4ff;
       color:#0b3d91; font-weight:800; cursor:pointer;
     }
-    
+
     /* make the toast you already have feel “alerty” for announcements */
     html.page-portal .notice-fixed.ann-toast{
       background:#fff; border-color:#90caf9; color:#0d47a1;
@@ -1606,30 +1967,18 @@ html.page-portal{
 
     /* Card shells + headers a bit tighter */
     html.page-portal .card.ann-banner,html.page-portal .card.room-rot{ padding: 10px 12px; }
-    
+
     html.page-portal .card.ann-banner h2,html.page-portal .card.room-rot h2{
       margin: -10px -12px 12px -12px;
       padding: 8px 12px;
       font-size: 16px;      /* was ~20px */
     }
-    
+
     /* Announcements: smaller items + 3-line clamp */
     html.page-portal .ann-banner .ann-list{ gap: 8px; }
     html.page-portal .ann-item{ padding: 8px 10px; }
     html.page-portal .ann-head{ font-size: 13px; }
     html.page-portal .ann-time{ font-size: 11px; }
-    html.page-portal .ann-banner.ann-medium .ann-list,
-    html.page-portal .ann-banner.ann-many .ann-list{
-      display:grid;
-      align-items:start;
-      grid-auto-flow:row;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:10px;
-    }
-    html.page-portal .ann-banner.ann-many .ann-list{
-      grid-template-columns:repeat(3, minmax(0, 1fr));
-    }
-    
     /* clamp long bodies to reduce height */
     html.page-portal .ann-body{
       position: relative;
@@ -1664,28 +2013,15 @@ html.page-portal{
       color: #0b3d91;
       cursor: pointer;
     }
-    
+
     /* expanded state removes clamp */
     html.page-portal .ann-item.expanded .ann-body.clamp{
       -webkit-line-clamp: unset;
       overflow: visible;
     }
-    
+
     html.page-portal .ann-item.expanded .ann-body.clamp::after{ display: none; }
 
-    @media (max-width: 1180px){
-      html.page-portal .ann-banner.ann-many .ann-list{
-        grid-template-columns:repeat(2, minmax(0, 1fr));
-      }
-    }
-    @media (max-width: 820px){
-      html.page-portal .ann-banner.ann-medium .ann-list,
-      html.page-portal .ann-banner.ann-many .ann-list{
-        display:grid;
-        grid-template-columns:1fr;
-      }
-    }
-    
     /* Optional: keep announcements to a single compact row with horizontal scroll
        (uncomment if you want an even shorter banner)
        .ann-banner .ann-list {
@@ -1696,14 +2032,14 @@ html.page-portal{
          padding-bottom: 4px;   // room for scrollbar
        }
     */
-    
+
     /* Rotations: tighter grid + one-line names */
     html.page-portal #rot-dates{
       font-size: 13px;
       padding: 4px 8px;
       margin-bottom: 6px;
     }
-    
+
     html.page-portal .rot-grid{ gap: 6px; }
     html.page-portal .rot-h{ padding: 6px 8px; font-size: 14px; }
     html.page-portal .rot-body{
@@ -1713,7 +2049,7 @@ html.page-portal{
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
+
     /* Trim the vertical gaps above/below these two sections */
     html.page-portal .card.ann-banner{ margin: 0 0 12px; }
     html.page-portal .card.room-rot{ margin: 12px auto 16px; }
