@@ -990,9 +990,9 @@ function startOfWeekSunday(d){
   return out;
 }
 
-function endOfWeekSaturday(d){
+function endOfWeekSunday(d){
   const start = startOfWeekSunday(d);
-  const out = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  const out = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 7);
   out.setHours(23, 59, 59, 999);
   return out;
 }
@@ -1065,7 +1065,7 @@ function render293TSchedule(){
 async function load293TSchedule(){
   const today = getTodayLocal();
   const weekStart = startOfWeekSunday(today);
-  const weekEnd = endOfWeekSaturday(today);
+  const weekEnd = endOfWeekSunday(today);
   current293TSchedule = {
     status: 'loading',
     items: [],
