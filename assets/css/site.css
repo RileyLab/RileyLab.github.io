@@ -2040,6 +2040,7 @@ html.page-portal{
     html.page-portal .ann-actions .btn-min{
       appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
       font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
+      display:inline-flex; align-items:center; justify-content:center; gap:6px; text-align:center;
     }
     html.page-portal .ann-image-overlay{
       position:fixed;
