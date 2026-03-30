@@ -742,7 +742,7 @@ html.page-portal{
       padding-top:2px;
       min-height:0;
       overflow:auto;
-      scrollbar-gutter:stable;
+      scrollbar-gutter:stable both-edges;
     }
     html.page-portal .meeting-body.is-overflowing{
       justify-content:flex-start;
@@ -837,7 +837,7 @@ html.page-portal{
       align-items:center;
       min-height:0;
       overflow:auto;
-      scrollbar-gutter:stable;
+      scrollbar-gutter:stable both-edges;
     }
     html.page-portal .rot-293t-body.is-overflowing{
       justify-content:flex-start;
