@@ -758,6 +758,75 @@ function sanitizeAnnHTML(input){
   return tmp.innerHTML;
 }
 
+function isAnnouncementImageLink(url){
+  try {
+    const parsed = new URL(url, location.origin);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return false;
+    return /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(parsed.pathname);
+  } catch (_) {
+    return false;
+  }
+}
+
+function ensureAnnouncementImageOverlay(){
+  let overlay = document.getElementById('ann-image-overlay');
+  if (overlay) return overlay;
+
+  overlay = document.createElement('div');
+  overlay.id = 'ann-image-overlay';
+  overlay.className = 'ann-image-overlay';
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <div class="ann-image-dialog" role="dialog" aria-modal="true" aria-labelledby="ann-image-title">
+      <button type="button" class="ann-image-close" aria-label="Close image preview">
+        <span class="ms" aria-hidden="true">close</span>
+      </button>
+      <div class="ann-image-frame">
+        <img id="ann-image-preview" class="ann-image-preview" alt="">
+      </div>
+      <div id="ann-image-title" class="ann-image-title"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const dialog = overlay.querySelector('.ann-image-dialog');
+  const closeBtn = overlay.querySelector('.ann-image-close');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      overlay.hidden = true;
+    });
+  }
+
+  if (dialog) {
+    dialog.addEventListener('click', (event) => {
+      event.stopPropagation();
+    });
+  }
+
+  overlay.addEventListener('click', () => {
+    overlay.hidden = true;
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !overlay.hidden) overlay.hidden = true;
+  });
+
+  return overlay;
+}
+
+function openAnnouncementImage(src, title){
+  const overlay = ensureAnnouncementImageOverlay();
+  const img = overlay.querySelector('#ann-image-preview');
+  const label = overlay.querySelector('#ann-image-title');
+  if (!img || !label) return;
+
+  img.src = src;
+  img.alt = title || 'Announcement image';
+  label.textContent = title || 'Announcement image';
+  overlay.hidden = false;
+}
+
 function renderAnnouncements(items){
   const list = document.getElementById('ann-banner-list');
   if (!list) return;
@@ -867,11 +936,22 @@ function renderAnnouncements(items){
       } catch (_) {}
 
       if (safeLink) {
-      const a = document.createElement('a');
-      a.className = 'btn-min link ext';
-      a.href = safeLink; a.target = '_blank'; a.rel = 'noopener noreferrer';
-      a.innerHTML = `<span class="ms" aria-hidden="true">open_in_new</span> Open`;
-      actions.appendChild(a);
+        if (isAnnouncementImageLink(safeLink)) {
+          const preview = document.createElement('button');
+          preview.type = 'button';
+          preview.className = 'btn-min ann-preview-image';
+          preview.innerHTML = `<span class="ms" aria-hidden="true">image</span> View image`;
+          preview.addEventListener('click', () => {
+            openAnnouncementImage(safeLink, text || 'Announcement image');
+          });
+          actions.appendChild(preview);
+        } else {
+          const a = document.createElement('a');
+          a.className = 'btn-min link ext';
+          a.href = safeLink; a.target = '_blank'; a.rel = 'noopener noreferrer';
+          a.innerHTML = `<span class="ms" aria-hidden="true">open_in_new</span> Open`;
+          actions.appendChild(a);
+        }
       }
     }
 

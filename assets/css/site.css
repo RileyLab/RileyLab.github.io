@@ -801,7 +801,7 @@ html.page-portal{
       font-weight:700;
     }
     html.page-portal .meeting-name{
-      font-size:24px;
+      font-size:20px;
       line-height:1.08;
       font-weight:900;
       color:#15202b;
@@ -2040,6 +2040,69 @@ html.page-portal{
     html.page-portal .ann-actions .btn-min{
       appearance:none; border:1px solid #dfe6ef; background:#f7faff; padding:4px 8px; border-radius:8px;
       font-size:12px; font-weight:700; color:#0b3d91; cursor:pointer;
+    }
+    html.page-portal .ann-image-overlay{
+      position:fixed;
+      inset:0;
+      z-index:1200;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      background:rgba(15,23,42,.62);
+      backdrop-filter:blur(3px);
+    }
+    html.page-portal .ann-image-overlay[hidden]{
+      display:none !important;
+    }
+    html.page-portal .ann-image-dialog{
+      position:relative;
+      width:min(92vw, 980px);
+      max-height:90vh;
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 24px 60px rgba(15,23,42,.32);
+      padding:52px 16px 12px;
+      display:grid;
+      gap:10px;
+    }
+    html.page-portal .ann-image-frame{
+      display:grid;
+      place-items:center;
+      overflow:auto;
+      border-radius:12px;
+      background:#f8fafc;
+      min-height:200px;
+    }
+    html.page-portal .ann-image-preview{
+      display:block;
+      max-width:100%;
+      max-height:72vh;
+      width:auto;
+      height:auto;
+      border-radius:10px;
+    }
+    html.page-portal .ann-image-title{
+      font-size:13px;
+      font-weight:700;
+      color:#475569;
+      text-align:center;
+    }
+    html.page-portal .ann-image-close{
+      position:absolute;
+      top:12px;
+      right:12px;
+      z-index:2;
+      appearance:none;
+      border:none;
+      background:#eef2ff;
+      color:#1e3a8a;
+      width:36px;
+      height:36px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
     }
     html.page-portal .badge-new{
       margin-left:auto; font-size:11px; font-weight:900; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
