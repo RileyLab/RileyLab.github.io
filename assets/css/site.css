@@ -742,7 +742,6 @@ html.page-portal{
       padding-top:2px;
       min-height:0;
       overflow:auto;
-      scrollbar-gutter:stable both-edges;
     }
     html.page-portal .meeting-body.is-overflowing{
       justify-content:flex-start;
@@ -771,7 +770,7 @@ html.page-portal{
     html.page-portal .meeting-copy{
       min-width:0;
       width:100%;
-      max-width:420px;
+      max-width:520px;
       margin:0 auto;
       text-align:center;
     }
@@ -837,7 +836,6 @@ html.page-portal{
       align-items:center;
       min-height:0;
       overflow:auto;
-      scrollbar-gutter:stable both-edges;
     }
     html.page-portal .rot-293t-body.is-overflowing{
       justify-content:flex-start;
@@ -846,7 +844,7 @@ html.page-portal{
     html.page-portal .rot-293t-list,
     html.page-portal .rot-293t-actions{
       width:100%;
-      max-width:420px;
+      max-width:520px;
       margin-inline:auto;
     }
 
