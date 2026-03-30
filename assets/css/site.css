@@ -771,7 +771,7 @@ html.page-portal{
     html.page-portal .meeting-copy{
       min-width:0;
       width:100%;
-      max-width:360px;
+      max-width:420px;
       margin:0 auto;
       text-align:center;
     }
@@ -846,7 +846,7 @@ html.page-portal{
     html.page-portal .rot-293t-list,
     html.page-portal .rot-293t-actions{
       width:100%;
-      max-width:360px;
+      max-width:420px;
       margin-inline:auto;
     }
 
