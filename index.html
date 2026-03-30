@@ -619,8 +619,6 @@ let openRotationSlots = new Set();
 let rotationViewOffset = 0;
 let googleCalendarApiKey = '';
 let current293TSchedule = { status: 'idle', items: [], rangeLabel: '', error: '' };
-let topFeatureCardBaselineHeight = 0;
-
 const CAL_293T = '0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d@group.calendar.google.com';
 
 /* Renderers */
@@ -968,7 +966,6 @@ function renderNextLabMeeting(meetings){
     card.style.height = '';
     body.innerHTML = '';
     top.classList.remove('has-meeting');
-    setTimeout(() => syncTopFeatureCardHeights(true), 0);
     return;
   }
 
@@ -996,7 +993,6 @@ function renderNextLabMeeting(meetings){
       ${description ? `<p class="meeting-description">${esc(description)}</p>` : ''}
     </div>
   `;
-  setTimeout(() => syncTopFeatureCardHeights(true), 0);
 }
 
 function startOfWeekSunday(d){
@@ -1074,7 +1070,6 @@ function render293TSchedule(){
       ` : ''}
     </div>
   `).join('');
-  setTimeout(() => syncTopFeatureCardHeights(openRotationSlots.size === 0), 0);
 }
 
 async function load293TSchedule(){
@@ -1235,7 +1230,6 @@ function renderRotations(obj, plan){
       </button>
     `).join('')}
   `;
-  setTimeout(() => syncTopFeatureCardHeights(openRotationSlots.size === 0), 0);
 }
 
 function ymd(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
@@ -1656,43 +1650,6 @@ window.addEventListener('resize', positionNotesDock);
 // })();
 
 /* === Calendar height sync === */
-function syncTopFeatureCardHeights(force = false){
-  const stack = document.getElementById('portal-top-stack');
-  const meetingCard = document.getElementById('next-meeting-card');
-  const scheduleCard = document.getElementById('rot-293t-card');
-  const meetingBody = document.getElementById('meeting-body');
-  const scheduleBody = scheduleCard ? scheduleCard.querySelector('.rot-293t-body') : null;
-  if (!stack || !scheduleCard) return;
-
-  if (window.innerWidth <= 768) {
-    topFeatureCardBaselineHeight = 0;
-    scheduleCard.style.height = '';
-    if (meetingCard) meetingCard.style.height = '';
-    if (meetingBody) meetingBody.classList.remove('is-overflowing');
-    if (scheduleBody) scheduleBody.classList.remove('is-overflowing');
-    return;
-  }
-
-  const measured = Math.ceil(stack.getBoundingClientRect().height);
-  if ((force || openRotationSlots.size === 0) && measured > 0) {
-    topFeatureCardBaselineHeight = measured;
-  }
-
-  const target = topFeatureCardBaselineHeight || measured;
-  if (target <= 0) return;
-
-  scheduleCard.style.height = `${target}px`;
-  if (meetingCard) {
-    meetingCard.style.height = meetingCard.hidden ? '' : `${target}px`;
-  }
-  if (meetingBody && !meetingCard?.hidden) {
-    meetingBody.classList.toggle('is-overflowing', meetingBody.scrollHeight > meetingBody.clientHeight + 2);
-  }
-  if (scheduleBody) {
-    scheduleBody.classList.toggle('is-overflowing', scheduleBody.scrollHeight > scheduleBody.clientHeight + 2);
-  }
-}
-
 function syncCalendarHeight(){
 
   // On small screens, let the fixed iframe height take over
@@ -1722,16 +1679,12 @@ function syncCalendarHeight(){
   }
 }
 window.addEventListener('load',  syncCalendarHeight);
-window.addEventListener('load',  () => syncTopFeatureCardHeights(true));
 window.addEventListener('resize', () => {
   clearTimeout(syncCalendarHeight._t);
   syncCalendarHeight._t = setTimeout(syncCalendarHeight, 120);
-  clearTimeout(syncTopFeatureCardHeights._t);
-  syncTopFeatureCardHeights._t = setTimeout(() => syncTopFeatureCardHeights(true), 120);
 });
 document.addEventListener('toggle', (e) => {
   if (e.target.tagName === 'DETAILS') setTimeout(syncCalendarHeight, 120);
-  if (e.target.tagName === 'DETAILS') setTimeout(() => syncTopFeatureCardHeights(true), 120);
 }, true);
 
 </script>

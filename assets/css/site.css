@@ -733,17 +733,12 @@ html.page-portal{
       color:#5f1010;
     }
     html.page-portal .meeting-body{
-      flex:1;
       display:flex;
       flex-direction:column;
-      justify-content:center;
+      justify-content:flex-start;
       align-items:center;
       gap:16px;
       padding-top:2px;
-      min-height:0;
-    }
-    html.page-portal .meeting-body.is-overflowing{
-      justify-content:flex-start;
     }
     html.page-portal .meeting-media{
       width:100%;
@@ -828,16 +823,10 @@ html.page-portal{
       align-self:start;
     }
     html.page-portal .rot-293t-body{
-      flex:1;
       display:flex;
       flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      min-height:0;
-      overflow:auto;
-    }
-    html.page-portal .rot-293t-body.is-overflowing{
       justify-content:flex-start;
+      align-items:center;
     }
     html.page-portal .rot-293t-head,
     html.page-portal .rot-293t-list,
