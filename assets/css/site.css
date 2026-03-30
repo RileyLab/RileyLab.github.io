@@ -741,7 +741,6 @@ html.page-portal{
       gap:16px;
       padding-top:2px;
       min-height:0;
-      overflow:auto;
     }
     html.page-portal .meeting-body.is-overflowing{
       justify-content:flex-start;
