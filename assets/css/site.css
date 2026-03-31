@@ -1591,6 +1591,40 @@ html.page-portal{
 
       /* Stack header; keep the title readable */
       html.page-portal header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
+      html.page-portal .header-quick{
+        justify-self:start;
+      }
+      html.page-portal .header-quick-panel{
+        width:min(320px, calc(100vw - 24px));
+        max-width:calc(100vw - 24px);
+        padding:8px;
+        gap:6px;
+      }
+      html.page-portal .header-quick > summary{
+        padding:6px 26px 6px 10px;
+        font-size:12px;
+        gap:6px;
+      }
+      html.page-portal .header-quick > summary::after{
+        right:7px;
+        font-size:16px;
+      }
+      html.page-portal .quick-link{
+        padding:8px 10px;
+        min-height:38px;
+        font-size:12px;
+        gap:6px;
+      }
+      html.page-portal .quick-dropdown{
+        padding:8px 10px;
+      }
+      html.page-portal .quick-dropdown summary{
+        font-size:12px;
+        padding-right:20px;
+      }
+      html.page-portal .quick-dropdown-list{
+        margin-top:6px;
+      }
       html.page-portal .title{ font-size: 22px; line-height: 1.15; }
       html.page-portal .subtitle{ font-size: 12px; }
 
@@ -2104,6 +2138,37 @@ html.page-portal{
       align-items:center;
       justify-content:center;
       cursor:pointer;
+    }
+    @media (max-width: 640px){
+      html.page-portal .ann-image-overlay{
+        padding:10px;
+        place-items:center;
+      }
+      html.page-portal .ann-image-dialog{
+        width:100%;
+        max-height:92vh;
+        border-radius:16px 16px 12px 12px;
+        padding:48px 10px 10px;
+        gap:8px;
+      }
+      html.page-portal .ann-image-frame{
+        min-height:140px;
+        border-radius:10px;
+      }
+      html.page-portal .ann-image-preview{
+        max-height:68vh;
+        border-radius:8px;
+      }
+      html.page-portal .ann-image-title{
+        font-size:12px;
+        line-height:1.35;
+      }
+      html.page-portal .ann-image-close{
+        top:10px;
+        right:10px;
+        width:34px;
+        height:34px;
+      }
     }
     html.page-portal .badge-new{
       margin-left:auto; font-size:11px; font-weight:900; color:#b71c1c; background:#ffebee; border:1px solid #ffcdd2;
