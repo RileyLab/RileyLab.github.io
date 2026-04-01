@@ -378,12 +378,76 @@ html.page-portal{
     /* Search */
     html.page-portal .actions{ grid-area:actions; display:flex; gap:10px; align-items:center; justify-self:end }
     html.page-portal .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
+    html.page-portal .search-wrap{
+      position:relative;
+    }
     html.page-portal .search{
       display:flex; align-items:center; gap:8px; background:#fff; border:1px solid #dfe6ef;
       border-radius:999px; padding:8px 12px; box-shadow:0 2px 8px rgba(0,0,0,.04);
     }
     html.page-portal .search input{ border:0; outline:0; font:inherit; background:transparent; min-width:300px }
     html.page-portal .search:focus-within{ box-shadow:0 0 0 3px var(--ring) }
+    html.page-portal .search-results{
+      position:absolute;
+      top:calc(100% + 8px);
+      left:0;
+      width:100%;
+      min-width:320px;
+      display:grid;
+      gap:6px;
+      padding:8px;
+      border:1px solid #dfe6ef;
+      border-radius:14px;
+      background:#fff;
+      box-shadow:0 14px 34px rgba(15,23,42,.14);
+      z-index:40;
+    }
+    html.page-portal .search-results[hidden]{
+      display:none !important;
+    }
+    html.page-portal .search-result{
+      display:grid;
+      gap:2px;
+      padding:8px 10px;
+      border-radius:10px;
+      text-decoration:none;
+      border:1px solid transparent;
+      color:#123c86;
+      background:#f8fbff;
+    }
+    html.page-portal .search-result:hover{
+      background:#eef5ff;
+      border-color:#d4e3ff;
+    }
+    html.page-portal .search-result-main{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.3;
+    }
+    html.page-portal .search-result-main .ms{
+      font-size:16px;
+      line-height:1;
+      color:#2a56b3;
+      flex:0 0 auto;
+    }
+    html.page-portal .search-result-sub{
+      font-size:11px;
+      font-weight:700;
+      color:#6b7a93;
+      line-height:1.3;
+    }
+    html.page-portal .search-empty{
+      padding:10px 12px;
+      border-radius:10px;
+      background:#f8fbff;
+      color:#6b7a93;
+      font-size:12px;
+      font-weight:700;
+      text-align:center;
+    }
 
     /* Header quick links dropdown */
     html.page-portal .header-quick{
@@ -526,6 +590,13 @@ html.page-portal{
       line-height:1;
       opacity:.8;
       transition:transform .16s ease, opacity .16s ease;
+    }
+    html.page-portal .quick-dropdown-list .quick-ext::after{
+      display:none;
+      content:none;
+    }
+    html.page-portal .link .arrow{
+      display:none !important;
     }
     html.page-portal .quick-dropdown-list .link:hover{
       background:transparent;
@@ -1630,8 +1701,13 @@ html.page-portal{
 
       /* Search fills the row */
       html.page-portal .actions{ width: 100%; gap:8px; }
+      html.page-portal .search-wrap{ width:100%; }
       html.page-portal .search{ width: 100%; }
       html.page-portal .search input{ min-width: 0; width: 100%; }
+      html.page-portal .search-results{
+        min-width:0;
+        width:100%;
+      }
 
       /* Cards/headers a bit tighter */
       html.page-portal .card{ padding:14px; }

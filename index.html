@@ -65,9 +65,12 @@
     </div>
 
     <div class="actions">
-      <div class="search" role="search">
-        <span class="ms" aria-hidden="true">search</span>
-        <input id="q" type="search" placeholder="Quick find links…" aria-label="Search links">
+      <div class="search-wrap">
+        <div class="search" role="search">
+          <span class="ms" aria-hidden="true">search</span>
+          <input id="q" type="search" placeholder="Quick find links…" aria-label="Search links" autocomplete="off">
+        </div>
+        <div id="q-results" class="search-results" hidden></div>
       </div>
 
       <span class="pill">Updated</span>
@@ -210,9 +213,9 @@
       <h2 id="cal-title"><span class="ms" aria-hidden="true">event</span> Fortessa/Hood Bookings <span class="badge"><span class="ms" aria-hidden="true">calendar_month</span>Bookings</span></h2>
       <ul class="list mt-10">
         <!-- <li><a class="link ext" href="https://www.brownbearsw.com/cal/RNAFortessa" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">schedule</span> Fortessa <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li> -->
-        <li><a class="link ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> General Flow Core Scheduler <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
-        <li><a class="link ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/instrument/41?researcher=11539692" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> Riley Lab Fortessa Scheduler <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
-        <li><a class="link ext" href="https://25live.collegenet.com/pro/pennmedicine#!/home/dash" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> 25Live - Conference Rooms <span class="ms arrow" aria-hidden="true">arrow_outward</span></a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/home" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> General Flow Core Scheduler </a></li>
+        <li><a class="link ext" href="https://pathbio.med.upenn.edu/flow/shiner/Calendars/instrument/41?researcher=11539692" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> Riley Lab Fortessa Scheduler </a></li>
+        <li><a class="link ext" href="https://25live.collegenet.com/pro/pennmedicine#!/home/dash" target="_blank" rel="noopener noreferrer"><span class="ms" aria-hidden="true">waterfall_chart</span> 25Live - Conference Rooms </a></li>
       </ul>
       <details>
         <summary><span class="ms" aria-hidden="true">lab_profile</span> Riley Lab Hood Bookings</summary>
@@ -506,29 +509,93 @@ function updateHtml(id, html){
 
 /* === QUICK FIND (center grid only) === */
 const q = document.getElementById('q');
+const qResults = document.getElementById('q-results');
 const linkItems = Array.from(document.querySelectorAll('main.grid .list a'));
-const sections  = Array.from(document.querySelectorAll('main.grid section.card'));
 function normalize(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
-if (q) {
+function getCardSearchLabel(section){
+  if (!section) return '';
+  const heading = section.querySelector('h2');
+  if (!heading) return '';
+
+  const clone = heading.cloneNode(true);
+  clone.querySelectorAll('.badge, .ms').forEach((node) => node.remove());
+  return clone.textContent.replace(/\s+/g, ' ').trim();
+}
+function getLinkSearchMeta(link){
+  if (!link) return { label: '', icon: '' };
+  const clone = link.cloneNode(true);
+  const iconNode = clone.querySelector('.ms:not(.arrow)');
+  const icon = iconNode ? iconNode.textContent.trim() : '';
+  clone.querySelectorAll('.ms').forEach((node) => node.remove());
+  return {
+    label: clone.textContent.replace(/\s+/g, ' ').trim(),
+    icon
+  };
+}
+
+function renderQuickFindResults(term){
+  if (!qResults) return;
+  if (!term) {
+    qResults.hidden = true;
+    qResults.innerHTML = '';
+    return;
+  }
+
+  const matches = linkItems
+    .map((a) => {
+      const meta = getLinkSearchMeta(a);
+      const label = normalize(meta.label);
+      if (!label.includes(term)) return null;
+      const section = a.closest('section.card');
+      return {
+        href: a.href,
+        label: meta.label,
+        icon: meta.icon,
+        section: getCardSearchLabel(section),
+        target: a.target || '',
+        rel: a.rel || ''
+      };
+    })
+    .filter(Boolean)
+    .slice(0, 8);
+
+  if (!matches.length) {
+    qResults.innerHTML = `<div class="search-empty">No matching links</div>`;
+    qResults.hidden = false;
+    return;
+  }
+
+  qResults.innerHTML = matches.map((item) => `
+    <a class="search-result" href="${item.href}"${item.target ? ` target="${item.target}"` : ''}${item.rel ? ` rel="${item.rel}"` : ''}>
+      <span class="search-result-main">
+        ${item.icon ? `<span class="ms" aria-hidden="true">${item.icon}</span>` : ''}
+        <span>${item.label}</span>
+      </span>
+      <span class="search-result-sub">${item.section}</span>
+    </a>
+  `).join('');
+  qResults.hidden = false;
+}
+
+if (q && qResults) {
   q.addEventListener('input', () => {
-    const term = normalize(q.value);
-    if(!term){
-      sections.forEach(sec => sec.style.display = '');
-      linkItems.forEach(a => a.parentElement.style.display = '');
-      return;
+    renderQuickFindResults(normalize(q.value));
+  });
+
+  q.addEventListener('focus', () => {
+    renderQuickFindResults(normalize(q.value));
+  });
+
+  q.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      qResults.hidden = true;
     }
-    sections.forEach(sec => sec.style.display = 'none');
-    linkItems.forEach(a => {
-      const text = normalize(a.textContent);
-      const match = text.includes(term);
-      a.parentElement.style.display = match ? '' : 'none';
-      if(match){
-        const section = a.closest('section.card');
-        if(section) section.style.display = '';
-        const details = a.closest('details');
-        if(details && !details.open) details.open = true;
-      }
-    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.search-wrap')) {
+      qResults.hidden = true;
+    }
   });
 }
 
