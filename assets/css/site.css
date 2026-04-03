@@ -816,16 +816,16 @@ html.page-portal{
     }
     html.page-portal .meeting-media{
       width:100%;
-      max-width:250px;
+      max-width:180px;
       margin:0 auto;
     }
     html.page-portal .meeting-photo{
       display:block;
       width:100%;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 1 / 1;
       object-fit:cover;
-      border-radius:14px;
-      border:1px solid #d9e6d2;
+      border-radius:999px;
+      border:none;
       background:#eef5ea;
     }
     html.page-portal .meeting-photo-fallback{
@@ -834,6 +834,8 @@ html.page-portal{
       justify-content:center;
       color:#5e7a5e;
       font-size:56px;
+      border-radius:999px;
+      border:none;
     }
     html.page-portal .meeting-copy{
       min-width:0;
@@ -1878,7 +1880,7 @@ html.page-portal{
         max-width:none;
       }
       html.page-portal .meeting-photo{
-        aspect-ratio:16 / 11;
+        aspect-ratio:1 / 1;
       }
       html.page-portal .meeting-meta{
         gap:8px;
