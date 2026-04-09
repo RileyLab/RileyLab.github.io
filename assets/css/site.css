@@ -1877,7 +1877,7 @@ html.page-portal{
         line-height:1.15;
       }
       html.page-portal .meeting-media{
-        max-width:none;
+        max-width:120px;
       }
       html.page-portal .meeting-photo{
         aspect-ratio:1 / 1;
@@ -1891,6 +1891,7 @@ html.page-portal{
       }
       html.page-portal .meeting-presenter{
         font-size:12px;
+        flex:1 0 100%;
       }
       html.page-portal .meeting-name{
         font-size:20px;
