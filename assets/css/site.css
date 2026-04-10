@@ -2152,13 +2152,17 @@ html.page-portal{
       padding:0;
     }
     html.page-portal .ann-body li{
-      display:list-item;
-      margin:4px 0;
-      padding:0;
-      border:none;
-      background:transparent;
-      box-shadow:none;
-      list-style:inherit;
+      display:list-item !important;
+      margin:4px 0 !important;
+      padding:0 !important;
+      border:none !important;
+      border-radius:0 !important;
+      background:transparent !important;
+      box-shadow:none !important;
+      list-style:disc outside !important;
+      align-items:initial !important;
+      gap:0 !important;
+      transform:none !important;
     }
     html.page-portal .ann-actions{
       display:flex;
