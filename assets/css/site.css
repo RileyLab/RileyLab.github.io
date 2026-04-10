@@ -2146,6 +2146,20 @@ html.page-portal{
       grid-template-columns:minmax(0, 1fr) auto;
     }
     html.page-portal .ann-body{ color:#263238; line-height:1.45; min-width:0; }
+    html.page-portal .ann-body ul,
+    html.page-portal .ann-body ol{
+      margin:8px 0 0 18px;
+      padding:0;
+    }
+    html.page-portal .ann-body li{
+      display:list-item;
+      margin:4px 0;
+      padding:0;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      list-style:inherit;
+    }
     html.page-portal .ann-actions{
       display:flex;
       flex-direction:column;
