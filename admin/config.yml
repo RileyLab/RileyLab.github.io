@@ -2,6 +2,7 @@ backend:
   name: github
   repo: RileyLab/RileyLab.github.io
   branch: master
+  site_domain: rileylab.github.io
   base_url: https://riley-decap-oauth.rileylabupenn.workers.dev
   auth_endpoint: auth
 

@@ -94,6 +94,14 @@
   </style>
 </head>
 <body>
+<script>
+  window.addEventListener('message', function (event) {
+    console.log('ADMIN MESSAGE', {
+      origin: event.origin,
+      data: event.data
+    });
+  }, false);
+</script>
 <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
 <aside class="portal-import" id="portal-import" hidden>
   <h1>Pending Rotation Plan</h1>
