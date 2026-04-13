@@ -52,10 +52,10 @@
       }
     },
     "activeRoster": {
-      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Shannon"],
+      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu"],
       "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Max", "Justin G."],
-      "tc3":  ["Mosha", "Tanishk", "Justin S.", "Gabby", "Edmund"],
-      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Divanshu", "Max", "Edmund", "Shannon"]
+      "tc3":  ["Mosha", "Justin S.", "Gabby", "Edmund", "Shannon"],
+      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Amelia", "Nancy", "Mosha", "Xiaoling", "Divanshu", "Max", "Edmund", "Shannon"]
     }
   }
 }
