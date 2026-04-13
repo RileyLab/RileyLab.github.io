@@ -378,6 +378,26 @@ html.page-portal{
     /* Search */
     html.page-portal .actions{ grid-area:actions; display:flex; gap:10px; align-items:center; justify-self:end }
     html.page-portal .pill{ font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid #ddd; color:var(--muted) }
+    html.page-portal .admin-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid #dfe6ef;
+      background:#fff;
+      box-shadow:0 2px 8px rgba(0,0,0,.04);
+      color:#234160;
+      font-size:13px;
+      font-weight:700;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+    html.page-portal .admin-link:hover{
+      border-color:#cbd8e6;
+      background:#f8fbff;
+    }
     html.page-portal .search-wrap{
       position:relative;
     }
@@ -1797,6 +1817,11 @@ html.page-portal{
       html.page-portal .search-wrap{ width:100%; }
       html.page-portal .search{ width: 100%; }
       html.page-portal .search input{ min-width: 0; width: 100%; }
+      html.page-portal .admin-link{
+        padding:7px 10px;
+        font-size:12px;
+        gap:6px;
+      }
       html.page-portal .search-results{
         min-width:0;
         width:100%;
