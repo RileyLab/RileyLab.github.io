@@ -38,17 +38,6 @@ collections:
               - { label: "Meeting Description", name: "description", widget: text, required: false }
               - { label: "Presenter Photo", name: "image", widget: image, required: false }
           - { label: "Google Calendar API Key", name: "googleCalendarApiKey", widget: string, required: false }
-          - label: "Rotations"
-            name: "rotations"
-            widget: object
-            required: false
-            fields:
-              - { label: "Start", name: "start", widget: date, format: "YYYY-MM-DD", required: false }
-              - { label: "End",   name: "end",   widget: date, format: "YYYY-MM-DD", required: false }
-              - { label: "TC1",   name: "tc1",   widget: string, required: false }
-              - { label: "TC2",   name: "tc2",   widget: string, required: false }
-              - { label: "TC3",   name: "tc3",   widget: string, required: false }
-              - { label: "Main Lab", name: "main", widget: string, required: false }
           - label: "Rotation Plan"
             name: "rotationPlan"
             widget: object
