@@ -7,7 +7,7 @@
     },
     {
       "level": "info",
-      "html": "\"<div><b>High-speed centrifuge usage and care:</b></div>\n<ul>\n  <li>Pre-chill with the lid closed</li>\n  <li>After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use</li>\n  <li>Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures</li>\n</ul>\"",
+      "html": "<div><b>High-speed centrifuge usage and care:</b></div>\n<ul>\n  <li>Pre-chill with the lid closed</li>\n  <li>After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use</li>\n  <li>Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures</li>\n</ul>",
       "when": "2026-04-10T13:56:00-04:00"
     }
   ],
