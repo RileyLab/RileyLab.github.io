@@ -398,6 +398,9 @@ html.page-portal{
       border-color:#cbd8e6;
       background:#f8fbff;
     }
+    html.page-portal .admin-quick-link{
+      display:none;
+    }
     html.page-portal .search-wrap{
       position:relative;
     }
@@ -1774,7 +1777,15 @@ html.page-portal{
       html.page-portal .wrap{ padding:16px 12px 40px; }
 
       /* Stack header; keep the title readable */
-      html.page-portal header{ grid-template-columns: 1fr; align-items: start; gap: 8px; }
+      html.page-portal header{
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "brand"
+          "quick"
+          "actions";
+        align-items:start;
+        gap:8px;
+      }
       html.page-portal .header-quick{
         justify-self:start;
       }
@@ -1813,15 +1824,14 @@ html.page-portal{
       html.page-portal .subtitle{ font-size: 12px; }
 
       /* Search fills the row */
-      html.page-portal .actions{ width: 100%; gap:8px; }
-      html.page-portal .search-wrap{ width:100%; }
-      html.page-portal .search{ width: 100%; }
+      html.page-portal .actions{ width: 100%; gap:8px; min-width:0; justify-self:stretch; }
+      html.page-portal .search-wrap{ width:100%; min-width:0; display:flex; justify-content:flex-start; }
+      html.page-portal .search{ width: min(100%, 260px); min-width:0; }
       html.page-portal .search input{ min-width: 0; width: 100%; }
       html.page-portal .admin-link{
-        padding:7px 10px;
-        font-size:12px;
-        gap:6px;
+        display:none;
       }
+      html.page-portal .admin-quick-link{ display:flex; }
       html.page-portal .search-results{
         min-width:0;
         width:100%;
