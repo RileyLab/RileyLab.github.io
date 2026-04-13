@@ -43,12 +43,12 @@
       "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Jiayi", "Divanshu", "Max", "Edmund", "Shannon"]
     },
     "anchor": {
-      "date": "2026-03-09",
+      "date": "2026-04-06",
       "current": {
-        "tc1": "Divanshu",
-        "tc2": "Jiayi",
+        "tc1": "Xiaoling",
+        "tc2": "Kaitlin",
         "tc3": "Mosha",
-        "main": "Kaitlin"
+        "main": "Gabby"
       }
     },
     "activeRoster": {
