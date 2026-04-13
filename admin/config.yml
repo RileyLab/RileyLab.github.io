@@ -23,7 +23,10 @@ collections:
             name: "announcements"
             widget: list
             fields:
-              - { label: "Text", name: "text", widget: string }
+              - { label: "Text", name: "text", widget: text, required: false }
+              - { label: "HTML", name: "html", widget: text, required: false, hint: "Optional raw HTML. Use this when you need full announcement formatting." }
+              - { label: "Level", name: "level", widget: select, required: false, options: ["info", "warn", "urgent"], default: "info" }
+              - { label: "Link", name: "link", widget: string, required: false }
               - { label: "When (ISO)", name: "when", widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ" }
           - label: "Lab Meetings"
             name: "labMeetings"
