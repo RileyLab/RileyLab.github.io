@@ -4,6 +4,11 @@
       "level": "info",
       "html": "<p><span data-sheets-root=\"1\"><strong>Note about Washroom Type II DI Water Systems:</strong> NOT RODI. Should be considered non-sterile and may contain organic contaminates/microbes. Do not use for incubators; instead use Type 1 Milli-Q or water produced for incubator use!</span></p>",
       "when": "2026-04-10T13:53:00-04:00"
+    },
+    {
+      "level": "info",
+      "html": "\"<div><b>High-speed centrifuge usage and care:</b></div>\n<ul>\n  <li>Pre-chill with the lid closed</li>\n  <li>After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use</li>\n  <li>Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures</li>\n</ul>\"",
+      "when": "2026-04-10T13:56:00-04:00"
     }
   ],
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
