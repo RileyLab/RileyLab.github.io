@@ -4,8 +4,282 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Riley Lab Admin</title>
+  <style>
+    body { margin: 0; }
+    .portal-import {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9999;
+      width: min(420px, calc(100vw - 32px));
+      background: #fff;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(15, 23, 42, 0.18);
+      padding: 16px;
+      font: 14px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #0f172a;
+    }
+    .portal-import[hidden] { display: none !important; }
+    .portal-import h1 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.3;
+    }
+    .portal-import p {
+      margin: 0 0 10px;
+      color: #475569;
+    }
+    .portal-import code {
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      font-size: 12px;
+    }
+    .portal-import-meta {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: #64748b;
+    }
+    .portal-import-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .portal-import button {
+      appearance: none;
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .portal-import-save {
+      background: #0f766e;
+      color: #fff;
+    }
+    .portal-import-copy {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+    .portal-import-clear {
+      background: transparent;
+      color: #64748b;
+      padding-inline: 4px;
+    }
+    .portal-import-status {
+      min-height: 20px;
+      font-size: 13px;
+      color: #334155;
+    }
+    @media (max-width: 640px) {
+      .portal-import {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        width: auto;
+      }
+      .portal-import-actions {
+        flex-direction: column;
+      }
+      .portal-import button {
+        width: 100%;
+      }
+      .portal-import-clear {
+        width: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+<aside class="portal-import" id="portal-import" hidden>
+  <h1>Pending Rotation Plan</h1>
+  <p>Portal roster changes are queued for <code>data/lab-portal.json</code>. Save them from this authenticated admin page.</p>
+  <div class="portal-import-meta" id="portal-import-meta"></div>
+  <div class="portal-import-actions">
+    <button type="button" class="portal-import-save" id="portal-import-save">Save to JSON</button>
+    <button type="button" class="portal-import-copy" id="portal-import-copy">Copy JSON</button>
+    <button type="button" class="portal-import-clear" id="portal-import-clear">Dismiss</button>
+  </div>
+  <div class="portal-import-status" id="portal-import-status"></div>
+</aside>
+<script>
+  const ROTATION_ADMIN_DRAFT_KEY = 'portalRotationPlanAdminDraft';
+  const REPO_OWNER = 'RileyLab';
+  const REPO_NAME = 'RileyLab.github.io';
+  const REPO_BRANCH = 'master';
+  const PORTAL_FILE_PATH = 'data/lab-portal.json';
+
+  const panel = document.getElementById('portal-import');
+  const meta = document.getElementById('portal-import-meta');
+  const status = document.getElementById('portal-import-status');
+  const saveBtn = document.getElementById('portal-import-save');
+  const copyBtn = document.getElementById('portal-import-copy');
+  const clearBtn = document.getElementById('portal-import-clear');
+
+  function getPendingDraft() {
+    try {
+      const raw = localStorage.getItem(ROTATION_ADMIN_DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || !parsed.rotationPlan) return null;
+      return parsed;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function clearPendingDraft() {
+    localStorage.removeItem(ROTATION_ADMIN_DRAFT_KEY);
+  }
+
+  function setStatus(message, isError) {
+    status.textContent = message || '';
+    status.style.color = isError ? '#b91c1c' : '#334155';
+  }
+
+  function renderPanel() {
+    const pending = getPendingDraft();
+    if (!pending) {
+      panel.hidden = true;
+      return;
+    }
+    panel.hidden = false;
+    const savedAt = pending.savedAt ? new Date(pending.savedAt) : null;
+    meta.textContent = savedAt && !Number.isNaN(savedAt.getTime())
+      ? `Queued ${savedAt.toLocaleString()}`
+      : 'Queued from the portal roster manager';
+    setStatus('');
+  }
+
+  function encodeBase64Unicode(str) {
+    const bytes = new TextEncoder().encode(str);
+    let binary = '';
+    bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+    return btoa(binary);
+  }
+
+  function decodeBase64Unicode(str) {
+    const binary = atob(str);
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  function extractGithubToken(store) {
+    for (let i = 0; i < store.length; i += 1) {
+      const key = store.key(i);
+      if (!key) continue;
+      const raw = store.getItem(key);
+      if (!raw) continue;
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed.token === 'string' && parsed.token) return parsed.token;
+        if (parsed && parsed.user && typeof parsed.user.token === 'string' && parsed.user.token) return parsed.user.token;
+      } catch (_) {
+        // Ignore non-JSON entries.
+      }
+    }
+    return '';
+  }
+
+  function findGithubToken() {
+    return extractGithubToken(localStorage) || extractGithubToken(sessionStorage) || '';
+  }
+
+  async function savePendingDraft() {
+    const pending = getPendingDraft();
+    if (!pending) {
+      setStatus('No pending rotation plan found.', true);
+      renderPanel();
+      return;
+    }
+
+    const token = findGithubToken();
+    if (!token) {
+      setStatus('Log into the admin first, then click Save to JSON.', true);
+      return;
+    }
+
+    saveBtn.disabled = true;
+    copyBtn.disabled = true;
+    clearBtn.disabled = true;
+    setStatus('Saving rotation plan to GitHub...');
+
+    try {
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PORTAL_FILE_PATH}?ref=${encodeURIComponent(REPO_BRANCH)}`;
+      const headers = {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`
+      };
+
+      const currentResp = await fetch(url, { headers });
+      if (!currentResp.ok) {
+        throw new Error(`GitHub read failed (${currentResp.status})`);
+      }
+      const currentFile = await currentResp.json();
+      const currentJson = JSON.parse(decodeBase64Unicode(currentFile.content.replace(/\n/g, '')));
+      currentJson.rotationPlan = pending.rotationPlan;
+
+      const updateResp = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: 'Update rotation plan from portal roster manager',
+          content: encodeBase64Unicode(JSON.stringify(currentJson, null, 2) + '\n'),
+          sha: currentFile.sha,
+          branch: REPO_BRANCH
+        })
+      });
+
+      if (!updateResp.ok) {
+        const text = await updateResp.text();
+        throw new Error(`GitHub write failed (${updateResp.status}): ${text}`);
+      }
+
+      clearPendingDraft();
+      renderPanel();
+      setStatus('Rotation plan saved to data/lab-portal.json.');
+    } catch (error) {
+      setStatus(error && error.message ? error.message : 'Save failed.', true);
+    } finally {
+      saveBtn.disabled = false;
+      copyBtn.disabled = false;
+      clearBtn.disabled = false;
+    }
+  }
+
+  async function copyPendingDraft() {
+    const pending = getPendingDraft();
+    if (!pending) {
+      setStatus('No pending rotation plan found.', true);
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(pending.rotationPlan, null, 2));
+      setStatus('Rotation plan JSON copied.');
+    } catch (_) {
+      setStatus('Clipboard copy failed.', true);
+    }
+  }
+
+  saveBtn.addEventListener('click', savePendingDraft);
+  copyBtn.addEventListener('click', copyPendingDraft);
+  clearBtn.addEventListener('click', () => {
+    clearPendingDraft();
+    renderPanel();
+  });
+
+  window.addEventListener('storage', (event) => {
+    if (event.key === ROTATION_ADMIN_DRAFT_KEY) renderPanel();
+  });
+
+  renderPanel();
+</script>
 </body>
 </html>

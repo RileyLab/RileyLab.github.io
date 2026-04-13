@@ -37,9 +37,9 @@
     "start": "2025-10-20",
     "periodDays": 14,
     "slotOrder": {
-      "tc1": ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu", "Shannon"],
+      "tc1": ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu"],
       "tc2": ["Kaitlin", "Amelia", "Caitlin", "Max", "Jiayi", "Justin G."],
-      "tc3": ["Mosha", "Tanishk", "Justin S.", "Gabby", "Edmund"],
+      "tc3": ["Mosha", "Tanishk", "Justin S.", "Gabby", "Edmund", "Shannon"],
       "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Tanishk", "Amelia", "Nancy", "Mosha", "Kaitlin", "Xiaoling", "Jiayi", "Divanshu", "Max", "Edmund", "Shannon"]
     },
     "anchor": {
@@ -51,11 +51,24 @@
         "main": "Divanshu"
       }
     },
-    "activeRoster": {
-      "tc1":  ["Xiaoling", "Nancy", "Vipin", "Emileigh", "Divanshu"],
-      "tc2":  ["Kaitlin", "Amelia", "Caitlin", "Max", "Justin G."],
-      "tc3":  ["Mosha", "Justin S.", "Gabby", "Edmund", "Shannon"],
-      "main": ["Gabby", "Justin G.", "Emileigh", "Justin S.", "Caitlin", "Vipin", "Amelia", "Nancy", "Mosha", "Xiaoling", "Divanshu", "Max", "Edmund", "Shannon"]
+    "people": {
+      "Xiaoling": { "active": true },
+      "Nancy": { "active": true },
+      "Vipin": { "active": true },
+      "Emileigh": { "active": true },
+      "Divanshu": { "active": true },
+      "Shannon": { "active": true },
+      "Kaitlin": { "active": true },
+      "Amelia": { "active": true },
+      "Caitlin": { "active": true },
+      "Max": { "active": true },
+      "Jiayi": { "active": false },
+      "Justin G.": { "active": true },
+      "Mosha": { "active": true },
+      "Tanishk": { "active": false },
+      "Justin S.": { "active": true },
+      "Gabby": { "active": true },
+      "Edmund": { "active": true }
     }
   }
 }

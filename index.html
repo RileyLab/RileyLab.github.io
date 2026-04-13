@@ -122,33 +122,33 @@
 
   <!-- Inline editor (collapsible) -->
   <details class="rot-edit" id="rot-edit">
-    <summary><span class="ms" aria-hidden="true">edit</span> Update assignments</summary>
+    <summary><span class="ms" aria-hidden="true">edit</span> Manage roster</summary>
 
-    <form id="rot-form" class="rot-form">
-      <div class="row">
+    <div class="rot-manage" id="rot-manage">
+      <div class="rot-manage-toolbar">
         <label>
-          Start
-          <input type="date" name="start" required>
+          <span>Add person</span>
+          <input type="text" id="rot-person-name" placeholder="Name">
         </label>
         <label>
-          End
-          <input type="date" name="end" required>
+          <span>Room</span>
+          <select id="rot-person-room">
+            <option value="tc1">TC1</option>
+            <option value="tc2">TC2</option>
+            <option value="tc3">TC3</option>
+            <option value="main">Main Lab</option>
+          </select>
         </label>
+        <button type="button" id="rot-person-add" class="btn-primary"><span class="ms" aria-hidden="true">person_add</span> Add</button>
       </div>
-
-      <div class="row">
-        <label>TC1 <input type="text" name="tc1" placeholder="Name"></label>
-        <label>TC2 <input type="text" name="tc2" placeholder="Name"></label>
-        <label>TC3 <input type="text" name="tc3" placeholder="Name"></label>
-        <label>Main Lab <input type="text" name="main" placeholder="Name"></label>
+      <div class="rot-manage-grid" id="rot-manage-grid"></div>
+      <div class="rot-manage-actions">
+        <button type="button" id="rot-admin-save" class="btn-primary"><span class="ms" aria-hidden="true">save</span> Save in Admin</button>
+        <button type="button" id="rot-admin-clear" class="btn" hidden>Clear pending</button>
+        <span class="rot-admin-status" id="rot-admin-status"></span>
       </div>
-
-      <div class="actions">
-        <button type="submit" class="btn-primary"><span class="ms" aria-hidden="true">save</span> Save</button>
-        <button type="button" id="rot-clear" class="btn-ghost"><span class="ms" aria-hidden="true">restart_alt</span> Clear</button>
-      </div>
-      <div class="hint">Tip: updates are saved in your browser (localStorage).</div>
-    </form>
+      <div class="hint">Tip: room order is the schedule order. Toggle active people without losing their place.</div>
+    </div>
   </details>
 </section>
 </div>
@@ -667,7 +667,7 @@ async function fetchPortalData() {
       if (jsonResp.value.ok) {
         const body = await jsonResp.value.json();
         rotations = body.rotations || null;
-        rotationPlan = body.rotationPlan || null;
+        rotationPlan = normalizeRotationPlan(body.rotationPlan || null);
         labMeetings = body.labMeetings || [];
         googleCalendarApiKey = body.googleCalendarApiKey || '';
       }
@@ -681,12 +681,39 @@ async function fetchPortalData() {
   return { announcements, rotations, rotationPlan, labMeetings, googleCalendarApiKey };
 }
 
+function normalizeRotationPlan(plan){
+  if (!plan) return null;
+  const out = JSON.parse(JSON.stringify(plan));
+
+  if (out.slotOrder) {
+    ['tc1','tc2','tc3','main'].forEach((slot) => {
+      if (Array.isArray(out.slotOrder[slot])) {
+        out.slotOrder[slot] = out.slotOrder[slot].map((item) => {
+          if (item && typeof item === 'object') return String(item.name || '').trim();
+          return String(item || '').trim();
+        }).filter(Boolean);
+      }
+    });
+  }
+
+  if (Array.isArray(out.people)) {
+    out.people = Object.fromEntries(
+      out.people
+        .map((item) => [String(item?.name || '').trim(), { active: item?.active !== false }])
+        .filter(([name]) => Boolean(name))
+    );
+  }
+
+  return out;
+}
+
 let currentRotationPlan = null;
 let openRotationSlots = new Set();
 let rotationViewOffset = 0;
 let googleCalendarApiKey = '';
 let current293TSchedule = { status: 'idle', items: [], rangeLabel: '', error: '' };
 const CAL_293T = '0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d@group.calendar.google.com';
+const ROTATION_ADMIN_DRAFT_KEY = 'portalRotationPlanAdminDraft';
 
 /* Renderers */
 /* === Per-announcement read tracking === */
@@ -1413,6 +1440,27 @@ function computeRotationPeriod(plan, cycleOffset = 0) {
   const anchorDate = parseYMDLocal(anchor?.date);
   const anchorCycleDelta = anchorDate ? Math.floor((periodStart - anchorDate) / MS / period) : null;
   const slotOrder = plan?.slotOrder || plan?.rotationOrder || null;
+  const canonicalOrder = slotOrder || plan?.slots || {};
+
+  const deriveActiveRoster = (slotName) => {
+    const roomOrder = Array.isArray(canonicalOrder?.[slotName]) ? canonicalOrder[slotName] : [];
+    const people = plan?.people || null;
+    if (people && roomOrder.length) {
+      return roomOrder.filter((name) => {
+        const meta = people[name];
+        return meta ? meta.active !== false : true;
+      });
+    }
+
+    const legacy = plan?.activeRoster || plan?.slots || {};
+    const legacyRoom = Array.isArray(legacy?.[slotName]) ? legacy[slotName] : [];
+    if (!roomOrder.length) return legacyRoom;
+    if (!legacyRoom.length) return roomOrder;
+
+    const allowed = new Set(legacyRoom);
+    const filtered = roomOrder.filter((name) => allowed.has(name));
+    return filtered.length ? filtered : legacyRoom;
+  };
 
   const pick = (arr) => {
     if (!Array.isArray(arr) || arr.length === 0) return '—';
@@ -1457,7 +1505,12 @@ function computeRotationPeriod(plan, cycleOffset = 0) {
     return arr[positiveMod(anchorIndex + anchorCycleDelta, arr.length)] ?? '—';
   };
 
-  const activeRoster = plan.activeRoster || plan.slots || {};
+  const activeRoster = {
+    tc1: deriveActiveRoster('tc1'),
+    tc2: deriveActiveRoster('tc2'),
+    tc3: deriveActiveRoster('tc3'),
+    main: deriveActiveRoster('main')
+  };
   return {
     cycleIndex,
     start: toInputDateString(periodStart),
@@ -1485,6 +1538,169 @@ function computeUpcomingRotations(plan, slotName, count = 5, startOffset = 0) {
     });
   }
   return out;
+}
+
+function ensureRotationPlanPeople(plan){
+  if (!plan) return null;
+  if (!plan.people) plan.people = {};
+  const slotOrder = plan.slotOrder || plan.rotationOrder || {};
+  ['tc1','tc2','tc3','main'].forEach((slot) => {
+    const arr = Array.isArray(slotOrder?.[slot]) ? slotOrder[slot] : [];
+    arr.forEach((name) => {
+      if (!name) return;
+      if (!plan.people[name]) plan.people[name] = { active: true };
+    });
+  });
+  return plan;
+}
+
+function cloneRotationPlanForStorage(plan){
+  if (!plan) return null;
+  ensureRotationPlanPeople(plan);
+  const slotOrder = plan.slotOrder || plan.rotationOrder || {};
+  const people = {};
+  Object.keys(plan.people || {}).sort().forEach((name) => {
+    people[name] = { active: plan.people?.[name]?.active !== false };
+  });
+  return {
+    start: plan.start || '',
+    periodDays: Number(plan.periodDays || 14) || 14,
+    anchor: {
+      date: plan.anchor?.date || '',
+      current: {
+        tc1: plan.anchor?.current?.tc1 || '',
+        tc2: plan.anchor?.current?.tc2 || '',
+        tc3: plan.anchor?.current?.tc3 || '',
+        main: plan.anchor?.current?.main || ''
+      }
+    },
+    slotOrder: {
+      tc1: Array.isArray(slotOrder.tc1) ? [...slotOrder.tc1] : [],
+      tc2: Array.isArray(slotOrder.tc2) ? [...slotOrder.tc2] : [],
+      tc3: Array.isArray(slotOrder.tc3) ? [...slotOrder.tc3] : [],
+      main: Array.isArray(slotOrder.main) ? [...slotOrder.main] : []
+    },
+    people
+  };
+}
+
+function getPendingRotationAdminDraft(){
+  try {
+    const raw = localStorage.getItem(ROTATION_ADMIN_DRAFT_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object' || !parsed.rotationPlan) return null;
+    return parsed;
+  } catch (_) {
+    return null;
+  }
+}
+
+function setPendingRotationAdminDraft(plan){
+  const payload = {
+    savedAt: new Date().toISOString(),
+    rotationPlan: cloneRotationPlanForStorage(plan)
+  };
+  localStorage.setItem(ROTATION_ADMIN_DRAFT_KEY, JSON.stringify(payload));
+  return payload;
+}
+
+function clearPendingRotationAdminDraft(){
+  localStorage.removeItem(ROTATION_ADMIN_DRAFT_KEY);
+}
+
+function updateRotationAdminStatus(){
+  const status = document.getElementById('rot-admin-status');
+  const clearBtn = document.getElementById('rot-admin-clear');
+  if (!status || !clearBtn) return;
+  const pending = getPendingRotationAdminDraft();
+  if (!pending) {
+    status.textContent = '';
+    clearBtn.hidden = true;
+    return;
+  }
+  const savedAt = pending.savedAt ? new Date(pending.savedAt) : null;
+  status.textContent = savedAt && !Number.isNaN(savedAt.getTime())
+    ? `Pending admin save from ${savedAt.toLocaleString()}`
+    : 'Pending admin save';
+  clearBtn.hidden = false;
+}
+
+function getRotationRoomLabel(slot){
+  return ({ tc1: 'TC1', tc2: 'TC2', tc3: 'TC3', main: 'Main Lab' })[slot] || slot;
+}
+
+function renderRotationManager(plan){
+  const host = document.getElementById('rot-manage-grid');
+  if (!host) return;
+  if (!plan) {
+    host.innerHTML = `<div class="rot-manage-empty">Rotation plan unavailable.</div>`;
+    return;
+  }
+
+  ensureRotationPlanPeople(plan);
+  const slotOrder = plan.slotOrder || plan.rotationOrder || {};
+  const esc = (s)=>String(s??'').replace(/[&<>"]/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+  host.innerHTML = ['tc1','tc2','tc3','main'].map((slot) => {
+    const people = Array.isArray(slotOrder?.[slot]) ? slotOrder[slot] : [];
+    return `
+      <section class="rot-manage-room" data-room="${slot}">
+        <h3>${getRotationRoomLabel(slot)}</h3>
+        <div class="rot-manage-list">
+          ${people.length ? people.map((name, idx) => {
+            const active = plan.people?.[name]?.active !== false;
+            return `
+              <div class="rot-person-row${active ? '' : ' is-inactive'}" data-person="${esc(name)}" data-room="${slot}">
+                <button type="button" class="rot-person-active" data-rot-active="${esc(name)}" aria-pressed="${active ? 'true' : 'false'}">${active ? 'Active' : 'Inactive'}</button>
+                <span class="rot-person-name">${esc(name)}</span>
+                <select class="rot-person-move" data-rot-move="${esc(name)}">
+                  ${['tc1','tc2','tc3','main'].map((target) => `<option value="${target}"${target === slot ? ' selected' : ''}>${getRotationRoomLabel(target)}</option>`).join('')}
+                </select>
+                <button type="button" class="rot-person-up" data-rot-shift="${esc(name)}" data-dir="-1" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                <button type="button" class="rot-person-down" data-rot-shift="${esc(name)}" data-dir="1" ${idx === people.length - 1 ? 'disabled' : ''}>↓</button>
+              </div>
+            `;
+          }).join('') : `<div class="rot-manage-empty">No people in this room.</div>`}
+        </div>
+      </section>
+    `;
+  }).join('');
+}
+
+function rerenderRotationViews(){
+  let rot = currentRotationPlan ? computeRotationFromPlan(currentRotationPlan) : {};
+  if (!rot) rot = {};
+  renderRotations(rot, currentRotationPlan);
+  renderRotationManager(currentRotationPlan);
+  updateRotationAdminStatus();
+}
+
+function movePersonBetweenRooms(plan, name, targetRoom){
+  if (!plan || !name || !targetRoom) return;
+  ensureRotationPlanPeople(plan);
+  const slotOrder = plan.slotOrder || plan.rotationOrder || (plan.slotOrder = {});
+  ['tc1','tc2','tc3','main'].forEach((room) => {
+    if (!Array.isArray(slotOrder[room])) slotOrder[room] = [];
+    slotOrder[room] = slotOrder[room].filter((person) => person !== name);
+  });
+  if (!Array.isArray(slotOrder[targetRoom])) slotOrder[targetRoom] = [];
+  slotOrder[targetRoom].push(name);
+}
+
+function shiftPersonInRoom(plan, name, direction){
+  if (!plan || !name || !direction) return;
+  const slotOrder = plan.slotOrder || plan.rotationOrder || {};
+  for (const room of ['tc1','tc2','tc3','main']) {
+    const arr = Array.isArray(slotOrder?.[room]) ? slotOrder[room] : null;
+    if (!arr) continue;
+    const idx = arr.indexOf(name);
+    if (idx === -1) continue;
+    const next = idx + Number(direction);
+    if (next < 0 || next >= arr.length) return;
+    [arr[idx], arr[next]] = [arr[next], arr[idx]];
+    return;
+  }
 }
 
 document.addEventListener('click', (event) => {
@@ -1535,17 +1751,88 @@ document.addEventListener('click', (event) => {
   }
 
   const btn = event.target.closest('[data-rot-slot]');
-  if (!btn) return;
+  if (btn) {
+    const slotName = btn.getAttribute('data-rot-slot');
+    if (!currentRotationPlan || !slotName) return;
 
-  const slotName = btn.getAttribute('data-rot-slot');
-  if (!currentRotationPlan || !slotName) return;
+    if (openRotationSlots.has(slotName)) openRotationSlots.delete(slotName);
+    else openRotationSlots.add(slotName);
 
-  if (openRotationSlots.has(slotName)) openRotationSlots.delete(slotName);
-  else openRotationSlots.add(slotName);
+    let rot = computeRotationFromPlan(currentRotationPlan);
+    if (!rot) rot = {};
+    renderRotations(rot, currentRotationPlan);
+    return;
+  }
 
-  let rot = computeRotationFromPlan(currentRotationPlan);
-  if (!rot) rot = {};
-  renderRotations(rot, currentRotationPlan);
+  const activeBtn = event.target.closest('[data-rot-active]');
+  if (activeBtn) {
+    if (!currentRotationPlan) return;
+    const name = activeBtn.getAttribute('data-rot-active');
+    ensureRotationPlanPeople(currentRotationPlan);
+    if (!currentRotationPlan.people[name]) currentRotationPlan.people[name] = { active: true };
+    currentRotationPlan.people[name].active = currentRotationPlan.people[name].active === false;
+    rerenderRotationViews();
+    return;
+  }
+
+  const shiftBtn = event.target.closest('[data-rot-shift]');
+  if (shiftBtn) {
+    if (!currentRotationPlan) return;
+    const name = shiftBtn.getAttribute('data-rot-shift');
+    const dir = Number(shiftBtn.getAttribute('data-dir') || '0');
+    if (!name || !dir) return;
+    shiftPersonInRoom(currentRotationPlan, name, dir);
+    rerenderRotationViews();
+    return;
+  }
+});
+
+document.addEventListener('change', (event) => {
+  const moveSelect = event.target.closest('[data-rot-move]');
+  if (moveSelect) {
+    if (!currentRotationPlan) return;
+    const name = moveSelect.getAttribute('data-rot-move');
+    movePersonBetweenRooms(currentRotationPlan, name, moveSelect.value);
+    rerenderRotationViews();
+    return;
+  }
+});
+
+document.addEventListener('click', (event) => {
+  const addBtn = event.target.closest('#rot-person-add');
+  if (!addBtn) return;
+  if (!currentRotationPlan) return;
+
+  const nameInput = document.getElementById('rot-person-name');
+  const roomSelect = document.getElementById('rot-person-room');
+  const name = String(nameInput?.value || '').trim();
+  const room = String(roomSelect?.value || '').trim();
+  if (!name || !room) return;
+
+  ensureRotationPlanPeople(currentRotationPlan);
+  if (!currentRotationPlan.people[name]) currentRotationPlan.people[name] = { active: true };
+  currentRotationPlan.people[name].active = true;
+  movePersonBetweenRooms(currentRotationPlan, name, room);
+
+  if (nameInput) nameInput.value = '';
+  rerenderRotationViews();
+});
+
+document.addEventListener('click', (event) => {
+  const saveBtn = event.target.closest('#rot-admin-save');
+  if (saveBtn) {
+    if (!currentRotationPlan) return;
+    setPendingRotationAdminDraft(currentRotationPlan);
+    updateRotationAdminStatus();
+    window.open('/admin/', '_blank', 'noopener');
+    return;
+  }
+
+  const clearBtn = event.target.closest('#rot-admin-clear');
+  if (clearBtn) {
+    clearPendingRotationAdminDraft();
+    updateRotationAdminStatus();
+  }
 });
 
 /* Boot + refresh on tab focus */
@@ -1563,10 +1850,13 @@ document.addEventListener('click', (event) => {
   openRotationSlots = new Set();
   rotationViewOffset = 0;
   if (data.rotationPlan) {
+    ensureRotationPlanPeople(data.rotationPlan);
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
   }
   renderRotations(rot, currentRotationPlan);
+  renderRotationManager(currentRotationPlan);
+  updateRotationAdminStatus();
   load293TSchedule();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 })();
@@ -1585,10 +1875,13 @@ document.addEventListener('visibilitychange', async () => {
   openRotationSlots = new Set();
   rotationViewOffset = 0;
   if (data.rotationPlan) {
+    ensureRotationPlanPeople(data.rotationPlan);
     const computed = computeRotationFromPlan(data.rotationPlan);
     if (computed) rot = computed;   // computed period + looped assignees
   }
   renderRotations(rot, currentRotationPlan);
+  renderRotationManager(currentRotationPlan);
+  updateRotationAdminStatus();
   load293TSchedule();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });

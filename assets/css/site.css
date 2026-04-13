@@ -1554,19 +1554,105 @@ html.page-portal{
       background:#f8fbff;
     }
     html.page-portal .rot-edit[open]{ background:#eef5ff; }
-
-    html.page-portal .rot-form{ display:grid; gap:12px; }
-    html.page-portal .rot-form .row{
-      display:grid; gap:10px;
-      grid-template-columns: repeat(4, minmax(0,1fr));
+    html.page-portal .rot-manage{ display:grid; gap:12px; }
+    html.page-portal .rot-manage-toolbar{
+      display:grid;
+      gap:10px;
+      grid-template-columns:minmax(0, 1.4fr) minmax(0, 1fr) auto;
+      align-items:end;
     }
-    html.page-portal .rot-form label{ display:flex; flex-direction:column; gap:6px; font-weight:700; font-size:14px; }
-    html.page-portal .rot-form input{
-      border:1px solid #dfe6ef; border-radius:8px; padding:8px 10px; font:inherit; background:#fff;
+    html.page-portal .rot-manage label{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-weight:700;
+      font-size:14px;
     }
-    html.page-portal .rot-form input:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
-
-    html.page-portal .rot-form .actions{ display:flex; gap:10px; align-items:center; }
+    html.page-portal .rot-manage input,
+    html.page-portal .rot-manage select{
+      border:1px solid #dfe6ef;
+      border-radius:8px;
+      padding:8px 10px;
+      font:inherit;
+      background:#fff;
+      width:100%;
+    }
+    html.page-portal .rot-manage input:focus,
+    html.page-portal .rot-manage select:focus{ outline:none; box-shadow:0 0 0 3px var(--ring); }
+    html.page-portal .rot-manage-grid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+    html.page-portal .rot-manage-room{
+      display:grid;
+      gap:8px;
+      padding:10px;
+      border:1px solid #dfe6ef;
+      border-radius:10px;
+      background:#fff;
+    }
+    html.page-portal .rot-manage-room h3{
+      margin:0;
+      font-size:13px;
+      font-weight:900;
+      color:#355886;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    html.page-portal .rot-manage-list{
+      display:grid;
+      gap:6px;
+    }
+    html.page-portal .rot-person-row{
+      display:grid;
+      grid-template-columns:auto minmax(0, 1fr) auto auto auto;
+      gap:6px;
+      align-items:center;
+      padding:8px;
+      border:1px solid #e3eaf7;
+      border-radius:10px;
+      background:#f8fbff;
+    }
+    html.page-portal .rot-person-row.is-inactive{
+      opacity:.6;
+    }
+    html.page-portal .rot-person-name{
+      min-width:0;
+      font-size:13px;
+      font-weight:700;
+      color:#213047;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    html.page-portal .rot-person-active,
+    html.page-portal .rot-person-up,
+    html.page-portal .rot-person-down{
+      appearance:none;
+      border:1px solid #d7e2f6;
+      background:#fff;
+      color:#355886;
+      border-radius:8px;
+      padding:4px 8px;
+      font-size:11px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    html.page-portal .rot-person-move{
+      min-width:92px;
+      padding:6px 8px;
+      font-size:12px;
+    }
+    html.page-portal .rot-manage-empty{
+      padding:10px;
+      border-radius:10px;
+      background:#f8fbff;
+      color:#6b7a93;
+      font-size:12px;
+      font-weight:700;
+      text-align:center;
+    }
     html.page-portal .btn-primary{
       appearance:none; border:1px solid #bcd0ff; background:#e6efff; color:#0b3d91;
       padding:8px 12px; border-radius:8px; font-weight:700; cursor:pointer;
@@ -1578,7 +1664,8 @@ html.page-portal{
     html.page-portal .hint{ font-size:12px; color:#6b7280; }
 
     @media (max-width: 900px){
-      html.page-portal .rot-form .row{ grid-template-columns: 1fr 1fr; }
+      html.page-portal .rot-manage-toolbar{ grid-template-columns:1fr; }
+      html.page-portal .rot-manage-grid{ grid-template-columns:1fr; }
     }
 
     /* Hide editor by default; show only in admin mode */
@@ -1586,7 +1673,8 @@ html.page-portal{
     html.page-portal body.admin .rot-edit { display: block; }
 
     /* Also visually disable inputs when not admin */
-    html.page-portal .room-rot .rot-form input:disabled{
+    html.page-portal .room-rot .rot-manage input:disabled,
+    html.page-portal .room-rot .rot-manage select:disabled{
       background: #f4f6fa;
       color: #7a869a;
       cursor: not-allowed;
@@ -2550,3 +2638,26 @@ html.page-tui-test, html.page-tui-test body { height: 100%; margin: 0; backgroun
         html.page-tui-test #calwrap{ max-width: 1100px; margin: 24px auto; padding: 0 16px; }
         html.page-tui-test #cal{ height: 80vh; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
         html.page-tui-test .row{ margin: 12px 0; font: 14px system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+
+html.page-portal .rot-manage-actions{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+  margin-top:14px;
+}
+html.page-portal .rot-admin-status{
+  color:var(--muted);
+  font-size:13px;
+}
+@media (max-width: 640px){
+  html.page-portal .rot-manage-actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  html.page-portal .rot-manage-actions .btn,
+  html.page-portal .rot-manage-actions .btn-primary{
+    width:100%;
+    justify-content:center;
+  }
+}

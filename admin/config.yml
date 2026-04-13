@@ -44,3 +44,54 @@ collections:
               - { label: "TC2",   name: "tc2",   widget: string }
               - { label: "TC3",   name: "tc3",   widget: string }
               - { label: "Main Lab", name: "main", widget: string }
+          - label: "Rotation Plan"
+            name: "rotationPlan"
+            widget: object
+            required: false
+            fields:
+              - { label: "Start", name: "start", widget: date, format: "YYYY-MM-DD" }
+              - { label: "Period Days", name: "periodDays", widget: number, value_type: int, min: 1 }
+              - label: "Anchor"
+                name: "anchor"
+                widget: object
+                fields:
+                  - { label: "Anchor Date", name: "date", widget: date, format: "YYYY-MM-DD" }
+                  - label: "Current Assignees"
+                    name: "current"
+                    widget: object
+                    fields:
+                      - { label: "TC1", name: "tc1", widget: string }
+                      - { label: "TC2", name: "tc2", widget: string }
+                      - { label: "TC3", name: "tc3", widget: string }
+                      - { label: "Main Lab", name: "main", widget: string }
+              - label: "Room Order"
+                name: "slotOrder"
+                widget: object
+                fields:
+                  - label: "TC1 Order"
+                    name: "tc1"
+                    widget: list
+                    field: { label: "Name", name: "name", widget: string }
+                    summary: "{{fields.name}}"
+                  - label: "TC2 Order"
+                    name: "tc2"
+                    widget: list
+                    field: { label: "Name", name: "name", widget: string }
+                    summary: "{{fields.name}}"
+                  - label: "TC3 Order"
+                    name: "tc3"
+                    widget: list
+                    field: { label: "Name", name: "name", widget: string }
+                    summary: "{{fields.name}}"
+                  - label: "Main Lab Order"
+                    name: "main"
+                    widget: list
+                    field: { label: "Name", name: "name", widget: string }
+                    summary: "{{fields.name}}"
+              - label: "People"
+                name: "people"
+                widget: list
+                summary: "{{fields.name}}"
+                fields:
+                  - { label: "Name", name: "name", widget: string }
+                  - { label: "Active", name: "active", widget: boolean, default: true }
