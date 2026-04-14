@@ -806,7 +806,8 @@ function sanitizeAnnHTML(input){
   const tmp = document.createElement('div');
   tmp.innerHTML = input || '';
 
-  const allowed = new Set(['B','I','U','BR','A','SPAN','DIV','UL','OL','LI']);
+  const allowed = new Set(['B','I','U','BR','A','SPAN','DIV','P','UL','OL','LI']);
+  const allowedClasses = new Set(['ann-size-sm','ann-size-lg','ann-font-serif','ann-font-mono','ann-font-sans']);
 
   function cleanUrl(href){
     try {
@@ -830,7 +831,7 @@ function sanitizeAnnHTML(input){
         parent.removeChild(node);
         return;
       }
-      // Strip attributes except safe ones for <a>
+      // Strip attributes except safe ones for <a> and whitelisted classes.
       for (const attr of Array.from(node.attributes)) {
         if (tag === 'A' && attr.name.toLowerCase() === 'href') {
           const safe = cleanRelUrl(node.getAttribute('href') || '');
@@ -841,6 +842,12 @@ function sanitizeAnnHTML(input){
           } else {
             node.removeAttribute('href');
           }
+        } else if (attr.name.toLowerCase() === 'class') {
+          const keep = (node.getAttribute('class') || '')
+            .split(/\s+/)
+            .filter((name) => allowedClasses.has(name));
+          if (keep.length) node.setAttribute('class', keep.join(' '));
+          else node.removeAttribute('class');
         } else {
           node.removeAttribute(attr.name);
         }

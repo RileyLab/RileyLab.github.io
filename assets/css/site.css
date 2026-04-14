@@ -2274,6 +2274,11 @@ html.page-portal{
       margin:8px 0 0 18px;
       padding:0;
     }
+    html.page-portal .ann-body .ann-size-sm{ font-size:13px; }
+    html.page-portal .ann-body .ann-size-lg{ font-size:18px; line-height:1.55; }
+    html.page-portal .ann-body .ann-font-serif{ font-family:Georgia, "Times New Roman", serif; }
+    html.page-portal .ann-body .ann-font-mono{ font-family:"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+    html.page-portal .ann-body .ann-font-sans{ font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     html.page-portal .ann-body li{
       display:list-item !important;
       margin:4px 0 !important;

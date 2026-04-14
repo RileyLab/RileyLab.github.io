@@ -4,514 +4,1128 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Riley Lab Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --admin-bg:#eef3f8;
-      --admin-card:#ffffff;
-      --admin-line:rgba(15,23,42,.10);
-      --admin-text:#10233a;
-      --admin-muted:#60758c;
-      --admin-success:#0f766e;
-      --admin-shadow:0 18px 44px rgba(15,23,42,.08);
-      --admin-font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --bg:#eef3f8;
+      --card:#fff;
+      --line:rgba(15,23,42,.10);
+      --line-strong:rgba(15,23,42,.16);
+      --text:#10233a;
+      --muted:#62768d;
+      --blue:#2b6cb0;
+      --blue-soft:#eaf3ff;
+      --green:#0f766e;
+      --green-soft:#e7f8f1;
+      --gold:#b7791f;
+      --gold-soft:#fff6e5;
+      --ann-info:#1d4fa3;
+      --ann-warn:#a85d00;
+      --ann-urgent:#a61b1b;
+      --portal-yellow:#fff2cc;
+      --portal-yellow-border:#f2d995;
+      --portal-green:#e6f2e1;
+      --portal-green-border:#c7dfbc;
+      --portal-blue:#e6efff;
+      --portal-blue-border:#cadbf8;
+      --portal-red:#fbe2e1;
+      --portal-red-border:#efb6b3;
+      --red:#b91c1c;
+      --shadow:0 18px 44px rgba(15,23,42,.08);
+      --radius:22px;
+      --font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
-
     *{box-sizing:border-box}
-    html,body{
-      margin:0;
-      min-height:100%;
-      background:
-        radial-gradient(circle at top left, rgba(43,108,176,.08), transparent 22rem),
-        linear-gradient(180deg, #f6f9fc 0%, var(--admin-bg) 22rem);
-      color:var(--admin-text);
-      font-family:var(--admin-font);
+    html,body{margin:0;min-height:100%;font-family:var(--font);color:var(--text);background:
+      radial-gradient(circle at 8% 12%, rgba(161,188,222,.28) 0 8px, transparent 9px),
+      radial-gradient(circle at 12% 18%, rgba(161,188,222,.20) 0 18px, transparent 19px),
+      radial-gradient(circle at 90% 10%, rgba(161,188,222,.24) 0 10px, transparent 11px),
+      radial-gradient(circle at 84% 18%, rgba(161,188,222,.18) 0 22px, transparent 23px),
+      linear-gradient(180deg, #f9fbfe 0%, var(--bg) 20rem);
     }
-
-    body{
-      padding:14px;
+    body{padding:18px}
+    .page{max-width:1500px;margin:0 auto}
+    .topbar{
+      display:grid;gap:14px;
+      padding:14px 18px 16px;border:1px solid rgba(255,255,255,.7);border-radius:28px;
+      background:rgba(255,255,255,.90);backdrop-filter:blur(14px);box-shadow:0 14px 34px rgba(15,23,42,.08);
+      margin-bottom:18px;
     }
-
-    #nc-root,
-    #nc-root > div{
-      min-height:0;
-      height:auto;
+    .brand{display:grid;justify-items:center;gap:8px;min-width:0}
+    .brand-logo{width:min(260px, 62vw);height:auto;display:block}
+    .brand h1{display:none}
+    .brand p{margin:0;color:var(--muted);font-size:13px;text-align:center}
+    .top-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .top-actions-row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center}
+    .btn,.btn-link,input[type=file]::file-selector-button{
+      appearance:none;border:1px solid var(--line);background:#fff;color:var(--text);border-radius:999px;
+      padding:10px 14px;font:700 13px/1 var(--font);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;
     }
-
-    #nc-root{
-      display:block !important;
+    .btn:hover,.btn-link:hover,input[type=file]::file-selector-button:hover{border-color:var(--line-strong);background:#f9fbff}
+    .btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn.primary:hover{background:#235993}
+    .btn.success{background:var(--green-soft);color:var(--green);border-color:rgba(15,118,110,.18)}
+    .btn.danger{background:#fff5f5;color:var(--red);border-color:rgba(185,28,28,.14)}
+    .status-pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:9px 12px;background:#f8fbff;border:1px solid var(--line);font-size:12px;font-weight:700;color:#335372}
+    .layout{display:grid;grid-template-columns:1.25fr .75fr;gap:18px;align-items:start}
+    .stack{display:grid;gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#fff,#f8fbff)}
+    .card-head h2{margin:0;font-size:13px;line-height:1.1;letter-spacing:.04em;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px}
+    .card-head p{margin:6px 0 0;font-size:13px;color:var(--muted)}
+    .card.portal-ann .card-head{background:var(--portal-yellow);border-bottom-color:var(--portal-yellow-border)}
+    .card.portal-meeting .card-head{background:var(--portal-green);border-bottom-color:var(--portal-green-border)}
+    .card.portal-rot .card-head{background:var(--portal-blue);border-bottom-color:var(--portal-blue-border)}
+    .card.preview-side .card-head{background:var(--portal-red);border-bottom-color:var(--portal-red-border)}
+    .card-body{padding:16px 18px}
+    .section-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .list{display:grid;gap:12px}
+    .item{border:1px solid var(--line);border-radius:18px;background:#fbfdff;padding:14px}
+    .item.portal-like{background:linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);box-shadow:0 8px 18px rgba(15,23,42,.04)}
+    .item-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+    .item-title{font-weight:800;font-size:14px}
+    .item-tools{display:flex;gap:8px;flex-wrap:wrap}
+    .tiny{padding:8px 10px;font-size:12px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:#37587b}
+    .field input,.field textarea,.field select{
+      width:100%;border:1px solid rgba(15,23,42,.12);border-radius:14px;padding:11px 12px;background:#fff;color:var(--text);font:14px/1.45 var(--font)
     }
-
-    #nc-root > div,
-    body [class*="App"],
-    body [class*="Main"],
-    body [class*="CollectionContainer"],
-    body [class*="CollectionTopContainer"]{
-      align-items:flex-start !important;
-      align-content:flex-start !important;
-      justify-content:flex-start !important;
-    }
-
-    /* Decap layout tightening */
-    body [class*="AppHeader"],
-    body [class*="appHeader"],
-    body [class*="ToolbarContainer"]{
-      box-shadow:none !important;
-    }
-
-    body [class*="CollectionTopContainer"],
-    body [class*="EditorContainer"],
-    body [class*="CollectionContainer"],
-    body [class*="EditorWrapper"],
-    body [class*="editorialWorkflow"]{
-      max-width:1500px !important;
-      margin-left:auto !important;
-      margin-right:auto !important;
-    }
-
-    body [class*="EditorContainer"]{
-      background:transparent !important;
-    }
-
-    body [class*="CollectionTopContainer"],
-    body [class*="CollectionTopRow"],
-    body [class*="EditorContainer"],
-    body [class*="EditorToolbar"],
-    body [class*="PaneContainer"],
-    body [class*="SplitPane"]{
-      gap:14px !important;
-    }
-
-    body [class*="CollectionTopContainer"],
-    body [class*="CollectionContainer"],
-    body [class*="EditorContainer"]{
-      padding-left:10px !important;
-      padding-right:10px !important;
-    }
-
-    body [class*="EditorContainer"] > div,
-    body [class*="SplitPane"] > div,
-    body [class*="PaneContainer"] > div{
-      min-width:0;
-    }
-
-    body [class*="Card"],
-    body [class*="card"]{
-      border-radius:18px !important;
-    }
-
-    body [class*="ListControl"],
-    body [class*="ListItem"],
-    body [class*="FieldContainer"],
-    body [class*="ObjectControl"],
-    body [class*="ObjectWidget"],
-    body [class*="ListWidget"]{
-      border-radius:16px !important;
-    }
-
-    body [class*="ObjectControl"],
-    body [class*="ListWidget"],
-    body [class*="ObjectWidget"]{
-      padding:14px !important;
-      background:rgba(255,255,255,.72) !important;
-      border:1px solid rgba(15,23,42,.08) !important;
-      box-shadow:0 10px 24px rgba(15,23,42,.04) !important;
-    }
-
-    body [class*="FieldContainer"]{
-      padding:0 !important;
-      background:transparent !important;
-      border:0 !important;
-      box-shadow:none !important;
-    }
-
-    body [class*="FieldLabel"],
-    body [class*="fieldLabel"],
-    body label{
-      color:#27415e !important;
-      font-weight:700 !important;
-    }
-
-    body [class*="FieldContainer"]{
-      margin-bottom:14px !important;
-    }
-
-    body label{
-      letter-spacing:.01em;
-    }
-
-    body input,
-    body textarea,
-    body select,
-    body [data-slate-editor="true"]{
-      border-radius:14px !important;
-    }
-
-    body textarea{
-      min-height:120px;
-    }
-
-    body input,
-    body textarea,
-    body select{
-      background:#fff !important;
-      border:1px solid rgba(15,23,42,.12) !important;
-      box-shadow:none !important;
-      padding:11px 13px !important;
-    }
-
-    body input:focus,
-    body textarea:focus,
-    body select:focus,
-    body [data-slate-editor="true"]:focus-within{
-      border-color:rgba(43,108,176,.38) !important;
-      box-shadow:0 0 0 3px rgba(59,130,196,.10) !important;
-      outline:none !important;
-    }
-
-    body [data-slate-editor="true"]{
-      background:#fff !important;
-      border:1px solid rgba(15,23,42,.12) !important;
-      padding:12px 14px !important;
-      min-height:120px;
-    }
-
-    body [class*="ListControl"] > div,
-    body [class*="ListItem"] > div{
-      padding-top:10px !important;
-      padding-bottom:10px !important;
-    }
-
-    body [class*="ListControl"]{
-      background:#fff !important;
-      border:1px solid rgba(15,23,42,.08) !important;
-      box-shadow:0 8px 18px rgba(15,23,42,.04) !important;
-    }
-
-    body [class*="ListItem"] + [class*="ListItem"]{
-      margin-top:10px !important;
-    }
-
-    body [class*="ListItem"]{
-      background:transparent !important;
-      border:0 !important;
-      box-shadow:none !important;
-      padding:0 !important;
-    }
-
-    body [class*="ObjectControl"] > div:first-child,
-    body [class*="ListWidget"] > div:first-child,
-    body [class*="ListControl"] > div:first-child{
-      margin-bottom:10px !important;
-    }
-
-    body [class*="ListControl"] button,
-    body [class*="ListItem"] button,
-    body [class*="EditorToolbar"] button,
-    body [class*="ToolbarContainer"] button{
-      border-radius:12px !important;
-    }
-
-    body [class*="EditorToolbar"],
-    body [class*="ToolbarContainer"],
-    body [class*="CollectionTopContainer"]{
-      padding-top:8px !important;
-      padding-bottom:8px !important;
-    }
-
-    body [class*="PreviewPane"],
-    body [class*="previewPane"],
-    body [class*="EditorPreviewPane"]{
-      border-radius:20px !important;
-    }
-
-    body [class*="PreviewPane"],
-    body [class*="previewPane"],
-    body [class*="EditorPreviewPane"]{
-      background:rgba(255,255,255,.76) !important;
-      border:1px solid rgba(15,23,42,.08) !important;
-      box-shadow:0 14px 30px rgba(15,23,42,.05) !important;
-    }
-
-    body [class*="PreviewPane"] img,
-    body [class*="previewPane"] img,
-    body [class*="EditorPreviewPane"] img{
-      border-radius:18px !important;
-      max-width:100%;
-      height:auto;
-    }
-
-    body [class*="PreviewPane"] > div,
-    body [class*="previewPane"] > div,
-    body [class*="EditorPreviewPane"] > div{
-      padding:16px !important;
-    }
-
-    body [class*="PreviewPane"] p,
-    body [class*="previewPane"] p,
-    body [class*="EditorPreviewPane"] p{
-      line-height:1.55;
-    }
-
-    .portal-import{
-      position:fixed;
-      right:18px;
-      bottom:18px;
-      z-index:10003;
-      width:min(400px, calc(100vw - 36px));
-      padding:16px;
-      border:1px solid var(--admin-line);
-      border-radius:20px;
-      background:rgba(255,255,255,.96);
-      box-shadow:var(--admin-shadow);
-    }
-    .portal-import[hidden]{display:none !important}
-    .portal-import h1{
-      margin:0 0 8px;
-      font-size:16px;
-      line-height:1.25;
-    }
-    .portal-import p{
-      margin:0 0 10px;
-      color:var(--admin-muted);
-      font-size:13px;
-      line-height:1.45;
-    }
-    .portal-import code{
-      padding:2px 6px;
-      border-radius:999px;
-      background:#eef4fa;
-      font-size:12px;
-    }
-    .portal-import-meta{
-      margin:0 0 12px;
-      font-size:12px;
-      color:#708398;
-    }
-    .portal-import-actions{
-      display:grid;
-      gap:8px;
-      margin-bottom:8px;
-    }
-    .portal-import button{
+    .field textarea{min-height:110px;resize:vertical}
+    .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:rgba(43,108,176,.35);box-shadow:0 0 0 3px rgba(59,130,196,.10)}
+    .hint{font-size:12px;color:var(--muted)}
+    .rich-field{display:grid;gap:8px}
+    .rich-toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .rich-btn{
       appearance:none;
-      width:100%;
-      border:1px solid var(--admin-line);
+      border:1px solid rgba(15,23,42,.12);
       background:#fff;
-      color:var(--admin-text);
-      border-radius:14px;
-      padding:12px 14px;
-      text-align:left;
-      font:600 14px/1.2 var(--admin-font);
+      color:#27415e;
+      border-radius:999px;
+      padding:7px 10px;
+      font:700 12px/1 var(--font);
       cursor:pointer;
     }
-    .portal-import-save{
-      background:#f6fbf9 !important;
-      border-color:rgba(15,118,110,.18) !important;
-      color:var(--admin-success) !important;
+    .rich-btn:hover{background:#f7fbff;border-color:rgba(43,108,176,.24)}
+    .rich-btn.danger{
+      color:var(--red);
+      border-color:rgba(185,28,28,.18);
+      background:#fff5f5;
     }
-    .portal-import-status{
-      min-height:18px;
-      font-size:13px;
-      color:#334155;
+    .rich-btn.danger:hover{
+      background:#ffeaea;
+      border-color:rgba(185,28,28,.28);
     }
-
-    @media (max-width: 760px){
-      body{ padding:10px; }
-      .portal-import{
-        left:10px;
-        right:10px;
-        bottom:10px;
-        width:auto;
-      }
+    .rich-editor{
+      min-height:120px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      padding:11px 12px;
+      background:#fff;
+      color:var(--text);
+      font:14px/1.5 var(--font);
+      outline:none;
+    }
+    .rich-editor:focus{
+      border-color:rgba(43,108,176,.35);
+      box-shadow:0 0 0 3px rgba(59,130,196,.10);
+    }
+    .rich-editor p{margin:0 0 10px}
+    .rich-editor p:last-child{margin-bottom:0}
+    .rich-editor ul,.rich-editor ol{margin:8px 0;padding-left:20px}
+    .rich-editor .ann-size-sm,.ann-preview-content .ann-size-sm{font-size:13px}
+    .rich-editor .ann-size-lg,.ann-preview-content .ann-size-lg{font-size:18px;line-height:1.55}
+    .rich-editor .ann-font-serif,.ann-preview-content .ann-font-serif{font-family:Georgia,"Times New Roman",serif}
+    .rich-editor .ann-font-mono,.ann-preview-content .ann-font-mono{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+    .rich-editor .ann-font-sans,.ann-preview-content .ann-font-sans{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .advanced-html{margin-top:12px}
+    .advanced-html summary{
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:#37587b;
+      list-style:none;
+    }
+    .advanced-html summary::-webkit-details-marker{display:none}
+    .advanced-html[open] summary{margin-bottom:10px}
+    .preview-card{display:grid;gap:14px}
+    .preview-block{border:1px solid var(--line);border-radius:18px;background:#fff;padding:16px}
+    .preview-block h3{margin:0 0 8px;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+    .preview-ann{display:grid;gap:8px}
+    .preview-ann-item{padding:12px;border-radius:14px;background:#f8fbff;border:1px solid rgba(43,108,176,.08)}
+    .preview-ann-time{font-size:12px;color:var(--muted);font-weight:700}
+    .preview-meeting{display:grid;gap:14px;align-items:center}
+    .preview-meeting img{width:112px;height:112px;border-radius:999px;object-fit:cover;display:block;background:#e9eef5}
+    .preview-meeting-meta{display:grid;gap:6px}
+    .preview-badge{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:999px;background:#edf4ff;color:#2d5f96;font-size:12px;font-weight:800;width:max-content}
+    .auth-card{padding:24px;text-align:center;display:grid;gap:14px}
+    .auth-card p{margin:0;color:var(--muted)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .upload-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .upload-row input[type=file]{max-width:100%;font-size:13px}
+    .room-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+    .room-card{border:1px solid var(--line);border-radius:18px;background:#fbfdff;padding:14px;display:grid;gap:10px}
+    .room-card h4{margin:0;font-size:14px}
+    .people-list{display:grid;gap:8px}
+    .person-row{border:1px solid rgba(15,23,42,.08);border-radius:14px;background:#fff;padding:10px;display:grid;gap:8px}
+    .person-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .person-name{font-weight:800;font-size:13px}
+    .person-tools{display:flex;gap:6px;flex-wrap:wrap}
+    .inline-field{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+    .inline-field input{margin:0}
+    .ann-inline-preview{
+      margin-top:14px;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:16px;
+      background:#fff;
+      overflow:hidden;
+    }
+    .ann-inline-preview-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:10px 12px;
+      border-bottom:1px solid rgba(15,23,42,.08);
+      background:#f8fbff;
+    }
+    .ann-inline-preview-head strong{
+      font-size:12px;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:#36577c;
+    }
+    .ann-inline-preview-body{
+      padding:12px;
+    }
+    .ann-preview-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+    .ann-preview-chip.info{ background:#eef4ff; color:var(--ann-info); border-color:#d5e3ff; }
+    .ann-preview-chip.warn{ background:#fff7ea; color:var(--ann-warn); border-color:#ffddb3; }
+    .ann-preview-chip.urgent{ background:#ffecec; color:var(--ann-urgent); border-color:#ffb3b3; }
+    .ann-preview-live{
+      display:grid;
+      gap:10px;
+      padding:12px;
+      border-radius:14px;
+      background:#fff;
+      border-left:4px solid #d5e3ff;
+      box-shadow:inset 0 0 0 1px rgba(15,23,42,.06);
+    }
+    .ann-preview-live.info{ border-left-color:#7ea6eb; }
+    .ann-preview-live.warn{ border-left-color:#f0bf7a; }
+    .ann-preview-live.urgent{ border-left-color:#ef9191; }
+    .ann-preview-time{
+      width:max-content;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid transparent;
+    }
+    .ann-preview-time.info{ background:#eef4ff; color:var(--ann-info); border-color:#d5e3ff; }
+    .ann-preview-time.warn{ background:#fff7ea; color:var(--ann-warn); border-color:#ffddb3; }
+    .ann-preview-time.urgent{ background:#ffecec; color:var(--ann-urgent); border-color:#ffb3b3; }
+    .ann-preview-content{ color:#263238; line-height:1.5; }
+    .ann-preview-content ul,.ann-preview-content ol{ margin:8px 0 0; padding-left:20px; }
+    .ann-preview-content a{ color:#17448f; }
+    .meeting-inline-preview{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns:96px 1fr;
+      gap:14px;
+      align-items:center;
+      padding:14px;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:16px;
+      background:#fff;
+    }
+    .meeting-inline-preview img{
+      width:96px;
+      height:96px;
+      border-radius:999px;
+      object-fit:cover;
+      background:#e8edf5;
+      display:block;
+    }
+    .meeting-inline-preview-fallback{
+      width:96px;
+      height:96px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:#e8edf5;
+      color:#567189;
+      font-weight:800;
+      font-size:22px;
+    }
+    .meeting-inline-meta{ display:grid; gap:6px; }
+    .footer-save{position:sticky;bottom:14px;z-index:20;display:flex;justify-content:flex-end;margin-top:18px}
+    .save-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:999px;padding:10px 12px}
+    .error{color:var(--red);font-size:13px}
+    .success-text{color:var(--green);font-size:13px}
+    .hidden{display:none !important}
+    .ms{font-family:"Material Symbols Rounded";font-weight:400;font-style:normal;font-size:18px;line-height:1}
+    .toolbar-pills{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pill-link{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--line);
+      background:#fff;text-decoration:none;color:#355372;font-size:12px;font-weight:800;
+    }
+    .pill-link:hover{background:#f7fbff;border-color:var(--line-strong)}
+    @media (max-width: 1120px){
+      .layout{grid-template-columns:1fr}
+      .room-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media (max-width: 720px){
+      body{padding:12px}
+      .topbar{padding:14px}
+      .top-actions-row{grid-template-columns:1fr}
+      .top-actions,.toolbar-pills{justify-content:flex-start}
+      .grid-2,.grid-3,.room-grid{grid-template-columns:1fr}
+      .meeting-inline-preview{grid-template-columns:1fr}
+      .save-bar{border-radius:20px;justify-content:flex-end}
     }
   </style>
 </head>
 <body>
-  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
-
-  <aside class="portal-import" id="portal-import" hidden>
-    <h1>Pending Rotation Plan</h1>
-    <p>Portal roster changes are queued for <code>data/lab-portal.json</code>. Save them from this authenticated admin page.</p>
-    <div class="portal-import-meta" id="portal-import-meta"></div>
-    <div class="portal-import-actions">
-      <button type="button" class="portal-import-save" id="portal-import-save">Save to JSON</button>
-      <button type="button" id="portal-import-copy">Copy JSON</button>
-      <button type="button" id="portal-import-clear">Dismiss</button>
+<div class="page">
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/images/riley-lab-logo.png" alt="Riley Lab" class="brand-logo">
+      <p>Custom editor for the live portal data.</p>
     </div>
-    <div class="portal-import-status" id="portal-import-status"></div>
-  </aside>
+    <div class="top-actions-row">
+      <div class="toolbar-pills">
+        <a class="pill-link" href="/" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">grid_view</span>Live Portal</a>
+        <a class="pill-link" href="/admin/cms.html" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">edit_square</span>Raw CMS</a>
+        <a class="pill-link" href="/admin/cms.html#/media" target="_blank" rel="noopener"><span class="ms" aria-hidden="true">image</span>Media</a>
+      </div>
+      <div class="top-actions">
+        <span class="status-pill" id="auth-status">Checking auth…</span>
+        <button class="btn primary hidden" id="save-all-top">Save All Changes</button>
+      </div>
+    </div>
+  </header>
 
-  <script>
-    const ROTATION_ADMIN_DRAFT_KEY = 'portalRotationPlanAdminDraft';
-    const REPO_OWNER = 'RileyLab';
-    const REPO_NAME = 'RileyLab.github.io';
-    const REPO_BRANCH = 'master';
-    const PORTAL_FILE_PATH = 'data/lab-portal.json';
+  <section class="card auth-card hidden" id="login-card">
+    <h2>Login Required</h2>
+    <p>This custom admin uses the same GitHub authentication as Decap. Log in once through the raw CMS, then come back here.</p>
+    <div class="section-actions" style="justify-content:center">
+      <a class="btn primary" href="/admin/cms.html" target="_blank" rel="noopener">Open CMS Login</a>
+      <button class="btn" id="retry-auth">Refresh Auth State</button>
+    </div>
+  </section>
 
-    const panel = document.getElementById('portal-import');
-    const meta = document.getElementById('portal-import-meta');
-    const status = document.getElementById('portal-import-status');
-    const saveBtn = document.getElementById('portal-import-save');
-    const copyBtn = document.getElementById('portal-import-copy');
-    const clearBtn = document.getElementById('portal-import-clear');
+  <div class="layout hidden" id="admin-app">
+    <main class="stack">
+      <section class="card portal-ann" id="announcements-card">
+        <div class="card-head">
+          <div>
+            <h2><span class="ms" aria-hidden="true">campaign</span>Announcements</h2>
+            <p>Live source of truth for homepage announcements. Supports text, HTML, links, and image links.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn" id="add-announcement">Add Announcement</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list" id="announcements-list"></div>
+        </div>
+      </section>
 
-    function getPendingDraft() {
-      try {
-        const raw = localStorage.getItem(ROTATION_ADMIN_DRAFT_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        if (!parsed || typeof parsed !== 'object' || !parsed.rotationPlan) return null;
-        return parsed;
-      } catch (_) {
-        return null;
-      }
-    }
+      <section class="card portal-meeting" id="meetings-card">
+        <div class="card-head">
+          <div>
+            <h2><span class="ms" aria-hidden="true">groups</span>Lab Meetings</h2>
+            <p>Edit the next lab talk sequence. Upload presenter photos directly to <code>assets/uploads</code>.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn" id="add-meeting">Add Meeting</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="list" id="meetings-list"></div>
+        </div>
+      </section>
 
-    function clearPendingDraft() {
-      localStorage.removeItem(ROTATION_ADMIN_DRAFT_KEY);
-    }
+      <section class="card portal-rot" id="rotation-card">
+        <div class="card-head">
+          <div>
+            <h2><span class="ms" aria-hidden="true">cleaning_services</span>Room Maintenance Rotations</h2>
+            <p>Manage room order, active people, and the current anchored assignments without the raw nested CMS fields.</p>
+          </div>
+          <div class="section-actions">
+            <button class="btn" id="add-person">Add Person</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-3" style="margin-bottom:14px">
+            <div class="field"><label for="rot-start">Start</label><input id="rot-start" type="date"></div>
+            <div class="field"><label for="rot-period">Period Days</label><input id="rot-period" type="number" min="1"></div>
+            <div class="field"><label for="anchor-date">Anchor Date</label><input id="anchor-date" type="date"></div>
+          </div>
+          <div class="grid-2" id="anchor-current-grid" style="margin-bottom:14px"></div>
+          <div class="room-grid" id="room-grid"></div>
+        </div>
+      </section>
 
-    function setStatus(message, isError) {
-      status.textContent = message || '';
-      status.style.color = isError ? '#b91c1c' : '#334155';
-    }
+      <div class="footer-save">
+        <div class="save-bar">
+          <span id="save-status" class="hint">No unsaved changes.</span>
+          <button class="btn primary" id="save-all-bottom">Save All Changes</button>
+        </div>
+      </div>
+    </main>
 
-    function renderPendingPanel() {
-      const pending = getPendingDraft();
-      if (!pending) {
-        panel.hidden = true;
+    <aside class="stack">
+      <section class="card preview-side">
+        <div class="card-head">
+          <div>
+            <h2><span class="ms" aria-hidden="true">visibility</span>Live Preview</h2>
+            <p>Quick read of the data you are editing.</p>
+          </div>
+        </div>
+        <div class="card-body preview-card">
+          <div class="preview-block">
+            <h3>Announcements</h3>
+            <div class="preview-ann" id="announcements-preview"></div>
+          </div>
+          <div class="preview-block">
+            <h3>Next Lab Talk</h3>
+            <div class="preview-meeting" id="next-meeting-preview"></div>
+          </div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="card-head"><div><h2><span class="ms" aria-hidden="true">construction</span>Utilities</h2><p>Media and fallback tools.</p></div></div>
+        <div class="card-body stack">
+          <a class="btn-link" href="/" target="_blank" rel="noopener">Open Live Portal</a>
+          <a class="btn-link" href="/admin/cms.html#/collections/data/entries/portal" target="_blank" rel="noopener">Open Raw Portal Entry</a>
+          <p class="hint">If a complex edge case needs the raw schema, use the raw CMS. Normal edits should stay here.</p>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+<script>
+const PORTAL_JSON_URL = '../data/lab-portal.json';
+const REPO_OWNER = 'RileyLab';
+const REPO_NAME = 'RileyLab.github.io';
+const REPO_BRANCH = 'master';
+const PORTAL_FILE_PATH = 'data/lab-portal.json';
+const UPLOADS_PATH = 'assets/uploads';
+
+let portalData = null;
+let originalSerialized = '';
+let dirty = false;
+
+const authStatus = document.getElementById('auth-status');
+const loginCard = document.getElementById('login-card');
+const adminApp = document.getElementById('admin-app');
+const saveAllTop = document.getElementById('save-all-top');
+const saveAllBottom = document.getElementById('save-all-bottom');
+const saveStatus = document.getElementById('save-status');
+
+function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
+function slugify(value){ return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file'; }
+function escapeHtml(value){ return String(value ?? '').replace(/[&<>\"]/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
+function formatShortDate(value){ const d = value ? new Date(value) : null; return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric' }) : 'No date'; }
+function toDateInput(value){ if (!value) return ''; const d = new Date(value); if (Number.isNaN(d.getTime())) return String(value).slice(0,10); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function toDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); if (Number.isNaN(d.getTime())) return ''; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
+function fromDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); return Number.isNaN(d.getTime()) ? '' : d.toISOString(); }
+function getSlotLabel(slot){ return ({ tc1:'TC1', tc2:'TC2', tc3:'TC3', main:'Main Lab' })[slot] || slot; }
+function encodeBase64Unicode(str){ const bytes = new TextEncoder().encode(str); let binary=''; bytes.forEach((byte)=>{ binary += String.fromCharCode(byte); }); return btoa(binary); }
+function decodeBase64Unicode(str){ const binary = atob(str); const bytes = Uint8Array.from(binary, (char)=>char.charCodeAt(0)); return new TextDecoder().decode(bytes); }
+function getAnnouncementLevel(level){ return ['info','warn','urgent'].includes(level) ? level : 'info'; }
+function renderAnnouncementPreviewMarkup(ann){
+  const level = getAnnouncementLevel(ann.level);
+  const content = ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g,'<br>');
+  return `
+    <div class="ann-preview-live ${level}">
+      <div class="ann-preview-time ${level}">${escapeHtml(formatShortDate(ann.when))}</div>
+      <div class="ann-preview-content">${content || '<span class="hint">No content yet.</span>'}</div>
+    </div>
+  `;
+}
+function announcementEditorMarkup(ann, index){
+  const editorHtml = ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g, '<br>');
+  return `
+    <div class="rich-field" style="margin-top:12px">
+      <label>Text</label>
+      <div class="rich-toolbar" data-ann-toolbar="${index}">
+        <button type="button" class="rich-btn" data-rich-cmd="bold" data-index="${index}">Bold</button>
+        <button type="button" class="rich-btn" data-rich-cmd="italic" data-index="${index}">Italic</button>
+        <button type="button" class="rich-btn" data-rich-cmd="underline" data-index="${index}">Underline</button>
+        <button type="button" class="rich-btn" data-rich-cmd="insertUnorderedList" data-index="${index}">Bullets</button>
+        <button type="button" class="rich-btn" data-rich-cmd="insertOrderedList" data-index="${index}">Numbers</button>
+        <button type="button" class="rich-btn" data-rich-class="ann-size-sm" data-index="${index}">Small</button>
+        <button type="button" class="rich-btn" data-rich-class="ann-size-lg" data-index="${index}">Large</button>
+        <button type="button" class="rich-btn" data-rich-class="ann-font-serif" data-index="${index}">Serif</button>
+        <button type="button" class="rich-btn" data-rich-class="ann-font-mono" data-index="${index}">Mono</button>
+        <button type="button" class="rich-btn" data-rich-class="ann-font-sans" data-index="${index}">Sans</button>
+        <button type="button" class="rich-btn" data-rich-link="${index}">Link</button>
+        <button type="button" class="rich-btn danger" data-rich-cmd="removeFormat" data-index="${index}">Clear</button>
+      </div>
+      <div class="rich-editor" contenteditable="true" spellcheck="true" data-ann-rich="${index}">${editorHtml}</div>
+      <div class="hint">Use the toolbar for normal formatting. This editor automatically updates the announcement HTML.</div>
+    </div>
+    <details class="advanced-html">
+      <summary>Advanced HTML Override</summary>
+      <textarea data-ann-field="html" data-index="${index}" placeholder="Optional raw HTML for complex formatting">${escapeHtml(ann.html || '')}</textarea>
+    </details>
+  `;
+}
+function renderMeetingPreviewMarkup(meeting){
+  return `
+    ${meeting.image ? `<img src="${escapeHtml(meeting.image)}" alt="${escapeHtml(meeting.presenter || 'Presenter')}">` : `<div class="meeting-inline-preview-fallback">${escapeHtml((meeting.presenter || '?').slice(0,1).toUpperCase())}</div>`}
+    <div class="meeting-inline-meta">
+      <div class="preview-badge">${escapeHtml(formatShortDate(meeting.date))}</div>
+      <strong>${escapeHtml(meeting.presenter || 'Presenter TBD')}</strong>
+      <div>${escapeHtml(meeting.title || 'Untitled')}</div>
+      ${meeting.description ? `<div class="hint">${escapeHtml(meeting.description)}</div>` : ''}
+    </div>
+  `;
+}
+function updateAnnouncementInlinePreview(index){
+  const host = document.getElementById(`ann-inline-preview-${index}`);
+  if (!host || !portalData?.announcements?.[index]) return;
+  host.innerHTML = renderAnnouncementPreviewMarkup(portalData.announcements[index]);
+  const chip = host.closest('.ann-inline-preview')?.querySelector('.ann-preview-chip');
+  if (chip) {
+    const level = getAnnouncementLevel(portalData.announcements[index].level);
+    chip.className = `ann-preview-chip ${level}`;
+    chip.textContent = level;
+  }
+}
+function updateMeetingInlinePreview(index){
+  const host = document.getElementById(`meeting-inline-preview-${index}`);
+  if (!host || !portalData?.labMeetings?.[index]) return;
+  host.innerHTML = renderMeetingPreviewMarkup(portalData.labMeetings[index]);
+}
+function sanitizeEditorHtml(html){
+  const template = document.createElement('template');
+  template.innerHTML = html || '';
+  const allowed = new Set(['B','STRONG','I','EM','U','BR','P','UL','OL','LI','A','SPAN','DIV']);
+  const allowedClasses = new Set(['ann-size-sm','ann-size-lg','ann-font-serif','ann-font-mono','ann-font-sans']);
+  const walk = (node) => {
+    Array.from(node.children).forEach((child) => {
+      if (!allowed.has(child.tagName)) {
+        const fragment = document.createDocumentFragment();
+        while (child.firstChild) fragment.appendChild(child.firstChild);
+        child.replaceWith(fragment);
+        walk(node);
         return;
       }
-      panel.hidden = false;
-      const savedAt = pending.savedAt ? new Date(pending.savedAt) : null;
-      meta.textContent = savedAt && !Number.isNaN(savedAt.getTime())
-        ? `Queued ${savedAt.toLocaleString()}`
-        : 'Queued from the portal roster manager';
-      setStatus('');
-    }
-
-    function encodeBase64Unicode(str) {
-      const bytes = new TextEncoder().encode(str);
-      let binary = '';
-      bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-      return btoa(binary);
-    }
-
-    function decodeBase64Unicode(str) {
-      const binary = atob(str);
-      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-      return new TextDecoder().decode(bytes);
-    }
-
-    function extractGithubToken(store) {
-      for (let i = 0; i < store.length; i += 1) {
-        const key = store.key(i);
-        if (!key) continue;
-        const raw = store.getItem(key);
-        if (!raw) continue;
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed.token === 'string' && parsed.token) return parsed.token;
-          if (parsed && parsed.user && typeof parsed.user.token === 'string' && parsed.user.token) return parsed.user.token;
-        } catch (_) {}
-      }
-      return '';
-    }
-
-    function findGithubToken() {
-      return extractGithubToken(localStorage) || extractGithubToken(sessionStorage) || '';
-    }
-
-    async function savePendingDraft() {
-      const pending = getPendingDraft();
-      if (!pending) {
-        setStatus('No pending rotation plan found.', true);
-        renderPendingPanel();
-        return;
-      }
-
-      const token = findGithubToken();
-      if (!token) {
-        setStatus('Log into the admin first, then click Save to JSON.', true);
-        return;
-      }
-
-      saveBtn.disabled = true;
-      copyBtn.disabled = true;
-      clearBtn.disabled = true;
-      setStatus('Saving rotation plan to GitHub...');
-
-      try {
-        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PORTAL_FILE_PATH}?ref=${encodeURIComponent(REPO_BRANCH)}`;
-        const headers = {
-          Accept: 'application/vnd.github+json',
-          Authorization: `Bearer ${token}`
-        };
-
-        const currentResp = await fetch(url, { headers });
-        if (!currentResp.ok) throw new Error(`GitHub read failed (${currentResp.status})`);
-
-        const currentFile = await currentResp.json();
-        const currentJson = JSON.parse(decodeBase64Unicode(currentFile.content.replace(/\n/g, '')));
-        currentJson.rotationPlan = pending.rotationPlan;
-
-        const updateResp = await fetch(url, {
-          method: 'PUT',
-          headers: {
-            ...headers,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            message: 'Update rotation plan from portal roster manager',
-            content: encodeBase64Unicode(JSON.stringify(currentJson, null, 2) + '\n'),
-            sha: currentFile.sha,
-            branch: REPO_BRANCH
-          })
-        });
-
-        if (!updateResp.ok) {
-          const text = await updateResp.text();
-          throw new Error(`GitHub write failed (${updateResp.status}): ${text}`);
+      Array.from(child.attributes).forEach((attr) => {
+        if (child.tagName === 'A' && attr.name === 'href') return;
+        if (attr.name === 'class') {
+          const keep = (child.getAttribute('class') || '')
+            .split(/\s+/)
+            .filter((name) => allowedClasses.has(name));
+          if (keep.length) child.setAttribute('class', keep.join(' '));
+          else child.removeAttribute('class');
+          return;
         }
-
-        clearPendingDraft();
-        renderPendingPanel();
-        setStatus('Rotation plan saved to data/lab-portal.json.');
-      } catch (error) {
-        setStatus(error && error.message ? error.message : 'Save failed.', true);
-      } finally {
-        saveBtn.disabled = false;
-        copyBtn.disabled = false;
-        clearBtn.disabled = false;
+        child.removeAttribute(attr.name);
+      });
+      if (child.tagName === 'A') {
+        const href = child.getAttribute('href') || '';
+        if (!/^(https?:|mailto:|\/)/i.test(href)) child.removeAttribute('href');
       }
+      walk(child);
+    });
+  };
+  walk(template.content);
+  return template.innerHTML.trim();
+}
+function htmlToPlainText(html){
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+}
+function selectionInsideEditor(editor){
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return null;
+  const range = sel.getRangeAt(0);
+  const anchorNode = sel.anchorNode;
+  if (!anchorNode) return null;
+  return editor.contains(anchorNode) ? range : null;
+}
+function findWrappingClassNode(node, editor){
+  let current = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+  while (current && current !== editor) {
+    if (
+      current.nodeType === Node.ELEMENT_NODE &&
+      current.tagName === 'SPAN' &&
+      /(ann-size-sm|ann-size-lg|ann-font-serif|ann-font-mono|ann-font-sans)/.test(current.className || '')
+    ) return current;
+    current = current.parentNode;
+  }
+  return null;
+}
+function getRichClassGroup(className){
+  if (className === 'ann-size-sm' || className === 'ann-size-lg') return 'size';
+  if (className === 'ann-font-serif' || className === 'ann-font-mono' || className === 'ann-font-sans') return 'font';
+  return '';
+}
+function pruneRichClassGroup(node, group){
+  if (!node || !group) return;
+  const sizeClasses = ['ann-size-sm', 'ann-size-lg'];
+  const fontClasses = ['ann-font-serif', 'ann-font-mono', 'ann-font-sans'];
+  const remove = group === 'size' ? sizeClasses : fontClasses;
+  remove.forEach((name) => node.classList.remove(name));
+}
+function applyRichClass(index, className){
+  const editor = document.querySelector(`[data-ann-rich="${index}"]`);
+  if (!editor) return;
+  editor.focus();
+  const range = selectionInsideEditor(editor);
+  if (!range) return;
+  const group = getRichClassGroup(className);
+
+  const existing = findWrappingClassNode(range.commonAncestorContainer, editor);
+  if (existing) {
+    const alreadyHasClass = existing.classList.contains(className);
+    pruneRichClassGroup(existing, group);
+    if (alreadyHasClass) {
+      if (!existing.className.trim()) {
+        const fragment = document.createDocumentFragment();
+        while (existing.firstChild) fragment.appendChild(existing.firstChild);
+        existing.replaceWith(fragment);
+      }
+      syncAnnouncementFromEditor(index);
+      markChanged();
+      return;
     }
+    existing.classList.add(className);
+    if (!existing.className.trim()) {
+      const fragment = document.createDocumentFragment();
+      while (existing.firstChild) fragment.appendChild(existing.firstChild);
+      existing.replaceWith(fragment);
+    }
+    syncAnnouncementFromEditor(index);
+    markChanged();
+    return;
+  }
 
-    async function copyPendingDraft() {
-      const pending = getPendingDraft();
-      if (!pending) {
-        setStatus('No pending rotation plan found.', true);
-        return;
+  const span = document.createElement('span');
+  span.className = className;
+
+  if (range.collapsed) {
+    span.textContent = 'Styled text';
+    range.insertNode(span);
+    const nextRange = document.createRange();
+    nextRange.selectNodeContents(span);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+  } else {
+    const fragment = range.extractContents();
+    span.appendChild(fragment);
+    range.insertNode(span);
+    const nextRange = document.createRange();
+    nextRange.selectNodeContents(span);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(nextRange);
+  }
+
+  syncAnnouncementFromEditor(index);
+  markChanged();
+}
+function syncAnnouncementFromEditor(index){
+  const editor = document.querySelector(`[data-ann-rich="${index}"]`);
+  if (!editor || !portalData?.announcements?.[index]) return;
+  const cleanHtml = sanitizeEditorHtml(editor.innerHTML);
+  portalData.announcements[index].html = cleanHtml;
+  portalData.announcements[index].text = htmlToPlainText(cleanHtml);
+  const htmlField = document.querySelector(`textarea[data-ann-field="html"][data-index="${index}"]`);
+  if (htmlField) htmlField.value = cleanHtml;
+  updateAnnouncementInlinePreview(index);
+}
+
+function extractGithubToken(store) {
+  for (let i = 0; i < store.length; i += 1) {
+    const key = store.key(i);
+    if (!key) continue;
+    const raw = store.getItem(key);
+    if (!raw) continue;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.token === 'string' && parsed.token) return parsed.token;
+      if (parsed && parsed.user && typeof parsed.user.token === 'string' && parsed.user.token) return parsed.user.token;
+    } catch (_) {}
+  }
+  return '';
+}
+function findGithubToken(){ return extractGithubToken(localStorage) || extractGithubToken(sessionStorage) || ''; }
+
+function setDirty(nextDirty){
+  dirty = nextDirty;
+  saveStatus.textContent = dirty ? 'Unsaved changes.' : 'No unsaved changes.';
+  saveAllTop.classList.toggle('hidden', !portalData);
+}
+
+async function loadPortalData(){
+  const resp = await fetch(PORTAL_JSON_URL + '?v=' + Date.now(), { cache:'no-store' });
+  if (!resp.ok) throw new Error(`Failed to load portal JSON (${resp.status})`);
+  const data = await resp.json();
+  if (!data.announcements) data.announcements = [];
+  if (!data.labMeetings) data.labMeetings = [];
+  if (!data.rotationPlan) data.rotationPlan = { start:'', periodDays:14, anchor:{ date:'', current:{ tc1:'', tc2:'', tc3:'', main:'' } }, slotOrder:{ tc1:[], tc2:[], tc3:[], main:[] }, people:{} };
+  if (!data.rotationPlan.anchor) data.rotationPlan.anchor = { date:'', current:{ tc1:'', tc2:'', tc3:'', main:'' } };
+  if (!data.rotationPlan.anchor.current) data.rotationPlan.anchor.current = { tc1:'', tc2:'', tc3:'', main:'' };
+  if (!data.rotationPlan.slotOrder) data.rotationPlan.slotOrder = { tc1:[], tc2:[], tc3:[], main:[] };
+  if (!data.rotationPlan.people) data.rotationPlan.people = {};
+  ['tc1','tc2','tc3','main'].forEach((slot)=>{ if (!Array.isArray(data.rotationPlan.slotOrder[slot])) data.rotationPlan.slotOrder[slot] = []; });
+  portalData = data;
+  originalSerialized = JSON.stringify(data);
+  setDirty(false);
+  renderAll();
+}
+
+function renderAll(){
+  renderAnnouncements();
+  renderMeetings();
+  renderRotationPlan();
+  renderPreview();
+}
+
+function markChanged(){
+  setDirty(JSON.stringify(portalData) !== originalSerialized);
+  renderPreview();
+}
+
+function renderAnnouncements(){
+  const host = document.getElementById('announcements-list');
+  host.innerHTML = portalData.announcements.map((ann, index) => `
+    <article class="item portal-like" data-announcement-index="${index}">
+      <div class="item-head">
+        <div class="item-title">Announcement ${index + 1}</div>
+        <div class="item-tools">
+          <button class="btn tiny" data-ann-move="up" data-index="${index}" ${index===0?'disabled':''}>Up</button>
+          <button class="btn tiny" data-ann-move="down" data-index="${index}" ${index===portalData.announcements.length-1?'disabled':''}>Down</button>
+          <button class="btn tiny danger" data-ann-delete="${index}">Delete</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>When</label><input type="datetime-local" data-ann-field="when" data-index="${index}" value="${escapeHtml(toDateTimeLocalInput(ann.when))}"></div>
+        <div class="field"><label>Level</label>
+          <select data-ann-field="level" data-index="${index}">
+            ${['info','warn','urgent'].map((level)=>`<option value="${level}"${(ann.level||'info')===level?' selected':''}>${level}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      ${announcementEditorMarkup(ann, index)}
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label>Link</label><input data-ann-field="link" data-index="${index}" value="${escapeHtml(ann.link || '')}" placeholder="https://... or /assets/uploads/..." /></div>
+        <div class="field"><label>Upload Announcement Image</label>
+          <div class="upload-row">
+            <input type="file" accept="image/*" data-ann-upload="${index}">
+            <button class="btn tiny" data-ann-upload-btn="${index}">Upload</button>
+          </div>
+        </div>
+      </div>
+      <div class="ann-inline-preview">
+        <div class="ann-inline-preview-head">
+          <strong>Live Card Preview</strong>
+          <span class="ann-preview-chip ${getAnnouncementLevel(ann.level)}">${escapeHtml(getAnnouncementLevel(ann.level))}</span>
+        </div>
+        <div class="ann-inline-preview-body" id="ann-inline-preview-${index}">
+          ${renderAnnouncementPreviewMarkup(ann)}
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+function renderMeetings(){
+  const host = document.getElementById('meetings-list');
+  host.innerHTML = portalData.labMeetings.map((meeting, index) => `
+    <article class="item portal-like">
+      <div class="item-head">
+        <div class="item-title">Meeting ${index + 1}</div>
+        <div class="item-tools">
+          <button class="btn tiny" data-meeting-move="up" data-index="${index}" ${index===0?'disabled':''}>Up</button>
+          <button class="btn tiny" data-meeting-move="down" data-index="${index}" ${index===portalData.labMeetings.length-1?'disabled':''}>Down</button>
+          <button class="btn tiny danger" data-meeting-delete="${index}">Delete</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Date</label><input type="date" data-meeting-field="date" data-index="${index}" value="${escapeHtml(toDateInput(meeting.date))}"></div>
+        <div class="field"><label>Presenter</label><input data-meeting-field="presenter" data-index="${index}" value="${escapeHtml(meeting.presenter || '')}"></div>
+      </div>
+      <div class="field" style="margin-top:12px"><label>Title</label><input data-meeting-field="title" data-index="${index}" value="${escapeHtml(meeting.title || '')}"></div>
+      <div class="field" style="margin-top:12px"><label>Description</label><textarea data-meeting-field="description" data-index="${index}" placeholder="Optional description">${escapeHtml(meeting.description || '')}</textarea></div>
+      <div class="grid-2" style="margin-top:12px">
+        <div class="field"><label>Image Path</label><input data-meeting-field="image" data-index="${index}" value="${escapeHtml(meeting.image || '')}" placeholder="/assets/uploads/..." /></div>
+        <div class="field"><label>Upload Presenter Image</label>
+          <div class="upload-row">
+            <input type="file" accept="image/*" data-meeting-upload="${index}">
+            <button class="btn tiny" data-meeting-upload-btn="${index}">Upload</button>
+          </div>
+        </div>
+      </div>
+      <div class="meeting-inline-preview">
+        <div id="meeting-inline-preview-${index}" style="display:contents">
+          ${renderMeetingPreviewMarkup(meeting)}
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+function ensurePeopleFromSlots(){
+  const plan = portalData.rotationPlan;
+  ['tc1','tc2','tc3','main'].forEach((slot)=>{
+    plan.slotOrder[slot].forEach((name)=>{
+      if (!name) return;
+      if (!plan.people[name]) plan.people[name] = { active:true, name };
+      if (!plan.people[name].name) plan.people[name].name = name;
+    });
+  });
+}
+
+function renderRotationPlan(){
+  ensurePeopleFromSlots();
+  const plan = portalData.rotationPlan;
+  document.getElementById('rot-start').value = toDateInput(plan.start);
+  document.getElementById('rot-period').value = plan.periodDays || 14;
+  document.getElementById('anchor-date').value = toDateInput(plan.anchor?.date || '');
+  document.getElementById('anchor-current-grid').innerHTML = ['tc1','tc2','tc3','main'].map((slot)=>`
+    <div class="field"><label>${getSlotLabel(slot)} Current</label><input data-anchor-current="${slot}" value="${escapeHtml(plan.anchor.current?.[slot] || '')}"></div>
+  `).join('');
+
+  const roomGrid = document.getElementById('room-grid');
+  roomGrid.innerHTML = ['tc1','tc2','tc3','main'].map((slot)=>`
+    <section class="room-card">
+      <div class="item-head" style="margin-bottom:0">
+        <h4>${getSlotLabel(slot)}</h4>
+        <button class="btn tiny" data-room-add="${slot}">Add to ${getSlotLabel(slot)}</button>
+      </div>
+      <div class="people-list">
+        ${plan.slotOrder[slot].map((name, idx)=>{
+          const active = plan.people?.[name]?.active !== false;
+          return `
+            <div class="person-row" data-person="${escapeHtml(name)}" data-room="${slot}">
+              <div class="person-head">
+                <div class="person-name">${escapeHtml(name)}</div>
+                <div class="person-tools">
+                  <button class="btn tiny" data-person-move="up" data-room="${slot}" data-index="${idx}" ${idx===0?'disabled':''}>Up</button>
+                  <button class="btn tiny" data-person-move="down" data-room="${slot}" data-index="${idx}" ${idx===plan.slotOrder[slot].length-1?'disabled':''}>Down</button>
+                  <button class="btn tiny danger" data-person-delete="${slot}" data-name="${escapeHtml(name)}">Remove</button>
+                </div>
+              </div>
+              <label class="inline-field"><input type="checkbox" data-person-active="${escapeHtml(name)}" ${active?'checked':''}> Active</label>
+              <div class="field">
+                <label>Move Room</label>
+                <select data-person-room="${escapeHtml(name)}">
+                  ${['tc1','tc2','tc3','main'].map((target)=>`<option value="${target}"${target===slot?' selected':''}>${getSlotLabel(target)}</option>`).join('')}
+                </select>
+              </div>
+            </div>`;
+        }).join('') || '<div class="hint">No people in this room.</div>'}
+      </div>
+    </section>
+  `).join('');
+}
+
+function renderPreview(){
+  const annHost = document.getElementById('announcements-preview');
+  annHost.innerHTML = portalData.announcements.length ? portalData.announcements.slice(0,4).map((ann)=>`
+    <div class="preview-ann-item">
+      <div class="preview-ann-time">${escapeHtml(formatShortDate(ann.when))}</div>
+      <div>${ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g,'<br>')}</div>
+    </div>
+  `).join('') : '<div class="hint">No announcements yet.</div>';
+
+  const next = (portalData.labMeetings || []).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+  const meetHost = document.getElementById('next-meeting-preview');
+  if (!next) {
+    meetHost.innerHTML = '<div class="hint">No meeting scheduled.</div>';
+    return;
+  }
+  meetHost.innerHTML = `
+    <div class="preview-badge">${escapeHtml(formatShortDate(next.date))}</div>
+    ${next.image ? `<img src="${escapeHtml(next.image)}" alt="${escapeHtml(next.presenter || 'Presenter')}">` : ''}
+    <div class="preview-meeting-meta">
+      <strong>${escapeHtml(next.presenter || 'Presenter TBD')}</strong>
+      <div>${escapeHtml(next.title || 'Untitled')}</div>
+      ${next.description ? `<div class="hint">${escapeHtml(next.description)}</div>` : ''}
+    </div>
+  `;
+}
+
+function addAnnouncement(){
+  portalData.announcements.unshift({ when:new Date().toISOString(), level:'info', text:'', html:'', link:'' });
+  renderAnnouncements(); markChanged();
+}
+function addMeeting(){
+  portalData.labMeetings.push({ date:'', presenter:'', title:'', description:'', image:'' });
+  renderMeetings(); markChanged();
+}
+function addPersonToRoom(room, name){
+  if (!name) return;
+  const plan = portalData.rotationPlan;
+  ['tc1','tc2','tc3','main'].forEach((slot)=>{ plan.slotOrder[slot] = plan.slotOrder[slot].filter((person)=>person !== name); });
+  plan.slotOrder[room].push(name);
+  if (!plan.people[name]) plan.people[name] = { active:true, name };
+  plan.people[name].name = name;
+  renderRotationPlan(); markChanged();
+}
+function removePerson(room, name){
+  portalData.rotationPlan.slotOrder[room] = portalData.rotationPlan.slotOrder[room].filter((person)=>person !== name);
+  renderRotationPlan(); markChanged();
+}
+
+async function uploadFile(file){
+  const token = findGithubToken();
+  if (!token) throw new Error('Log into CMS first.');
+  const ext = (file.name.split('.').pop() || 'dat').toLowerCase();
+  const name = `${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ''))}.${ext}`;
+  const path = `${UPLOADS_PATH}/${name}`;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = '';
+  bytes.forEach((byte)=>{ binary += String.fromCharCode(byte); });
+  const content = btoa(binary);
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`;
+  const resp = await fetch(url, {
+    method:'PUT',
+    headers:{ 'Content-Type':'application/json', Accept:'application/vnd.github+json', Authorization:`Bearer ${token}` },
+    body:JSON.stringify({ message:`Upload ${path} from custom admin`, content, branch:REPO_BRANCH })
+  });
+  if (!resp.ok) throw new Error(`Upload failed (${resp.status})`);
+  return `/${path}`;
+}
+
+async function saveAll(){
+  const token = findGithubToken();
+  if (!token) {
+    authStatus.textContent = 'Login required';
+    loginCard.classList.remove('hidden');
+    adminApp.classList.add('hidden');
+    return;
+  }
+  saveStatus.textContent = 'Saving…';
+  saveStatus.className = 'hint';
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PORTAL_FILE_PATH}?ref=${encodeURIComponent(REPO_BRANCH)}`;
+  const headers = { Accept:'application/vnd.github+json', Authorization:`Bearer ${token}` };
+  try {
+    const currentResp = await fetch(url, { headers });
+    if (!currentResp.ok) throw new Error(`GitHub read failed (${currentResp.status})`);
+    const currentFile = await currentResp.json();
+    const json = JSON.parse(decodeBase64Unicode(currentFile.content.replace(/\n/g, '')));
+    json.announcements = portalData.announcements;
+    json.labMeetings = portalData.labMeetings;
+    json.rotationPlan = portalData.rotationPlan;
+    json.googleCalendarApiKey = portalData.googleCalendarApiKey;
+    const body = JSON.stringify(json, null, 2) + '\n';
+    const encoded = encodeBase64Unicode(body);
+    const updateResp = await fetch(url, {
+      method:'PUT',
+      headers:{ ...headers, 'Content-Type':'application/json' },
+      body:JSON.stringify({ message:'Update lab portal data from custom admin', content:encoded, sha:currentFile.sha, branch:REPO_BRANCH })
+    });
+    if (!updateResp.ok) throw new Error(`GitHub write failed (${updateResp.status})`);
+    originalSerialized = JSON.stringify(portalData);
+    setDirty(false);
+    saveStatus.textContent = 'Saved.';
+    saveStatus.className = 'success-text';
+  } catch (error) {
+    saveStatus.textContent = error.message || 'Save failed.';
+    saveStatus.className = 'error';
+  }
+}
+
+function bindEvents(){
+  document.getElementById('add-announcement').addEventListener('click', addAnnouncement);
+  document.getElementById('add-meeting').addEventListener('click', addMeeting);
+  document.getElementById('add-person').addEventListener('click', ()=>{
+    const name = window.prompt('Name');
+    if (!name) return;
+    const room = window.prompt('Room: tc1, tc2, tc3, or main', 'tc1');
+    if (!room || !['tc1','tc2','tc3','main'].includes(room)) return;
+    addPersonToRoom(room, name.trim());
+  });
+  document.getElementById('retry-auth').addEventListener('click', init);
+  saveAllTop.addEventListener('click', saveAll);
+  saveAllBottom.addEventListener('click', saveAll);
+
+  document.addEventListener('input', (event) => {
+    const annField = event.target.getAttribute('data-ann-field');
+    const annIndex = Number(event.target.getAttribute('data-index'));
+    if (annField && Number.isFinite(annIndex)) {
+      portalData.announcements[annIndex][annField] = annField === 'when' ? fromDateTimeLocalInput(event.target.value) : event.target.value;
+      if (annField === 'html') {
+        const editor = document.querySelector(`[data-ann-rich="${annIndex}"]`);
+        if (editor) editor.innerHTML = portalData.announcements[annIndex].html || '';
       }
+      updateAnnouncementInlinePreview(annIndex);
+      markChanged();
+      return;
+    }
+    const meetingField = event.target.getAttribute('data-meeting-field');
+    const meetingIndex = Number(event.target.getAttribute('data-index'));
+    if (meetingField && Number.isFinite(meetingIndex)) {
+      portalData.labMeetings[meetingIndex][meetingField] = event.target.value;
+      updateMeetingInlinePreview(meetingIndex);
+      markChanged();
+      return;
+    }
+    if (event.target.id === 'rot-start') { portalData.rotationPlan.start = event.target.value; markChanged(); return; }
+    if (event.target.id === 'rot-period') { portalData.rotationPlan.periodDays = Number(event.target.value || '14') || 14; markChanged(); return; }
+    if (event.target.id === 'anchor-date') { portalData.rotationPlan.anchor.date = event.target.value; markChanged(); return; }
+    const anchorSlot = event.target.getAttribute('data-anchor-current');
+    if (anchorSlot) { portalData.rotationPlan.anchor.current[anchorSlot] = event.target.value; markChanged(); }
+    const richIndex = event.target.getAttribute('data-ann-rich');
+    if (richIndex !== null) {
+      syncAnnouncementFromEditor(Number(richIndex));
+      markChanged();
+    }
+  });
+
+  document.addEventListener('change', (event) => {
+    const personActive = event.target.getAttribute('data-person-active');
+    if (personActive) {
+      if (!portalData.rotationPlan.people[personActive]) portalData.rotationPlan.people[personActive] = { active:true, name:personActive };
+      portalData.rotationPlan.people[personActive].active = event.target.checked;
+      markChanged();
+      return;
+    }
+    const personRoom = event.target.getAttribute('data-person-room');
+    if (personRoom) {
+      addPersonToRoom(event.target.value, personRoom);
+      return;
+    }
+  });
+
+  document.addEventListener('click', async (event) => {
+    const richCmd = event.target.getAttribute('data-rich-cmd');
+    if (richCmd) {
+      const index = Number(event.target.getAttribute('data-index'));
+      const editor = document.querySelector(`[data-ann-rich="${index}"]`);
+      if (!editor) return;
+      editor.focus();
+      document.execCommand(richCmd, false);
+      syncAnnouncementFromEditor(index);
+      markChanged();
+      return;
+    }
+    const richClass = event.target.getAttribute('data-rich-class');
+    if (richClass) {
+      const index = Number(event.target.getAttribute('data-index'));
+      applyRichClass(index, richClass);
+      return;
+    }
+    const richLink = event.target.getAttribute('data-rich-link');
+    if (richLink !== null) {
+      const index = Number(richLink);
+      const editor = document.querySelector(`[data-ann-rich="${index}"]`);
+      if (!editor) return;
+      const url = window.prompt('Enter link URL');
+      if (!url) return;
+      editor.focus();
+      document.execCommand('createLink', false, url);
+      syncAnnouncementFromEditor(index);
+      markChanged();
+      return;
+    }
+    const annDelete = event.target.getAttribute('data-ann-delete');
+    if (annDelete !== null) { portalData.announcements.splice(Number(annDelete), 1); renderAnnouncements(); markChanged(); return; }
+    const annMove = event.target.getAttribute('data-ann-move');
+    if (annMove) {
+      const index = Number(event.target.getAttribute('data-index'));
+      const next = annMove === 'up' ? index - 1 : index + 1;
+      if (next < 0 || next >= portalData.announcements.length) return;
+      [portalData.announcements[index], portalData.announcements[next]] = [portalData.announcements[next], portalData.announcements[index]];
+      renderAnnouncements(); markChanged(); return;
+    }
+    const meetingDelete = event.target.getAttribute('data-meeting-delete');
+    if (meetingDelete !== null) { portalData.labMeetings.splice(Number(meetingDelete), 1); renderMeetings(); markChanged(); return; }
+    const meetingMove = event.target.getAttribute('data-meeting-move');
+    if (meetingMove) {
+      const index = Number(event.target.getAttribute('data-index'));
+      const next = meetingMove === 'up' ? index - 1 : index + 1;
+      if (next < 0 || next >= portalData.labMeetings.length) return;
+      [portalData.labMeetings[index], portalData.labMeetings[next]] = [portalData.labMeetings[next], portalData.labMeetings[index]];
+      renderMeetings(); markChanged(); return;
+    }
+    const roomAdd = event.target.getAttribute('data-room-add');
+    if (roomAdd) {
+      const name = window.prompt(`Add person to ${getSlotLabel(roomAdd)}`);
+      if (name) addPersonToRoom(roomAdd, name.trim());
+      return;
+    }
+    const personDelete = event.target.getAttribute('data-person-delete');
+    if (personDelete) { removePerson(personDelete, event.target.getAttribute('data-name')); return; }
+    const personMove = event.target.getAttribute('data-person-move');
+    if (personMove) {
+      const room = event.target.getAttribute('data-room');
+      const index = Number(event.target.getAttribute('data-index'));
+      const arr = portalData.rotationPlan.slotOrder[room];
+      const next = personMove === 'up' ? index - 1 : index + 1;
+      if (next < 0 || next >= arr.length) return;
+      [arr[index], arr[next]] = [arr[next], arr[index]];
+      renderRotationPlan(); markChanged(); return;
+    }
+    const annUploadBtn = event.target.getAttribute('data-ann-upload-btn');
+    if (annUploadBtn !== null) {
+      const input = document.querySelector(`[data-ann-upload="${annUploadBtn}"]`);
+      const file = input?.files?.[0];
+      if (!file) { window.alert('Choose an image first.'); return; }
       try {
-        await navigator.clipboard.writeText(JSON.stringify(pending.rotationPlan, null, 2));
-        setStatus('Rotation plan JSON copied.');
-      } catch (_) {
-        setStatus('Clipboard copy failed.', true);
-      }
+        event.target.disabled = true;
+        const path = await uploadFile(file);
+        portalData.announcements[Number(annUploadBtn)].link = path;
+        renderAnnouncements(); markChanged();
+      } catch (error) { window.alert(error.message || 'Upload failed.'); }
+      finally { event.target.disabled = false; }
+      return;
     }
+    const meetingUploadBtn = event.target.getAttribute('data-meeting-upload-btn');
+    if (meetingUploadBtn !== null) {
+      const input = document.querySelector(`[data-meeting-upload="${meetingUploadBtn}"]`);
+      const file = input?.files?.[0];
+      if (!file) { window.alert('Choose an image first.'); return; }
+      try {
+        event.target.disabled = true;
+        const path = await uploadFile(file);
+        portalData.labMeetings[Number(meetingUploadBtn)].image = path;
+        renderMeetings(); markChanged();
+      } catch (error) { window.alert(error.message || 'Upload failed.'); }
+      finally { event.target.disabled = false; }
+    }
+  });
+}
 
-    saveBtn.addEventListener('click', savePendingDraft);
-    copyBtn.addEventListener('click', copyPendingDraft);
-    clearBtn.addEventListener('click', () => {
-      clearPendingDraft();
-      renderPendingPanel();
-    });
+async function init(){
+  const token = findGithubToken();
+  const authed = Boolean(token);
+  authStatus.textContent = authed ? 'Authenticated' : 'Login required';
+  authStatus.style.color = authed ? '#0f766e' : '#8b5e00';
+  loginCard.classList.toggle('hidden', authed);
+  adminApp.classList.toggle('hidden', !authed);
+  saveAllTop.classList.toggle('hidden', !authed);
+  if (!authed) return;
+  await loadPortalData();
+}
 
-    window.addEventListener('storage', (event) => {
-      if (event.key === ROTATION_ADMIN_DRAFT_KEY) renderPendingPanel();
-    });
-
-    renderPendingPanel();
-  </script>
+bindEvents();
+init();
+</script>
 </body>
 </html>
