@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Riley Lab Admin</title>
+  <style>
+    :root{
+      --admin-bg:#eef3f8;
+      --admin-card:#ffffff;
+      --admin-line:rgba(15,23,42,.10);
+      --admin-text:#10233a;
+      --admin-muted:#60758c;
+      --admin-success:#0f766e;
+      --admin-shadow:0 18px 44px rgba(15,23,42,.08);
+      --admin-font:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:
+        radial-gradient(circle at top left, rgba(43,108,176,.08), transparent 22rem),
+        linear-gradient(180deg, #f6f9fc 0%, var(--admin-bg) 22rem);
+      color:var(--admin-text);
+      font-family:var(--admin-font);
+    }
+
+    body{
+      padding:14px;
+    }
+
+    #nc-root,
+    #nc-root > div{
+      min-height:0;
+      height:auto;
+    }
+
+    #nc-root{
+      display:block !important;
+    }
+
+    #nc-root > div,
+    body [class*="App"],
+    body [class*="Main"],
+    body [class*="CollectionContainer"],
+    body [class*="CollectionTopContainer"]{
+      align-items:flex-start !important;
+      align-content:flex-start !important;
+      justify-content:flex-start !important;
+    }
+
+    /* Decap layout tightening */
+    body [class*="AppHeader"],
+    body [class*="appHeader"],
+    body [class*="ToolbarContainer"]{
+      box-shadow:none !important;
+    }
+
+    body [class*="CollectionTopContainer"],
+    body [class*="EditorContainer"],
+    body [class*="CollectionContainer"],
+    body [class*="EditorWrapper"],
+    body [class*="editorialWorkflow"]{
+      max-width:1500px !important;
+      margin-left:auto !important;
+      margin-right:auto !important;
+    }
+
+    body [class*="EditorContainer"]{
+      background:transparent !important;
+    }
+
+    body [class*="CollectionTopContainer"],
+    body [class*="CollectionTopRow"],
+    body [class*="EditorContainer"],
+    body [class*="EditorToolbar"],
+    body [class*="PaneContainer"],
+    body [class*="SplitPane"]{
+      gap:14px !important;
+    }
+
+    body [class*="CollectionTopContainer"],
+    body [class*="CollectionContainer"],
+    body [class*="EditorContainer"]{
+      padding-left:10px !important;
+      padding-right:10px !important;
+    }
+
+    body [class*="EditorContainer"] > div,
+    body [class*="SplitPane"] > div,
+    body [class*="PaneContainer"] > div{
+      min-width:0;
+    }
+
+    body [class*="Card"],
+    body [class*="card"]{
+      border-radius:18px !important;
+    }
+
+    body [class*="ListControl"],
+    body [class*="ListItem"],
+    body [class*="FieldContainer"],
+    body [class*="ObjectControl"],
+    body [class*="ObjectWidget"],
+    body [class*="ListWidget"]{
+      border-radius:16px !important;
+    }
+
+    body [class*="ObjectControl"],
+    body [class*="ListWidget"],
+    body [class*="ObjectWidget"]{
+      padding:14px !important;
+      background:rgba(255,255,255,.72) !important;
+      border:1px solid rgba(15,23,42,.08) !important;
+      box-shadow:0 10px 24px rgba(15,23,42,.04) !important;
+    }
+
+    body [class*="FieldContainer"]{
+      padding:0 !important;
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+    }
+
+    body [class*="FieldLabel"],
+    body [class*="fieldLabel"],
+    body label{
+      color:#27415e !important;
+      font-weight:700 !important;
+    }
+
+    body [class*="FieldContainer"]{
+      margin-bottom:14px !important;
+    }
+
+    body label{
+      letter-spacing:.01em;
+    }
+
+    body input,
+    body textarea,
+    body select,
+    body [data-slate-editor="true"]{
+      border-radius:14px !important;
+    }
+
+    body textarea{
+      min-height:120px;
+    }
+
+    body input,
+    body textarea,
+    body select{
+      background:#fff !important;
+      border:1px solid rgba(15,23,42,.12) !important;
+      box-shadow:none !important;
+      padding:11px 13px !important;
+    }
+
+    body input:focus,
+    body textarea:focus,
+    body select:focus,
+    body [data-slate-editor="true"]:focus-within{
+      border-color:rgba(43,108,176,.38) !important;
+      box-shadow:0 0 0 3px rgba(59,130,196,.10) !important;
+      outline:none !important;
+    }
+
+    body [data-slate-editor="true"]{
+      background:#fff !important;
+      border:1px solid rgba(15,23,42,.12) !important;
+      padding:12px 14px !important;
+      min-height:120px;
+    }
+
+    body [class*="ListControl"] > div,
+    body [class*="ListItem"] > div{
+      padding-top:10px !important;
+      padding-bottom:10px !important;
+    }
+
+    body [class*="ListControl"]{
+      background:#fff !important;
+      border:1px solid rgba(15,23,42,.08) !important;
+      box-shadow:0 8px 18px rgba(15,23,42,.04) !important;
+    }
+
+    body [class*="ListItem"] + [class*="ListItem"]{
+      margin-top:10px !important;
+    }
+
+    body [class*="ListItem"]{
+      background:transparent !important;
+      border:0 !important;
+      box-shadow:none !important;
+      padding:0 !important;
+    }
+
+    body [class*="ObjectControl"] > div:first-child,
+    body [class*="ListWidget"] > div:first-child,
+    body [class*="ListControl"] > div:first-child{
+      margin-bottom:10px !important;
+    }
+
+    body [class*="ListControl"] button,
+    body [class*="ListItem"] button,
+    body [class*="EditorToolbar"] button,
+    body [class*="ToolbarContainer"] button{
+      border-radius:12px !important;
+    }
+
+    body [class*="EditorToolbar"],
+    body [class*="ToolbarContainer"],
+    body [class*="CollectionTopContainer"]{
+      padding-top:8px !important;
+      padding-bottom:8px !important;
+    }
+
+    body [class*="PreviewPane"],
+    body [class*="previewPane"],
+    body [class*="EditorPreviewPane"]{
+      border-radius:20px !important;
+    }
+
+    body [class*="PreviewPane"],
+    body [class*="previewPane"],
+    body [class*="EditorPreviewPane"]{
+      background:rgba(255,255,255,.76) !important;
+      border:1px solid rgba(15,23,42,.08) !important;
+      box-shadow:0 14px 30px rgba(15,23,42,.05) !important;
+    }
+
+    body [class*="PreviewPane"] img,
+    body [class*="previewPane"] img,
+    body [class*="EditorPreviewPane"] img{
+      border-radius:18px !important;
+      max-width:100%;
+      height:auto;
+    }
+
+    body [class*="PreviewPane"] > div,
+    body [class*="previewPane"] > div,
+    body [class*="EditorPreviewPane"] > div{
+      padding:16px !important;
+    }
+
+    body [class*="PreviewPane"] p,
+    body [class*="previewPane"] p,
+    body [class*="EditorPreviewPane"] p{
+      line-height:1.55;
+    }
+
+    .portal-import{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:10003;
+      width:min(400px, calc(100vw - 36px));
+      padding:16px;
+      border:1px solid var(--admin-line);
+      border-radius:20px;
+      background:rgba(255,255,255,.96);
+      box-shadow:var(--admin-shadow);
+    }
+    .portal-import[hidden]{display:none !important}
+    .portal-import h1{
+      margin:0 0 8px;
+      font-size:16px;
+      line-height:1.25;
+    }
+    .portal-import p{
+      margin:0 0 10px;
+      color:var(--admin-muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .portal-import code{
+      padding:2px 6px;
+      border-radius:999px;
+      background:#eef4fa;
+      font-size:12px;
+    }
+    .portal-import-meta{
+      margin:0 0 12px;
+      font-size:12px;
+      color:#708398;
+    }
+    .portal-import-actions{
+      display:grid;
+      gap:8px;
+      margin-bottom:8px;
+    }
+    .portal-import button{
+      appearance:none;
+      width:100%;
+      border:1px solid var(--admin-line);
+      background:#fff;
+      color:var(--admin-text);
+      border-radius:14px;
+      padding:12px 14px;
+      text-align:left;
+      font:600 14px/1.2 var(--admin-font);
+      cursor:pointer;
+    }
+    .portal-import-save{
+      background:#f6fbf9 !important;
+      border-color:rgba(15,118,110,.18) !important;
+      color:var(--admin-success) !important;
+    }
+    .portal-import-status{
+      min-height:18px;
+      font-size:13px;
+      color:#334155;
+    }
+
+    @media (max-width: 760px){
+      body{ padding:10px; }
+      .portal-import{
+        left:10px;
+        right:10px;
+        bottom:10px;
+        width:auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
+
+  <aside class="portal-import" id="portal-import" hidden>
+    <h1>Pending Rotation Plan</h1>
+    <p>Portal roster changes are queued for <code>data/lab-portal.json</code>. Save them from this authenticated admin page.</p>
+    <div class="portal-import-meta" id="portal-import-meta"></div>
+    <div class="portal-import-actions">
+      <button type="button" class="portal-import-save" id="portal-import-save">Save to JSON</button>
+      <button type="button" id="portal-import-copy">Copy JSON</button>
+      <button type="button" id="portal-import-clear">Dismiss</button>
+    </div>
+    <div class="portal-import-status" id="portal-import-status"></div>
+  </aside>
+
+  <script>
+    const ROTATION_ADMIN_DRAFT_KEY = 'portalRotationPlanAdminDraft';
+    const REPO_OWNER = 'RileyLab';
+    const REPO_NAME = 'RileyLab.github.io';
+    const REPO_BRANCH = 'master';
+    const PORTAL_FILE_PATH = 'data/lab-portal.json';
+
+    const panel = document.getElementById('portal-import');
+    const meta = document.getElementById('portal-import-meta');
+    const status = document.getElementById('portal-import-status');
+    const saveBtn = document.getElementById('portal-import-save');
+    const copyBtn = document.getElementById('portal-import-copy');
+    const clearBtn = document.getElementById('portal-import-clear');
+
+    function getPendingDraft() {
+      try {
+        const raw = localStorage.getItem(ROTATION_ADMIN_DRAFT_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object' || !parsed.rotationPlan) return null;
+        return parsed;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function clearPendingDraft() {
+      localStorage.removeItem(ROTATION_ADMIN_DRAFT_KEY);
+    }
+
+    function setStatus(message, isError) {
+      status.textContent = message || '';
+      status.style.color = isError ? '#b91c1c' : '#334155';
+    }
+
+    function renderPendingPanel() {
+      const pending = getPendingDraft();
+      if (!pending) {
+        panel.hidden = true;
+        return;
+      }
+      panel.hidden = false;
+      const savedAt = pending.savedAt ? new Date(pending.savedAt) : null;
+      meta.textContent = savedAt && !Number.isNaN(savedAt.getTime())
+        ? `Queued ${savedAt.toLocaleString()}`
+        : 'Queued from the portal roster manager';
+      setStatus('');
+    }
+
+    function encodeBase64Unicode(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+      return btoa(binary);
+    }
+
+    function decodeBase64Unicode(str) {
+      const binary = atob(str);
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+
+    function extractGithubToken(store) {
+      for (let i = 0; i < store.length; i += 1) {
+        const key = store.key(i);
+        if (!key) continue;
+        const raw = store.getItem(key);
+        if (!raw) continue;
+        try {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed.token === 'string' && parsed.token) return parsed.token;
+          if (parsed && parsed.user && typeof parsed.user.token === 'string' && parsed.user.token) return parsed.user.token;
+        } catch (_) {}
+      }
+      return '';
+    }
+
+    function findGithubToken() {
+      return extractGithubToken(localStorage) || extractGithubToken(sessionStorage) || '';
+    }
+
+    async function savePendingDraft() {
+      const pending = getPendingDraft();
+      if (!pending) {
+        setStatus('No pending rotation plan found.', true);
+        renderPendingPanel();
+        return;
+      }
+
+      const token = findGithubToken();
+      if (!token) {
+        setStatus('Log into the admin first, then click Save to JSON.', true);
+        return;
+      }
+
+      saveBtn.disabled = true;
+      copyBtn.disabled = true;
+      clearBtn.disabled = true;
+      setStatus('Saving rotation plan to GitHub...');
+
+      try {
+        const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PORTAL_FILE_PATH}?ref=${encodeURIComponent(REPO_BRANCH)}`;
+        const headers = {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${token}`
+        };
+
+        const currentResp = await fetch(url, { headers });
+        if (!currentResp.ok) throw new Error(`GitHub read failed (${currentResp.status})`);
+
+        const currentFile = await currentResp.json();
+        const currentJson = JSON.parse(decodeBase64Unicode(currentFile.content.replace(/\n/g, '')));
+        currentJson.rotationPlan = pending.rotationPlan;
+
+        const updateResp = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Update rotation plan from portal roster manager',
+            content: encodeBase64Unicode(JSON.stringify(currentJson, null, 2) + '\n'),
+            sha: currentFile.sha,
+            branch: REPO_BRANCH
+          })
+        });
+
+        if (!updateResp.ok) {
+          const text = await updateResp.text();
+          throw new Error(`GitHub write failed (${updateResp.status}): ${text}`);
+        }
+
+        clearPendingDraft();
+        renderPendingPanel();
+        setStatus('Rotation plan saved to data/lab-portal.json.');
+      } catch (error) {
+        setStatus(error && error.message ? error.message : 'Save failed.', true);
+      } finally {
+        saveBtn.disabled = false;
+        copyBtn.disabled = false;
+        clearBtn.disabled = false;
+      }
+    }
+
+    async function copyPendingDraft() {
+      const pending = getPendingDraft();
+      if (!pending) {
+        setStatus('No pending rotation plan found.', true);
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(pending.rotationPlan, null, 2));
+        setStatus('Rotation plan JSON copied.');
+      } catch (_) {
+        setStatus('Clipboard copy failed.', true);
+      }
+    }
+
+    saveBtn.addEventListener('click', savePendingDraft);
+    copyBtn.addEventListener('click', copyPendingDraft);
+    clearBtn.addEventListener('click', () => {
+      clearPendingDraft();
+      renderPendingPanel();
+    });
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === ROTATION_ADMIN_DRAFT_KEY) renderPendingPanel();
+    });
+
+    renderPendingPanel();
+  </script>
+</body>
+</html>
