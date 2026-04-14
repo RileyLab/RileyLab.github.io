@@ -275,6 +275,82 @@
     .meeting-inline-meta{ display:grid; gap:6px; }
     .footer-save{position:sticky;bottom:14px;z-index:20;display:flex;justify-content:flex-end;margin-top:18px}
     .save-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.96);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:999px;padding:10px 12px}
+    .save-banner{
+      position:sticky;
+      top:12px;
+      z-index:40;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin:0 0 18px;
+      padding:12px 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.94);
+      box-shadow:0 12px 26px rgba(15,23,42,.08);
+      backdrop-filter:blur(12px);
+    }
+    .save-banner.hidden{display:none !important}
+    .save-banner.success{
+      border-color:rgba(15,118,110,.16);
+      background:rgba(231,248,241,.97);
+    }
+    .save-banner.error{
+      border-color:rgba(185,28,28,.16);
+      background:rgba(255,245,245,.97);
+    }
+    .save-banner-main{display:grid;gap:4px;min-width:0}
+    .save-banner-title{
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      color:#27415e;
+    }
+    .save-banner.success .save-banner-title{color:var(--green)}
+    .save-banner.error .save-banner-title{color:var(--red)}
+    .save-banner-text{font-size:13px;color:var(--text);line-height:1.45}
+    .save-toast{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:90;
+      min-width:min(320px, calc(100vw - 36px));
+      max-width:420px;
+      padding:14px 16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.97);
+      box-shadow:0 18px 44px rgba(15,23,42,.14);
+      transform:translateY(16px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .18s ease, transform .18s ease;
+    }
+    .save-toast.show{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+    .save-toast.success{
+      border-color:rgba(15,118,110,.18);
+      background:rgba(231,248,241,.99);
+    }
+    .save-toast.error{
+      border-color:rgba(185,28,28,.18);
+      background:rgba(255,245,245,.99);
+    }
+    .save-toast-title{
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+      margin-bottom:4px;
+    }
+    .save-toast.success .save-toast-title{color:var(--green)}
+    .save-toast.error .save-toast-title{color:var(--red)}
+    .save-toast-text{font-size:13px;color:var(--text);line-height:1.45}
     .error{color:var(--red);font-size:13px}
     .success-text{color:var(--green);font-size:13px}
     .hidden{display:none !important}
@@ -298,6 +374,8 @@
       .grid-2,.grid-3,.room-grid{grid-template-columns:1fr}
       .meeting-inline-preview{grid-template-columns:1fr}
       .save-bar{border-radius:20px;justify-content:flex-end}
+      .save-banner{top:8px;padding:10px 12px}
+      .save-toast{left:12px;right:12px;bottom:12px;min-width:0;max-width:none}
     }
   </style>
 </head>
@@ -329,6 +407,14 @@
       <button class="btn" id="retry-auth">Refresh Auth State</button>
     </div>
   </section>
+
+  <div class="save-banner hidden" id="save-banner" aria-live="polite">
+    <div class="save-banner-main">
+      <div class="save-banner-title" id="save-banner-title">Changes saved</div>
+      <div class="save-banner-text" id="save-banner-text">Your portal updates were written to the JSON file.</div>
+    </div>
+    <button class="btn tiny" id="save-banner-dismiss" type="button">Dismiss</button>
+  </div>
 
   <div class="layout hidden" id="admin-app">
     <main class="stack">
@@ -421,6 +507,10 @@
     </aside>
   </div>
 </div>
+<div class="save-toast" id="save-toast" aria-live="polite" aria-atomic="true">
+  <div class="save-toast-title" id="save-toast-title">Changes saved</div>
+  <div class="save-toast-text" id="save-toast-text">Your portal updates were written to the JSON file.</div>
+</div>
 <script>
 const PORTAL_JSON_URL = '../data/lab-portal.json';
 const REPO_OWNER = 'RileyLab';
@@ -439,6 +529,14 @@ const adminApp = document.getElementById('admin-app');
 const saveAllTop = document.getElementById('save-all-top');
 const saveAllBottom = document.getElementById('save-all-bottom');
 const saveStatus = document.getElementById('save-status');
+const saveBanner = document.getElementById('save-banner');
+const saveBannerTitle = document.getElementById('save-banner-title');
+const saveBannerText = document.getElementById('save-banner-text');
+const saveBannerDismiss = document.getElementById('save-banner-dismiss');
+const saveToast = document.getElementById('save-toast');
+const saveToastTitle = document.getElementById('save-toast-title');
+const saveToastText = document.getElementById('save-toast-text');
+let saveToastTimer = 0;
 
 function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function slugify(value){ return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file'; }
@@ -451,6 +549,34 @@ function getSlotLabel(slot){ return ({ tc1:'TC1', tc2:'TC2', tc3:'TC3', main:'Ma
 function encodeBase64Unicode(str){ const bytes = new TextEncoder().encode(str); let binary=''; bytes.forEach((byte)=>{ binary += String.fromCharCode(byte); }); return btoa(binary); }
 function decodeBase64Unicode(str){ const binary = atob(str); const bytes = Uint8Array.from(binary, (char)=>char.charCodeAt(0)); return new TextDecoder().decode(bytes); }
 function getAnnouncementLevel(level){ return ['info','warn','urgent'].includes(level) ? level : 'info'; }
+function clearSaveToastTimer(){
+  if (!saveToastTimer) return;
+  window.clearTimeout(saveToastTimer);
+  saveToastTimer = 0;
+}
+function hideSaveNotice(){
+  clearSaveToastTimer();
+  saveBanner.classList.add('hidden');
+  saveBanner.classList.remove('success','error');
+  saveToast.classList.remove('show','success','error');
+}
+function showSaveNotice(type, title, text){
+  saveBannerTitle.textContent = title;
+  saveBannerText.textContent = text;
+  saveBanner.classList.remove('hidden','success','error');
+  saveBanner.classList.add(type);
+
+  saveToastTitle.textContent = title;
+  saveToastText.textContent = text;
+  saveToast.classList.remove('success','error');
+  saveToast.classList.add(type,'show');
+
+  clearSaveToastTimer();
+  saveToastTimer = window.setTimeout(() => {
+    saveToast.classList.remove('show','success','error');
+    saveToastTimer = 0;
+  }, type === 'error' ? 7000 : 4200);
+}
 function renderAnnouncementPreviewMarkup(ann){
   const level = getAnnouncementLevel(ann.level);
   const content = ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g,'<br>');
@@ -678,6 +804,7 @@ function setDirty(nextDirty){
   dirty = nextDirty;
   saveStatus.textContent = dirty ? 'Unsaved changes.' : 'No unsaved changes.';
   saveAllTop.classList.toggle('hidden', !portalData);
+  if (dirty) hideSaveNotice();
 }
 
 async function loadPortalData(){
@@ -945,9 +1072,11 @@ async function saveAll(){
     setDirty(false);
     saveStatus.textContent = 'Saved.';
     saveStatus.className = 'success-text';
+    showSaveNotice('success', 'Changes saved', 'Your portal updates were written to data/lab-portal.json.');
   } catch (error) {
     saveStatus.textContent = error.message || 'Save failed.';
     saveStatus.className = 'error';
+    showSaveNotice('error', 'Save failed', error.message || 'The portal data could not be saved.');
   }
 }
 
@@ -962,6 +1091,7 @@ function bindEvents(){
     addPersonToRoom(room, name.trim());
   });
   document.getElementById('retry-auth').addEventListener('click', init);
+  saveBannerDismiss.addEventListener('click', hideSaveNotice);
   saveAllTop.addEventListener('click', saveAll);
   saveAllBottom.addEventListener('click', saveAll);
 
