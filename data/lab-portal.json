@@ -2,13 +2,13 @@
   "announcements": [
     {
       "level": "info",
-      "html": "<p><span><span class=\"ann-size-lg\"><u><b></b></u></span><span class=\"ann-font-serif\"><span class=\"ann-size-lg\"><u><b>Note about Washroom Type II DI Water Systems:</b></u></span>&nbsp;</span></span></p><p></p><ul><li><span><span class=\"ann-font-serif\">NOT RODI. Should be considered non-sterile and may contain organic contaminates/microbes.&nbsp;</span></span></li><li><span><span class=\"ann-font-serif\">Do not use for incubators; instead use Type 1 Milli-Q or water produced for incubator use!</span></span></li></ul><p></p>",
+      "html": "<p><span class=\"ann-font-serif\"><span class=\"ann-size-lg ann-font-mono\"><u><b>Note about Washroom Type II DI Water Systems:</b></u></span>&nbsp;</span></p><p></p><ul><li><span class=\"ann-font-mono\">NOT RODI. Should be considered non-sterile and may contain organic contaminates/microbes.&nbsp;</span></li><li><span class=\"ann-font-mono\">Do not use for incubators; instead use Type 1 Milli-Q or water produced for incubator use!</span></li></ul>",
       "when": "2026-04-10T13:53:00-04:00",
       "text": "Note about Washroom Type II DI Water Systems: NOT RODI. Should be considered non-sterile and may contain organic contaminates/microbes. Do not use for incubators; instead use Type 1 Milli-Q or water produced for incubator use!"
     },
     {
       "level": "info",
-      "html": "<div><b><u><span class=\"ann-size-lg ann-font-mono\">High-speed centrifuge usage and care:</span></u></b></div><ul><span class=\"ann-font-serif\"><li>Pre-chill with the lid closed</li>\n  <li>After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use</li>\n  <li>Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures</li></span>\n</ul>",
+      "html": "<div><b><u><span class=\"ann-size-lg ann-font-mono\">High-speed centrifuge usage and care:</span></u></b></div><ul><span class=\"ann-font-mono\"><li>Pre-chill with the lid closed</li>\n  <li>After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use</li>\n  <li>Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures</li></span>\n</ul>",
       "when": "2026-04-10T13:56:00-04:00",
       "text": "High-speed centrifuge usage and care:Pre-chill with the lid closed\n  After use, wipe out condensation and leave lid open to dry, remove rotor and lids and store properly on shelving, power down after use\n  Spills need to be cleaned up immediately - notify RF staff is there are any spills or consumable failures"
     }
