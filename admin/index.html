@@ -541,8 +541,27 @@ let saveToastTimer = 0;
 function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function slugify(value){ return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file'; }
 function escapeHtml(value){ return String(value ?? '').replace(/[&<>\"]/g, (c)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c])); }
-function formatShortDate(value){ const d = value ? new Date(value) : null; return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric' }) : 'No date'; }
-function toDateInput(value){ if (!value) return ''; const d = new Date(value); if (Number.isNaN(d.getTime())) return String(value).slice(0,10); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function parseYMDLocal(value){
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const [, year, month, day] = match;
+  return new Date(Number(year), Number(month) - 1, Number(day));
+}
+function parseAdminDate(value){
+  if (!value) return null;
+  return parseYMDLocal(value) || new Date(value);
+}
+function formatShortDate(value){
+  const d = parseAdminDate(value);
+  return d && !Number.isNaN(d.getTime()) ? d.toLocaleDateString(undefined,{ month:'short', day:'numeric', year:'numeric' }) : 'No date';
+}
+function toDateInput(value){
+  if (!value) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
+  const d = parseAdminDate(value);
+  if (!d || Number.isNaN(d.getTime())) return String(value).slice(0,10);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
 function toDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); if (Number.isNaN(d.getTime())) return ''; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function fromDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); return Number.isNaN(d.getTime()) ? '' : d.toISOString(); }
 function getSlotLabel(slot){ return ({ tc1:'TC1', tc2:'TC2', tc3:'TC3', main:'Main Lab' })[slot] || slot; }
