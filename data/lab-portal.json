@@ -16,20 +16,6 @@
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
   "labMeetings": [
     {
-      "date": "2026-04-03",
-      "presenter": "Tanishk Sinha",
-      "title": "The expansion of Mucosal Associated Invariant T-cells (MAITs) by artificial antigen-presenting cells (aAPCs)",
-      "description": "",
-      "image": "/assets/images/lab-members/tanishk.jpeg"
-    },
-    {
-      "date": "2026-04-10",
-      "presenter": "Vipin Bhardwaj",
-      "title": "Expanding Anti-HIV CAR T Cells for Durable Responses",
-      "description": "",
-      "image": "/assets/images/lab-members/vipin.png"
-    },
-    {
       "date": "2026-04-24",
       "presenter": "Xiaoling Jin",
       "title": "Update of CAR Tregs in inducing allo-graft tolerance",
@@ -42,6 +28,20 @@
       "title": "Title: Coming Soon",
       "description": "",
       "image": "/assets/images/lab-members/mosha.png"
+    },
+    {
+      "date": "2026-05-04",
+      "presenter": "Justin Shayne",
+      "title": "Prelims!",
+      "description": "Location: BRB 252 @ 10am",
+      "image": "/assets/images/lab-members/justins.jpeg"
+    },
+    {
+      "date": "2026-05-27",
+      "presenter": "",
+      "title": "Prelims!",
+      "description": "",
+      "image": "/assets/images/lab-members/justing.jpeg"
     }
   ],
   "rotations": {},
