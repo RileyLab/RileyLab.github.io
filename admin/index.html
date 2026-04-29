@@ -522,6 +522,7 @@ const UPLOADS_PATH = 'assets/uploads';
 let portalData = null;
 let originalSerialized = '';
 let dirty = false;
+const transientMeetingImagePreviews = new Map();
 
 const authStatus = document.getElementById('auth-status');
 const loginCard = document.getElementById('login-card');
@@ -635,8 +636,9 @@ function announcementEditorMarkup(ann, index){
   `;
 }
 function renderMeetingPreviewMarkup(meeting){
+  const displayImage = getMeetingDisplayImage(meeting);
   return `
-    ${meeting.image ? `<img src="${escapeHtml(meeting.image)}" alt="${escapeHtml(meeting.presenter || 'Presenter')}">` : `<div class="meeting-inline-preview-fallback">${escapeHtml((meeting.presenter || '?').slice(0,1).toUpperCase())}</div>`}
+    ${displayImage ? `<img src="${escapeHtml(displayImage)}" alt="${escapeHtml(meeting.presenter || 'Presenter')}">` : `<div class="meeting-inline-preview-fallback">${escapeHtml((meeting.presenter || '?').slice(0,1).toUpperCase())}</div>`}
     <div class="meeting-inline-meta">
       <div class="preview-badge">${escapeHtml(formatShortDate(meeting.date))}</div>
       <strong>${escapeHtml(meeting.presenter || 'Presenter TBD')}</strong>
@@ -660,6 +662,20 @@ function updateMeetingInlinePreview(index){
   const host = document.getElementById(`meeting-inline-preview-${index}`);
   if (!host || !portalData?.labMeetings?.[index]) return;
   host.innerHTML = renderMeetingPreviewMarkup(portalData.labMeetings[index]);
+}
+function clearMeetingPreviewUrl(meeting){
+  const previewUrl = transientMeetingImagePreviews.get(meeting);
+  if (!previewUrl) return;
+  URL.revokeObjectURL(previewUrl);
+  transientMeetingImagePreviews.delete(meeting);
+}
+function setMeetingPreviewFile(meeting, file){
+  if (!meeting || !file) return;
+  clearMeetingPreviewUrl(meeting);
+  transientMeetingImagePreviews.set(meeting, URL.createObjectURL(file));
+}
+function getMeetingDisplayImage(meeting){
+  return transientMeetingImagePreviews.get(meeting) || meeting?.image || '';
 }
 function sanitizeEditorHtml(html){
   const template = document.createElement('template');
@@ -1007,7 +1023,7 @@ function renderPreview(){
   }
   meetHost.innerHTML = `
     <div class="preview-badge">${escapeHtml(formatShortDate(next.date))}</div>
-    ${next.image ? `<img src="${escapeHtml(next.image)}" alt="${escapeHtml(next.presenter || 'Presenter')}">` : ''}
+    ${getMeetingDisplayImage(next) ? `<img src="${escapeHtml(getMeetingDisplayImage(next))}" alt="${escapeHtml(next.presenter || 'Presenter')}">` : ''}
     <div class="preview-meeting-meta">
       <strong>${escapeHtml(next.presenter || 'Presenter TBD')}</strong>
       <div>${escapeHtml(next.title || 'Untitled')}</div>
@@ -1130,6 +1146,7 @@ function bindEvents(){
     const meetingField = event.target.getAttribute('data-meeting-field');
     const meetingIndex = Number(event.target.getAttribute('data-index'));
     if (meetingField && Number.isFinite(meetingIndex)) {
+      if (meetingField === 'image') clearMeetingPreviewUrl(portalData.labMeetings[meetingIndex]);
       portalData.labMeetings[meetingIndex][meetingField] = event.target.value;
       updateMeetingInlinePreview(meetingIndex);
       markChanged();
@@ -1158,6 +1175,16 @@ function bindEvents(){
     const personRoom = event.target.getAttribute('data-person-room');
     if (personRoom) {
       addPersonToRoom(event.target.value, personRoom);
+      return;
+    }
+    const meetingUploadIndex = event.target.getAttribute('data-meeting-upload');
+    if (meetingUploadIndex !== null) {
+      const index = Number(meetingUploadIndex);
+      const file = event.target.files?.[0];
+      if (!Number.isFinite(index) || !file || !portalData?.labMeetings?.[index]) return;
+      setMeetingPreviewFile(portalData.labMeetings[index], file);
+      updateMeetingInlinePreview(index);
+      renderPreview();
       return;
     }
   });
@@ -1204,7 +1231,14 @@ function bindEvents(){
       renderAnnouncements(); markChanged(); return;
     }
     const meetingDelete = event.target.getAttribute('data-meeting-delete');
-    if (meetingDelete !== null) { portalData.labMeetings.splice(Number(meetingDelete), 1); renderMeetings(); markChanged(); return; }
+    if (meetingDelete !== null) {
+      const index = Number(meetingDelete);
+      clearMeetingPreviewUrl(portalData.labMeetings[index]);
+      portalData.labMeetings.splice(index, 1);
+      renderMeetings();
+      markChanged();
+      return;
+    }
     const meetingMove = event.target.getAttribute('data-meeting-move');
     if (meetingMove) {
       const index = Number(event.target.getAttribute('data-index'));
@@ -1252,6 +1286,7 @@ function bindEvents(){
       if (!file) { window.alert('Choose an image first.'); return; }
       try {
         event.target.disabled = true;
+        setMeetingPreviewFile(portalData.labMeetings[Number(meetingUploadBtn)], file);
         const path = await uploadFile(file);
         portalData.labMeetings[Number(meetingUploadBtn)].image = path;
         renderMeetings(); markChanged();
