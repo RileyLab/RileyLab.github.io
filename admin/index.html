@@ -523,6 +523,7 @@ let portalData = null;
 let originalSerialized = '';
 let dirty = false;
 const transientMeetingImagePreviews = new Map();
+const uploadedMeetingImagePreviews = new Map();
 
 const authStatus = document.getElementById('auth-status');
 const loginCard = document.getElementById('login-card');
@@ -669,13 +670,21 @@ function clearMeetingPreviewUrl(meeting){
   URL.revokeObjectURL(previewUrl);
   transientMeetingImagePreviews.delete(meeting);
 }
+function clearUploadedMeetingImagePreview(path){
+  if (!path) return;
+  uploadedMeetingImagePreviews.delete(path);
+}
 function setMeetingPreviewFile(meeting, file){
   if (!meeting || !file) return;
   clearMeetingPreviewUrl(meeting);
   transientMeetingImagePreviews.set(meeting, URL.createObjectURL(file));
 }
+function setUploadedMeetingImagePreview(path, previewUrl){
+  if (!path || !previewUrl) return;
+  uploadedMeetingImagePreviews.set(path, previewUrl);
+}
 function getMeetingDisplayImage(meeting){
-  return transientMeetingImagePreviews.get(meeting) || meeting?.image || '';
+  return transientMeetingImagePreviews.get(meeting) || uploadedMeetingImagePreviews.get(meeting?.image || '') || meeting?.image || '';
 }
 function sanitizeEditorHtml(html){
   const template = document.createElement('template');
@@ -1071,7 +1080,11 @@ async function uploadFile(file){
     body:JSON.stringify({ message:`Upload ${path} from custom admin`, content, branch:REPO_BRANCH })
   });
   if (!resp.ok) throw new Error(`Upload failed (${resp.status})`);
-  return `/${path}`;
+  const payload = await resp.json();
+  return {
+    path: `/${path}`,
+    previewUrl: payload?.content?.download_url || `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/${path}`
+  };
 }
 
 async function saveAll(){
@@ -1146,7 +1159,10 @@ function bindEvents(){
     const meetingField = event.target.getAttribute('data-meeting-field');
     const meetingIndex = Number(event.target.getAttribute('data-index'));
     if (meetingField && Number.isFinite(meetingIndex)) {
-      if (meetingField === 'image') clearMeetingPreviewUrl(portalData.labMeetings[meetingIndex]);
+      if (meetingField === 'image') {
+        clearMeetingPreviewUrl(portalData.labMeetings[meetingIndex]);
+        clearUploadedMeetingImagePreview(portalData.labMeetings[meetingIndex]?.image);
+      }
       portalData.labMeetings[meetingIndex][meetingField] = event.target.value;
       updateMeetingInlinePreview(meetingIndex);
       markChanged();
@@ -1287,8 +1303,11 @@ function bindEvents(){
       try {
         event.target.disabled = true;
         setMeetingPreviewFile(portalData.labMeetings[Number(meetingUploadBtn)], file);
-        const path = await uploadFile(file);
-        portalData.labMeetings[Number(meetingUploadBtn)].image = path;
+        const meeting = portalData.labMeetings[Number(meetingUploadBtn)];
+        clearUploadedMeetingImagePreview(meeting?.image);
+        const uploaded = await uploadFile(file);
+        meeting.image = uploaded.path;
+        setUploadedMeetingImagePreview(uploaded.path, uploaded.previewUrl);
         renderMeetings(); markChanged();
       } catch (error) { window.alert(error.message || 'Upload failed.'); }
       finally { event.target.disabled = false; }
