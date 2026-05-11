@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "when": "2026-05-11T20:02:54.235Z",
+      "level": "warn",
+      "text": "Please place all used flasks into the bin to the left of the sink! That is the only way we can request for facilities to come sterilize them! Please do not leave flasks in the sink!",
+      "html": "<b>Please place all used flasks into the bin to the left of the sink!</b>&nbsp;That is the only way we can request for facilities to come sterilize them! <u>Please</u> do not leave flasks in the sink!",
+      "link": ""
+    },
+    {
       "when": "2026-05-11T12:43:32.216Z",
       "level": "info",
       "text": "New Cardboard Disposal Rules:Break down boxes and stack neatly in the freight elevator lobbyHousekeeping will collect nightly",
