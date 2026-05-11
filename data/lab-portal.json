@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "when": "2026-05-11T12:43:32.216Z",
+      "level": "info",
+      "text": "New Cardboard Disposal Rules:Break down boxes and stack neatly in the freight elevator lobbyHousekeeping will collect nightly",
+      "html": "<div><u></u></div><span class=\"ann-font-mono\"><div><u>New Cardboard Disposal Rules:</u></div><div><ul><li>Break down boxes and stack neatly in the freight elevator lobby</li><li>Housekeeping will collect nightly</li></ul></div></span>",
+      "link": ""
+    },
+    {
       "level": "info",
       "html": "<p><span class=\"ann-font-serif\"><span class=\"ann-size-lg ann-font-mono\"><u><b>Note about Washroom Type II DI Water Systems:</b></u></span>&nbsp;</span></p><p></p><ul><li><span class=\"ann-font-mono\">NOT RODI. Should be considered non-sterile and may contain organic contaminates/microbes.&nbsp;</span></li><li><span class=\"ann-font-mono\">Do not use for incubators; instead use Type 1 Milli-Q or water produced for incubator use!</span></li></ul>",
       "when": "2026-04-10T13:53:00-04:00",
