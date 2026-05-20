@@ -168,6 +168,34 @@
     .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
     .upload-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
     .upload-row input[type=file]{max-width:100%;font-size:13px}
+    .attached-image{
+      margin-top:10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      min-height:54px;
+      padding:8px;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:12px;
+      background:#fbfdff;
+      color:var(--muted);
+      font-size:12px;
+      overflow:hidden;
+    }
+    .attached-image img{
+      width:48px;
+      height:48px;
+      border-radius:8px;
+      object-fit:cover;
+      background:#e9eef5;
+      flex:0 0 auto;
+    }
+    .attached-image span{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
     .room-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
     .room-card{border:1px solid var(--line);border-radius:18px;background:#fbfdff;padding:14px;display:grid;gap:10px}
     .room-card h4{margin:0;font-size:14px}
@@ -539,6 +567,7 @@ const saveToast = document.getElementById('save-toast');
 const saveToastTitle = document.getElementById('save-toast-title');
 const saveToastText = document.getElementById('save-toast-text');
 let saveToastTimer = 0;
+const pendingAnnouncementUploads = new Map();
 
 function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function slugify(value){ return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file'; }
@@ -576,6 +605,30 @@ function normalizeUploadPath(value){
   if (typeof value === 'object' && typeof value.path === 'string') return value.path;
   return String(value);
 }
+function isImagePath(value){
+  return /\.(avif|gif|jpe?g|png|svg|webp)(?:[?#].*)?$/i.test(String(value || ''));
+}
+function setPendingAnnouncementUpload(index, file){
+  const ann = portalData?.announcements?.[index];
+  if (!ann) return;
+  const existing = pendingAnnouncementUploads.get(ann);
+  if (existing?.previewUrl) URL.revokeObjectURL(existing.previewUrl);
+  if (!file) pendingAnnouncementUploads.delete(ann);
+  else pendingAnnouncementUploads.set(ann, { file, previewUrl: URL.createObjectURL(file) });
+}
+function clearPendingAnnouncementUpload(index){
+  const ann = portalData?.announcements?.[index];
+  if (!ann) return;
+  const existing = pendingAnnouncementUploads.get(ann);
+  if (existing?.previewUrl) URL.revokeObjectURL(existing.previewUrl);
+  pendingAnnouncementUploads.delete(ann);
+}
+function getAnnouncementDisplayImage(ann, index){
+  const pending = pendingAnnouncementUploads.get(ann);
+  if (pending) return { src: pending.previewUrl, label: pending.file.name };
+  const link = normalizeUploadPath(ann?.link);
+  return isImagePath(link) ? { src: link, label: link } : null;
+}
 function clearSaveToastTimer(){
   if (!saveToastTimer) return;
   window.clearTimeout(saveToastTimer);
@@ -607,10 +660,12 @@ function showSaveNotice(type, title, text){
 function renderAnnouncementPreviewMarkup(ann){
   const level = getAnnouncementLevel(ann.level);
   const content = ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g,'<br>');
+  const link = normalizeUploadPath(ann.link);
   return `
     <div class="ann-preview-live ${level}">
       <div class="ann-preview-time ${level}">${escapeHtml(formatShortDate(ann.when))}</div>
       <div class="ann-preview-content">${content || '<span class="hint">No content yet.</span>'}</div>
+      ${isImagePath(link) ? `<div class="attached-image"><img src="${escapeHtml(link)}" alt=""><span>${escapeHtml(link)}</span></div>` : ''}
     </div>
   `;
 }
@@ -658,12 +713,20 @@ function updateAnnouncementInlinePreview(index){
   const host = document.getElementById(`ann-inline-preview-${index}`);
   if (!host || !portalData?.announcements?.[index]) return;
   host.innerHTML = renderAnnouncementPreviewMarkup(portalData.announcements[index]);
+  const attached = document.getElementById(`ann-attached-image-${index}`);
+  if (attached) attached.innerHTML = renderAnnouncementAttachmentMarkup(portalData.announcements[index], index);
   const chip = host.closest('.ann-inline-preview')?.querySelector('.ann-preview-chip');
   if (chip) {
     const level = getAnnouncementLevel(portalData.announcements[index].level);
     chip.className = `ann-preview-chip ${level}`;
     chip.textContent = level;
   }
+}
+function renderAnnouncementAttachmentMarkup(ann, index){
+  const image = getAnnouncementDisplayImage(ann, index);
+  return image
+    ? `<div class="attached-image"><img src="${escapeHtml(image.src)}" alt=""><span>${escapeHtml(image.label)}</span></div>`
+    : '<div class="hint" style="margin-top:8px">No announcement image attached.</div>';
 }
 function updateMeetingInlinePreview(index){
   const host = document.getElementById(`meeting-inline-preview-${index}`);
@@ -886,7 +949,7 @@ function renderAll(){
 }
 
 function markChanged(){
-  setDirty(JSON.stringify(portalData) !== originalSerialized);
+  setDirty(JSON.stringify(portalData) !== originalSerialized || pendingAnnouncementUploads.size > 0);
   renderPreview();
 }
 
@@ -917,6 +980,9 @@ function renderAnnouncements(){
           <div class="upload-row">
             <input type="file" accept="image/*" data-ann-upload="${index}">
             <button class="btn tiny" data-ann-upload-btn="${index}">Upload</button>
+          </div>
+          <div id="ann-attached-image-${index}">
+            ${renderAnnouncementAttachmentMarkup(ann, index)}
           </div>
         </div>
       </div>
@@ -1096,6 +1162,25 @@ async function uploadFile(file){
   };
 }
 
+async function uploadPendingAnnouncementImages(){
+  Array.from(pendingAnnouncementUploads.entries()).forEach(([ann, pending]) => {
+    if (portalData?.announcements?.includes(ann)) return;
+    if (pending?.previewUrl) URL.revokeObjectURL(pending.previewUrl);
+    pendingAnnouncementUploads.delete(ann);
+  });
+  const uploads = Array.from(pendingAnnouncementUploads.entries())
+    .filter(([ann, pending]) => pending?.file && portalData?.announcements?.includes(ann));
+  if (!uploads.length) return;
+  saveStatus.textContent = 'Uploading announcement images...';
+  for (const [ann, pending] of uploads) {
+    const uploaded = await uploadFile(pending.file);
+    ann.link = uploaded.path;
+    if (pending.previewUrl) URL.revokeObjectURL(pending.previewUrl);
+    pendingAnnouncementUploads.delete(ann);
+  }
+  renderAnnouncements();
+}
+
 async function saveAll(){
   const token = findGithubToken();
   if (!token) {
@@ -1109,6 +1194,7 @@ async function saveAll(){
   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PORTAL_FILE_PATH}?ref=${encodeURIComponent(REPO_BRANCH)}`;
   const headers = { Accept:'application/vnd.github+json', Authorization:`Bearer ${token}` };
   try {
+    await uploadPendingAnnouncementImages();
     const currentResp = await fetch(url, { headers });
     if (!currentResp.ok) throw new Error(`GitHub read failed (${currentResp.status})`);
     const currentFile = await currentResp.json();
@@ -1212,6 +1298,17 @@ function bindEvents(){
       renderPreview();
       return;
     }
+    const annUploadIndex = event.target.getAttribute('data-ann-upload');
+    if (annUploadIndex !== null) {
+      const index = Number(annUploadIndex);
+      const file = event.target.files?.[0];
+      if (!Number.isFinite(index) || !portalData?.announcements?.[index]) return;
+      setPendingAnnouncementUpload(index, file);
+      updateAnnouncementInlinePreview(index);
+      renderPreview();
+      markChanged();
+      return;
+    }
   });
 
   document.addEventListener('click', async (event) => {
@@ -1299,6 +1396,7 @@ function bindEvents(){
         event.target.disabled = true;
         const uploaded = await uploadFile(file);
         portalData.announcements[Number(annUploadBtn)].link = uploaded.path;
+        clearPendingAnnouncementUpload(Number(annUploadBtn));
         renderAnnouncements(); markChanged();
       } catch (error) { window.alert(error.message || 'Upload failed.'); }
       finally { event.target.disabled = false; }
