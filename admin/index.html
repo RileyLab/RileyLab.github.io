@@ -570,6 +570,12 @@ function getSlotLabel(slot){ return ({ tc1:'TC1', tc2:'TC2', tc3:'TC3', main:'Ma
 function encodeBase64Unicode(str){ const bytes = new TextEncoder().encode(str); let binary=''; bytes.forEach((byte)=>{ binary += String.fromCharCode(byte); }); return btoa(binary); }
 function decodeBase64Unicode(str){ const binary = atob(str); const bytes = Uint8Array.from(binary, (char)=>char.charCodeAt(0)); return new TextDecoder().decode(bytes); }
 function getAnnouncementLevel(level){ return ['info','warn','urgent'].includes(level) ? level : 'info'; }
+function normalizeUploadPath(value){
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object' && typeof value.path === 'string') return value.path;
+  return String(value);
+}
 function clearSaveToastTimer(){
   if (!saveToastTimer) return;
   window.clearTimeout(saveToastTimer);
@@ -856,6 +862,9 @@ async function loadPortalData(){
   if (!resp.ok) throw new Error(`Failed to load portal JSON (${resp.status})`);
   const data = await resp.json();
   if (!data.announcements) data.announcements = [];
+  data.announcements.forEach((ann) => {
+    ann.link = normalizeUploadPath(ann.link);
+  });
   if (!data.labMeetings) data.labMeetings = [];
   if (!data.rotationPlan) data.rotationPlan = { start:'', periodDays:14, anchor:{ date:'', current:{ tc1:'', tc2:'', tc3:'', main:'' } }, slotOrder:{ tc1:[], tc2:[], tc3:[], main:[] }, people:{} };
   if (!data.rotationPlan.anchor) data.rotationPlan.anchor = { date:'', current:{ tc1:'', tc2:'', tc3:'', main:'' } };
@@ -1288,8 +1297,8 @@ function bindEvents(){
       if (!file) { window.alert('Choose an image first.'); return; }
       try {
         event.target.disabled = true;
-        const path = await uploadFile(file);
-        portalData.announcements[Number(annUploadBtn)].link = path;
+        const uploaded = await uploadFile(file);
+        portalData.announcements[Number(annUploadBtn)].link = uploaded.path;
         renderAnnouncements(); markChanged();
       } catch (error) { window.alert(error.message || 'Upload failed.'); }
       finally { event.target.disabled = false; }
