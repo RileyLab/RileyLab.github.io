@@ -1,17 +1,17 @@
 {
   "announcements": [
     {
-      "when": "2026-05-11T20:02:54.235Z",
+      "when": "2026-05-21T20:02:00.000Z",
       "level": "warn",
-      "text": "Please place all used flasks into the bin to the left of the sink! That is the only way we can request for facilities to come sterilize them! Please do not leave flasks in the sink!",
-      "html": "<b>Please place all used flasks into the bin to the left of the sink!</b>&nbsp;That is the only way we can request for facilities to come sterilize them! <u>Please</u> do not leave flasks in the sink!",
+      "text": "ATTENTION:Contents of Barney will be transferred to Frink tomorrow morning (5/22) at around 10:30am! Frink will become the new Barney and vice versa. All racks will be in the same exact positions as they were in Barney. After OLD Barney recovers, the contents of Frink will be moved into that freezer!",
+      "html": "<b><u>ATTENTION:</u></b><div>Contents of Barney will be transferred to Frink tomorrow morning (5/22) at around 10:30am! Frink will become the new Barney and vice versa. All racks will be in the same exact positions as they were in Barney. After OLD Barney recovers, the contents of Frink will be moved into that freezer!</div>",
       "link": ""
     },
     {
-      "when": "2026-05-20T12:43:00.000Z",
+      "when": "2026-05-26T12:43:00.000Z",
       "level": "urgent",
-      "text": "ATTENTION!:Contents of Frink have been moved to the backup -80 on this floor (picture attached to this announcement) to allow Frink to thaw. Some racks were too tall to fit in the backup, so we've made a map to show where things were arranged. The goal after thawing Frink is to swap all contents of Frink with that of Barney.",
-      "html": "<div><u></u></div><span class=\"ann-font-mono\"><u><b>ATTENTION!:</b></u></span><div>Contents of Frink have been moved to the backup -80 on this floor (picture attached to this announcement) to allow Frink to thaw. Some racks were too tall to fit in the backup, so we've made a map to show where things were arranged. The goal after thawing Frink is to swap all contents of Frink with that of Barney.</div>",
+      "text": "ATTENTION!:On Tuesday, 5/26, the contents of Bart will be moved to a backup LN unit provided by facilities so that we can have someone perform maintenance work on Bart. We will bring up the spare unit, fill it with our racks, and it will sit right where Bart is until the maintenance work is complete.",
+      "html": "<div><u></u></div><span class=\"ann-font-mono\"><u><b>ATTENTION!:</b></u></span><div>On Tuesday, 5/26, the contents of Bart will be moved to a backup LN unit provided by facilities so that we can have someone perform maintenance work on Bart. We will bring up the spare unit, fill it with our racks, and it will sit right where Bart is until the maintenance work is complete.</div>",
       "link": "/assets/uploads/1779291596542-img-4141.jpeg"
     }
   ],
