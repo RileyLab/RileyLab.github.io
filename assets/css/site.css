@@ -1335,6 +1335,7 @@ html.page-portal{
     html.page-portal .rot-293t-main{
       display:flex;
       align-items:center;
+      flex-wrap:wrap;
       gap:14px;
       min-width:0;
     }
@@ -1375,10 +1376,11 @@ html.page-portal{
       font-weight:700;
       color:#111827;
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+      overflow:visible;
+      text-overflow:clip;
       min-width:0;
-      flex:1 1 auto;
+      flex:0 0 auto;
+      margin-left:auto;
     }
     html.page-portal .rot-293t-item.is-today .rot-293t-name{
       flex:1 0 100%;

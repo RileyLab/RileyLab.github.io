@@ -1197,12 +1197,13 @@ function fmtWeekRange(start, end){
 
 function parse293TSummary(summary){
   const raw = String(summary || '').trim();
-  const thawMatch = raw.match(/^(P\d+\s*,\s*Thaw\s+P\d+)\s+(.+)$/i);
+  const thawMatch = raw.match(/^(P\d+\s*,\s*Thaw\s*P\d+)\b[\s,:-]*(.*)$/i);
   if (thawMatch) {
+    const name = (thawMatch[2] || '').replace(/^[\s:,-]+|[\s:,-]+$/g, '').trim();
     return {
       kind: 'passage',
-      passage: thawMatch[1].replace(/\s*,\s*/g, ', ').trim(),
-      name: thawMatch[2].trim() || raw || 'Unassigned'
+      passage: thawMatch[1].replace(/\s*,\s*/g, ', ').replace(/\bThaw\s*P/i, 'Thaw P').trim(),
+      name: name || 'Unassigned'
     };
   }
 
