@@ -822,6 +822,7 @@ html.page-portal{
     html.page-portal .next-meeting[hidden]{
       display:none !important;
     }
+
     html.page-portal .next-meeting h2{
       background:#dfead8;
     }
