@@ -1,11 +1,11 @@
 {
   "announcements": [
     {
-      "when": "2026-05-21T20:02:00.000Z",
-      "level": "warn",
-      "text": "ATTENTION:Contents of Barney will be transferred to Frink tomorrow morning (5/22) at around 10:30am! Frink will become the new Barney and vice versa. All racks will be in the same exact positions as they were in Barney. After OLD Barney recovers, the contents of Frink will be moved into that freezer!",
-      "html": "<b><u>ATTENTION:</u></b><div>Contents of Barney will be transferred to Frink tomorrow morning (5/22) at around 10:30am! Frink will become the new Barney and vice versa. All racks will be in the same exact positions as they were in Barney. After OLD Barney recovers, the contents of Frink will be moved into that freezer!</div>",
-      "link": ""
+      "when": "2026-06-15T20:02:00.000Z",
+      "level": "info",
+      "text": "Hi everyone,Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.When logging out of the machine, there is a subject line and message field where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.Please refer to the image attached to this announcement for where to enter this information!",
+      "html": "<p>Hi everyone,</p><p>Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.</p><p>When logging out of the machine, there is a <strong>subject line</strong> and <strong>message field</strong> where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.</p><p>Please refer to the image attached to this announcement for where to enter this information!</p>",
+      "link": "/assets/uploads/1781528670944-img-4604.jpeg"
     },
     {
       "when": "2026-05-26T12:43:00.000Z",
