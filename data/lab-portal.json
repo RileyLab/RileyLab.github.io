@@ -4,7 +4,7 @@
       "when": "2026-06-15T20:02:00.000Z",
       "level": "info",
       "text": "Hi everyone,Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.When logging out of the machine, there is a subject line and message field where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.Please refer to the image attached to this announcement for where to enter this information!",
-      "html": "<p>Hi everyone,</p><p>Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.</p><p>When logging out of the machine, there is a <strong>subject line</strong> and <strong>message field</strong> where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.</p><p>Please refer to the image attached to this announcement for where to enter this information!</p>",
+      "html": "<p>Hi everyone,</p><p>Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.</p><p>When logging out of the machine, there is a <b>subject line</b> and <b>message field</b> where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.</p><p>Please refer to the image attached to this announcement for where to enter this information!</p>",
       "link": "/assets/uploads/1781528670944-img-4604.jpeg"
     },
     {
