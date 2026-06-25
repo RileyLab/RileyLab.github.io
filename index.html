@@ -1487,24 +1487,29 @@ function computeRotationPeriod(plan, cycleOffset = 0) {
       : null;
     if (anchorOrder && anchorOrder.length > 0) {
       const active = new Set(arr);
-      if (!Array.from(active).some(name => anchorOrder.includes(name))) return '—';
+      const activeOrder = anchorOrder.filter((name) => active.has(name));
+      if (!activeOrder.length) return '—';
 
-      let idx = anchorOrder.indexOf(anchorName);
-      if (idx === -1) idx = 0;
+      const anchorIndex = Math.max(0, anchorOrder.indexOf(anchorName));
+      const resolveActiveFromCanonicalIndex = (idx) => {
+        for (let hops = 0; hops < anchorOrder.length; hops++) {
+          const name = anchorOrder[positiveMod(idx + hops, anchorOrder.length)];
+          if (active.has(name)) return name;
+        }
+        return '—';
+      };
 
-      const step = anchorCycleDelta > 0 ? 1 : -1;
-      let remaining = Math.abs(anchorCycleDelta);
+      // Deactivating someone should collapse future assignments, not rewrite
+      // the already-current rotation period. First resolve today's canonical
+      // assignee, then step forward through the active roster for forecasts.
+      const currentCycleDelta = anchorCycleDelta - cycleOffset;
+      const currentCanonicalIndex = positiveMod(anchorIndex + currentCycleDelta, anchorOrder.length);
+      const currentName = resolveActiveFromCanonicalIndex(currentCanonicalIndex);
+      if (cycleOffset <= 0) return currentName;
 
-      while (remaining > 0) {
-        let hops = 0;
-        do {
-          idx = positiveMod(idx + step, anchorOrder.length);
-          hops++;
-        } while (!active.has(anchorOrder[idx]) && hops <= anchorOrder.length);
-        remaining--;
-      }
-
-      return active.has(anchorOrder[idx]) ? anchorOrder[idx] : '—';
+      const currentActiveIndex = activeOrder.indexOf(currentName);
+      const startIndex = currentActiveIndex === -1 ? 0 : currentActiveIndex;
+      return activeOrder[positiveMod(startIndex + cycleOffset, activeOrder.length)] ?? '—';
     }
 
     const anchorIndex = arr.indexOf(anchorName);
