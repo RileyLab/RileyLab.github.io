@@ -186,6 +186,7 @@
       <div class="calendar-toolbar" role="toolbar" aria-label="Calendar view">
         <button class="btn" data-cal="MAIN" aria-pressed="true">MAIN</button>
         <button class="btn" data-cal="293T" aria-pressed="true">293T</button>
+        <button class="btn" data-cal="HIC" aria-pressed="true">HIC</button>
 
         <span class="toolbar-sep">|</span>
 
@@ -465,6 +466,12 @@ function updateHtml(id, html){
   // IDs:
   const CAL_MAIN = 'j27deqargjjbeg5835162djbl8@group.calendar.google.com';
   const CAL_293T = '0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d@group.calendar.google.com';
+  const CAL_HIC = 'edde157b92b093b988099d06479d3604e674c5951b4be48c7fa31af0d4f570f7@group.calendar.google.com';
+  const CAL_IDS = {
+    MAIN: CAL_MAIN,
+    '293T': CAL_293T,
+    HIC: CAL_HIC
+  };
 
   // Load saved state (default MONTH + MAIN)
   let mode  = localStorage.getItem('labCalMode') || 'MONTH';
@@ -472,7 +479,7 @@ function updateHtml(id, html){
 
   // Build and apply iframe URL
   function apply() {
-    const srcId = (which === '293T') ? CAL_293T : CAL_MAIN;
+    const srcId = CAL_IDS[which] || CAL_MAIN;
     const params = new URLSearchParams({
       src: srcId,
       ctz: 'America/New_York',

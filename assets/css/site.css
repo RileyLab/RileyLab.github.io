@@ -732,14 +732,15 @@ html.page-portal{
       border:1px solid #e0e7ef; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); background:#fff;
     }
     html.page-portal .iframe-wrap iframe{ width:100%; height:760px; border:0 }
-    html.page-portal .toolbar-sep{ margin:0 6px; opacity:.5; }
+    html.page-portal .toolbar-sep{ margin:0 2px; opacity:.5; flex:0 0 auto; }
     html.page-portal .mt-10{ margin-top:10px; }
     html.page-portal .calendar-toolbar{
-      display:flex; gap:8px; align-items:center; margin:10px 0 12px;
+      display:flex; flex-wrap:nowrap; gap:6px; align-items:center; margin:10px 0 12px;
     }
     html.page-portal .calendar-toolbar .btn{
       appearance:none; border:1px solid #d6e3ff; background:#f4f8ff; color:#0b3d91;
-      padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600;
+      padding:6px 9px; border-radius:8px; cursor:pointer; font-weight:600;
+      white-space:nowrap;
     }
     html.page-portal .calendar-toolbar .btn[aria-pressed="true"]{ background:#e6efff; border-color:#bcd0ff }
 
@@ -1738,8 +1739,8 @@ html.page-portal{
     html.page-portal .calendar-toolbar .btn[data-cal]{
       border: none;
       border-radius: 8px;
-      padding: 6px 14px;
-      margin-left: 6px;
+      padding: 6px 11px;
+      margin-left: 0;
       font-weight: 600;
       color: white;
       cursor: pointer;
@@ -1763,10 +1764,18 @@ html.page-portal{
       background-color: #f9a825; /* deeper yellow on hover */
     }
 
+    /* --- HIC (Blue) --- */
+    html.page-portal .calendar-toolbar .btn[data-cal="HIC"]{
+      background-color: #1976d2;
+    }
+    html.page-portal .calendar-toolbar .btn[data-cal="HIC"]:hover{
+      background-color: #0d47a1;
+    }
+
     /* --- Active (pressed) state --- */
     html.page-portal .calendar-toolbar .btn[data-cal][aria-pressed="true"]{
       box-shadow: 0 0 10px rgba(0,0,0,0.25);
-      transform: scale(1.05);
+      transform: translateY(-1px);
     }
 
     @media (max-width: 480px){
@@ -1947,8 +1956,10 @@ html.page-portal{
       }
 
       /* Calendar toolbar buttons smaller */
-      html.page-portal .calendar-toolbar{ gap:6px; margin:8px 0 10px; }
-      html.page-portal .calendar-toolbar .btn{ padding:4px 8px; font-size:13px; }
+      html.page-portal .calendar-toolbar{ gap:5px; margin:8px 0 10px; }
+      html.page-portal .calendar-toolbar .btn{ padding:4px 7px; font-size:13px; }
+      html.page-portal .calendar-toolbar .btn[data-cal]{ padding:4px 8px; }
+      html.page-portal .toolbar-sep{ margin:0; }
 
       /* Calendar iframe height cap for phones */
       html.page-portal .iframe-wrap iframe{ height: 520px; }
