@@ -18,32 +18,11 @@
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
   "labMeetings": [
     {
-      "date": "2026-04-24",
-      "presenter": "Xiaoling Jin",
-      "title": "Update of CAR Tregs in inducing allo-graft tolerance",
-      "description": "",
-      "image": "/assets/images/lab-members/xiaoling.png"
-    },
-    {
-      "date": "2026-05-01",
-      "presenter": "Mosha Deng",
-      "title": "CDNP-based Universal CAR Vaccine",
-      "description": "",
-      "image": "/assets/uploads/1777470940454-mosha.jpg"
-    },
-    {
-      "date": "2026-05-04",
-      "presenter": "Justin Shayne",
-      "title": "Prelims!",
-      "description": "Location: BRB 252 @ 10am",
-      "image": "/assets/images/lab-members/justins.jpeg"
-    },
-    {
-      "date": "2026-05-29",
-      "presenter": "Justin Gabrielski",
-      "title": "Prelims!",
-      "description": "3600 Civic Center Blvd., RM15-102 @ 10am",
-      "image": "/assets/images/lab-members/justing.jpeg"
+      "date": "2026-07-09",
+      "presenter": "Mgmt.",
+      "title": "Lab Meeting!",
+      "description": "3600 Civic Center Blvd., RM16-102B @ 11:30am",
+      "image": "/assets/uploads/1783613989416-jim.png"
     }
   ],
   "rotations": {},
