@@ -1,11 +1,11 @@
 {
   "announcements": [
     {
-      "when": "2026-06-15T20:02:00.000Z",
-      "level": "info",
-      "text": "Hi everyone,Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.When logging out of the machine, there is a subject line and message field where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.Please refer to the image attached to this announcement for where to enter this information!",
-      "html": "<p>Hi everyone,</p><p>Jen from the Flow Core shared some helpful information about reporting issues with the flow cytometer.</p><p>When logging out of the machine, there is a <b>subject line</b> and <b>message field</b> where you can describe any issue you experienced while using the instrument. Submitting this information will notify the appropriate Flow Core staff so they can follow up and resolve the issue.</p><p>Please refer to the image attached to this announcement for where to enter this information!</p>",
-      "link": "/assets/uploads/1781528670944-img-4604.jpeg"
+      "when": "2026-07-14T20:02:00.000Z",
+      "level": "warn",
+      "text": "Hi everyone,I received an email yesterday informing me that Brown Bear Calendar, which we have used for years to manage tissue culture room hood reservations, will discontinue its free service and transition to a paid model effective August 1, 2026.As a result, I have implemented a new reservation system that I developed and recently finalized. The new system can be accessed using the same link location where the Brown Bear Calendar link was previously posted.I hope you find the new system more modern and intuitive. As always, please notify me immediately if you encounter any issues so I can investigate and resolve them.Best,Max",
+      "html": "<p>Hi everyone,</p><p>I received an email yesterday informing me that <i>Brown Bear Calendar</i>, which we have used for years to manage tissue culture room hood reservations, will discontinue its free service and transition to a paid model effective August 1, 2026.</p><p>As a result, I have implemented a <b><u>new reservation system</u></b> that I developed and recently finalized. The new system can be accessed using the same link location where the Brown Bear Calendar link was previously posted.</p><p>I hope you find the new system more modern and intuitive. As always, please notify me immediately if you encounter any issues so I can investigate and resolve them.</p><p>Best,</p><p>Max</p>",
+      "link": ""
     },
     {
       "when": "2026-05-26T12:43:00.000Z",
