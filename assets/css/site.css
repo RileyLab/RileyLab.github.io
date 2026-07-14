@@ -139,13 +139,22 @@ html.page-hood-booking{
     }
     html.page-hood-booking,html.page-hood-booking body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
     html.page-hood-booking .wrap{max-width:1200px;margin:24px auto;padding:0 16px}
-    html.page-hood-booking .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:10px}
-    html.page-hood-booking .btn{padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600}
-    html.page-hood-booking .btn.primary{background:#111827;color:#fff;border-color:#111827}
-    html.page-hood-booking .title{margin-left:auto;font-weight:700;font-size:16px}
+	    html.page-hood-booking .page-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;margin-bottom:14px}
+	    html.page-hood-booking .header-main{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+	    html.page-hood-booking .calendar-controls{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:14px 0 18px}
+	    html.page-hood-booking .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--border);background:#fff;border-radius:12px;cursor:pointer;font-weight:600;text-decoration:none;color:var(--text)}
+	    html.page-hood-booking .btn.primary{background:#111827;color:#fff;border-color:#111827}
+	    html.page-hood-booking .title{font-weight:700;font-size:16px}
+	    html.page-hood-booking .portal-btn{justify-self:start}
+	    html.page-hood-booking .toolbar-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+	    html.page-hood-booking .toolbar-actions .title{margin-right:6px}
+	    html.page-hood-booking .btn.view-week{background:#e0f2fe;border-color:#7dd3fc;color:#075985}
+	    html.page-hood-booking .btn.view-day{background:#fef3c7;border-color:#fbbf24;color:#92400e}
+	    html.page-hood-booking .btn.view-week:hover{background:#bae6fd}
+	    html.page-hood-booking .btn.view-day:hover{background:#fde68a}
 
-    /* BIG Tabs */
-    html.page-hood-booking .tabs{display:flex;gap:12px;margin:14px 0 18px}
+	    /* BIG Tabs */
+	    html.page-hood-booking .tabs{display:flex;gap:12px;margin:0;overflow-x:auto;padding-bottom:4px}
     html.page-hood-booking .tab{
       flex:0 0 auto; min-width:140px; padding:14px 18px;
       border-radius:999px; border:2px solid var(--border); background:#fff;
@@ -158,12 +167,115 @@ html.page-hood-booking{
     html.page-hood-booking .tab[data-room="TC2"] .dot{background:var(--TC2)}
     html.page-hood-booking .tab[data-room="TC3"] .dot{background:var(--TC3)}
     html.page-hood-booking .tab.active{border-color:#111827; color:#111827}
-    html.page-hood-booking .tab.active[data-room="TC1"]{box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow)}
-    html.page-hood-booking .tab.active[data-room="TC2"]{box-shadow:0 0 0 4px rgba(22,163,74,.12), var(--shadow)}
-    html.page-hood-booking .tab.active[data-room="TC3"]{box-shadow:0 0 0 4px rgba(245,158,11,.15), var(--shadow)}
+	    html.page-hood-booking .tab.active[data-room="TC1"]{box-shadow:0 0 0 4px rgba(37,99,235,.12), var(--shadow)}
+	    html.page-hood-booking .tab.active[data-room="TC2"]{box-shadow:0 0 0 4px rgba(22,163,74,.12), var(--shadow)}
+	    html.page-hood-booking .tab.active[data-room="TC3"]{box-shadow:0 0 0 4px rgba(245,158,11,.15), var(--shadow)}
+	    html.page-hood-booking .tabs.locked .tab{opacity:.55;cursor:not-allowed;pointer-events:none}
+	    html.page-hood-booking .tab:focus-visible{outline:3px solid rgba(17,24,39,.25);outline-offset:3px}
 
-    html.page-hood-booking #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-    html.page-hood-booking .legend{margin-top:8px;color:var(--muted)}
+	    html.page-hood-booking #calendar{height:72vh;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+	    html.page-hood-booking .tui-full-calendar-time-schedule,
+	    html.page-hood-booking .tui-full-calendar-time-schedule-content{
+	      border:0 !important;
+	      background:transparent !important;
+	      box-shadow:none !important;
+	      overflow:visible !important;
+	    }
+	    html.page-hood-booking .tui-full-calendar-time-schedule-content{
+	      padding:0 !important;
+	    }
+	    html.page-hood-booking .tui-full-calendar-time-schedule:hover{
+	      filter:brightness(.98);
+	    }
+	    html.page-hood-booking .booking-event{
+	      height:100%;
+	      min-height:34px;
+	      container-type:size;
+	      display:flex;
+	      align-items:stretch;
+	      border-radius:8px;
+	      overflow:hidden;
+	      background:#fff;
+	      border:1px solid rgba(15,23,42,.12);
+	      box-shadow:0 2px 8px rgba(15,23,42,.08);
+	    }
+	    html.page-hood-booking .booking-rail{
+	      flex:0 0 5px;
+	      background:var(--booking-color);
+	    }
+	    html.page-hood-booking .booking-body{
+	      min-width:0;
+	      flex:1;
+	      display:flex;
+	      flex-direction:column;
+	      justify-content:flex-start;
+	      gap:1px;
+	      padding:4px 6px 4px 7px;
+	    }
+	    html.page-hood-booking .booking-name,
+	    html.page-hood-booking .booking-time,
+	    html.page-hood-booking .booking-room{
+	      min-width:0;
+	      overflow:hidden;
+	      text-overflow:ellipsis;
+	      white-space:nowrap;
+	    }
+	    html.page-hood-booking .booking-name{
+	      color:#0f172a;
+	      font-size:11.5px;
+	      font-weight:800;
+	      line-height:1.05;
+	    }
+	    html.page-hood-booking .booking-time{
+	      color:#334155;
+	      font-size:10.5px;
+	      font-weight:750;
+	      line-height:1.05;
+	    }
+	    html.page-hood-booking .booking-room{
+	      color:var(--booking-color);
+	      font-size:10px;
+	      font-weight:850;
+	      line-height:1.05;
+	    }
+	    html.page-hood-booking .booking-tooltip{
+	      position:fixed;
+	      z-index:100001;
+	      max-width:min(320px, calc(100vw - 24px));
+	      padding:8px 10px;
+	      border-radius:8px;
+	      background:#111827;
+	      color:#fff;
+	      box-shadow:0 12px 28px rgba(15,23,42,.24);
+	      font-size:12px;
+	      font-weight:700;
+	      line-height:1.3;
+	      pointer-events:none;
+	    }
+	    @container (max-height: 48px){
+	      html.page-hood-booking .booking-body{
+	        justify-content:center;
+	        gap:2px;
+	      }
+	      html.page-hood-booking .booking-time{
+	        display:none;
+	      }
+	    }
+	    html.page-hood-booking .load-error{
+	      display:flex;
+	      align-items:center;
+	      justify-content:space-between;
+	      gap:12px;
+	      margin-top:10px;
+	      padding:10px 12px;
+	      border:1px solid #b91c1c;
+	      border-radius:12px;
+	      background:#fff1f2;
+	      color:#7f1d1d;
+	      font-weight:700;
+	    }
+	    html.page-hood-booking .legend{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;color:var(--muted)}
+	    html.page-hood-booking .refresh-status{flex:0 0 auto;font-size:12px;font-weight:700;color:#334155}
 
     /* Modal polish */
     html.page-hood-booking .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9999}
@@ -182,9 +294,10 @@ html.page-hood-booking{
     html.page-hood-booking .btn.danger{background:#b91c1c;color:#fff;border-color:#b91c1c}
     html.page-hood-booking .btn.muted{background:#f3f4f6;border-color:#e5e7eb}
 
-    html.page-hood-booking .room-badge{
-      width:100%;
-      padding:12px;
+	    html.page-hood-booking .room-badge,
+	    html.page-hood-booking .room-select{
+	      width:100%;
+	      padding:12px;
       border-radius:12px;
       text-align:center;
       font-weight:700;
@@ -196,9 +309,12 @@ html.page-hood-booking{
     }
 
     /* Optional: contextual colors by room */
-    html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
-    html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
-    html.page-hood-booking .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); color:#0b1220; }
+	    html.page-hood-booking .room-badge.tc1,
+	    html.page-hood-booking .room-select.tc1{ background:var(--TC1c); border-color:var(--TC1b); color:#0b1220; }
+	    html.page-hood-booking .room-badge.tc2,
+	    html.page-hood-booking .room-select.tc2{ background:var(--TC2c); border-color:var(--TC2b); color:#0b1220; }
+	    html.page-hood-booking .room-badge.tc3,
+	    html.page-hood-booking .room-select.tc3{ background:var(--TC3c); border-color:var(--TC3b); color:#0b1220; }
 
     /* Spinner + Toast (center) */
     html.page-hood-booking #spinner{
@@ -216,10 +332,23 @@ html.page-hood-booking{
     html.page-hood-booking #toast.err{border-color:#b91c1c}
     html.page-hood-booking .hidden{display:none !important}
 
-    /* Hide TUI's blue selection/creation guides */
-    html.page-hood-booking .tui-full-calendar-timegrid-guide,html.page-hood-booking .tui-full-calendar-timegrid-guide-creation,html.page-hood-booking .tui-full-calendar-time-guide-creation,html.page-hood-booking .tui-full-calendar-time-guide-resize-handler{
-      display: none !important;
-    }
+	    /* Make drag/create/resize previews visible and intentional */
+	    html.page-hood-booking .tui-full-calendar-timegrid-guide,
+	    html.page-hood-booking .tui-full-calendar-timegrid-guide-creation,
+	    html.page-hood-booking .tui-full-calendar-time-guide-creation{
+	      display:block !important;
+	      border:2px dashed #2563eb !important;
+	      border-radius:8px !important;
+	      background:rgba(37,99,235,.12) !important;
+	      box-shadow:inset 0 0 0 1px rgba(255,255,255,.75), 0 6px 18px rgba(37,99,235,.16) !important;
+	    }
+	    html.page-hood-booking .tui-full-calendar-time-guide-resize-handler{
+	      display:block !important;
+	      background:#2563eb !important;
+	      border:2px solid #fff !important;
+	      border-radius:999px !important;
+	      box-shadow:0 2px 8px rgba(37,99,235,.35) !important;
+	    }
 
     /* Make two clean columns with real spacing and safe shrinking */
     html.page-hood-booking .grid{
@@ -253,8 +382,9 @@ html.page-hood-booking{
     html.page-hood-booking .row > .field{ flex:1 1 0; min-width:0; }   /* <-- critical */
 
     /* Keep the badge inside its box and center the text */
-    html.page-hood-booking .room-badge{
-      display:flex;
+	    html.page-hood-booking .room-badge,
+	    html.page-hood-booking .room-select{
+	      display:flex;
       align-items:center;
       justify-content:center;
       height:44px;                 /* consistent control height */
@@ -275,9 +405,27 @@ html.page-hood-booking{
     }
 
     /* contextual colors (unchanged) */
-    html.page-hood-booking .room-badge.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
-    html.page-hood-booking .room-badge.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
-    html.page-hood-booking .room-badge.tc3{ background:var(--TC3c); border-color:var(--TC3b); }
+	    html.page-hood-booking .room-badge.tc1,
+	    html.page-hood-booking .room-select.tc1{ background:var(--TC1c); border-color:var(--TC1b); }
+	    html.page-hood-booking .room-badge.tc2,
+	    html.page-hood-booking .room-select.tc2{ background:var(--TC2c); border-color:var(--TC2b); }
+	    html.page-hood-booking .room-badge.tc3,
+	    html.page-hood-booking .room-select.tc3{ background:var(--TC3c); border-color:var(--TC3b); }
+
+	    @media (max-width: 640px){
+	      html.page-hood-booking .wrap{margin:12px auto;padding:0 10px}
+	      html.page-hood-booking .page-header{grid-template-columns:1fr;justify-items:start}
+	      html.page-hood-booking .header-main{justify-content:flex-start}
+	      html.page-hood-booking .calendar-controls{align-items:stretch;flex-direction:column;gap:10px}
+	      html.page-hood-booking .toolbar-actions{justify-content:flex-start}
+	      html.page-hood-booking .btn{padding:9px 11px}
+	      html.page-hood-booking .tab{min-width:110px;padding:12px 14px}
+	      html.page-hood-booking #calendar{height:68vh;border-radius:12px}
+	      html.page-hood-booking .modal-actions{flex-wrap:wrap}
+	      html.page-hood-booking .modal-actions .btn{flex:1 1 auto}
+	      html.page-hood-booking .row{flex-direction:column}
+	      html.page-hood-booking .legend{align-items:flex-start;flex-direction:column}
+	    }
 
 
 /* Portal */

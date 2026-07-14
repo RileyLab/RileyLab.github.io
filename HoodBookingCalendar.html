@@ -18,30 +18,47 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="toolbar">
-    <button class="btn" id="prev">‹</button>
-    <button class="btn" id="today">Today</button>
-    <button class="btn" id="next">›</button>
-    <button class="btn" id="week">Week</button>
-    <button class="btn" id="day">Day</button>
-    <div class="title" id="range"></div>
-    <button class="btn primary" id="newBooking">+ New booking</button>
+  <div class="page-header">
+    <a class="btn portal-btn" href="https://rileylab.github.io/">Go back to Portal</a>
+    <div class="header-main">
+      <button class="btn primary" id="newBooking">+ New booking</button>
+    </div>
+    <div></div>
   </div>
 
-  <!-- BIG room tabs -->
-  <div class="tabs" id="roomTabs">
-    <div class="tab active" data-room="TC1"><span class="dot"></span>TC1</div>
-    <div class="tab" data-room="TC2"><span class="dot"></span>TC2</div>
-    <div class="tab" data-room="TC3"><span class="dot"></span>TC3</div>
+  <div class="calendar-controls">
+    <!-- BIG room tabs -->
+    <div class="tabs" id="roomTabs" role="tablist" aria-label="TC room">
+      <div class="tab active" data-room="TC1" role="tab" tabindex="0" aria-selected="true"><span class="dot"></span>TC1</div>
+      <div class="tab" data-room="TC2" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC2</div>
+      <div class="tab" data-room="TC3" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC3</div>
+    </div>
+
+    <div class="toolbar-actions">
+      <div class="title" id="range"></div>
+      <button class="btn" id="prev">‹</button>
+      <button class="btn" id="today">Today</button>
+      <button class="btn" id="next">›</button>
+      <button class="btn view-week" id="week">Week</button>
+      <button class="btn view-day" id="day">Day</button>
+    </div>
   </div>
 
   <div id="calendar"></div>
-  <div class="legend">Drag to select a time range to create. Drag/resize an event to edit. Click an event to edit or delete.</div>
+  <div class="load-error hidden" id="loadError">
+    <span>Could not load bookings.</span>
+    <button class="btn muted" id="retryLoad">Retry</button>
+  </div>
+  <div class="legend">
+    <span>Drag to select a time range to create. Drag/resize an event to edit. Click an event to edit or delete.</span>
+    <span class="refresh-status" id="refreshStatus">Live refresh every 30s</span>
+  </div>
 </div>
 
 <!-- Spinner & Toast -->
 <div id="spinner">Saving…</div>
 <div id="toast"></div>
+<div id="bookingTooltip" class="booking-tooltip hidden"></div>
 
 <!-- Modal (Create/Edit) -->
 <div class="modal-backdrop" id="modalBg" role="dialog" aria-modal="true">
@@ -67,11 +84,15 @@
       </div>
     </div>
 
-    <!-- Room (read-only badge) + Hood (select) -->
+    <!-- Room + Hood selectors -->
     <div class="row spaced">
       <div class="field">
-        <label>Room</label>
-        <div id="roomDisplay" class="room-badge">TC1</div>
+        <label for="room">Room</label>
+        <select id="room">
+          <option value="TC1">TC1</option>
+          <option value="TC2">TC2</option>
+          <option value="TC3">TC3</option>
+        </select>
       </div>
       <div class="field">
         <label for="hood">Hood</label>
@@ -119,33 +140,28 @@
     calendars: calDefs,
     template: {
       time: function(schedule) {
-        // Left = name, Right = TC/Hood tag
         const rawTitle = schedule.title || '';
-        const name = rawTitle.split(' — ')[0] || rawTitle;
-        const label = (schedule.calendarId || '').replace('-', '/Hood ');
+        const rawName = rawTitle.split(' — ')[0] || rawTitle;
+        const name = escapeHtml(rawName);
+        const label = escapeHtml((schedule.calendarId || '').replace('-', '/Hood '));
         const room  = (schedule.calendarId || '').split('-')[0] || 'TC1';
+        const start = schedule.start?.toDate ? schedule.start.toDate() : new Date(schedule.start);
+        const end = schedule.end?.toDate ? schedule.end.toDate() : new Date(schedule.end);
+        const timeLabel = escapeHtml(formatTimeRange(start, end));
+        const fullLabel = escapeHtml(`${rawName} · ${formatTimeRange(start, end)} · ${(schedule.calendarId || '').replace('-', '/Hood ')}`);
   
         // room color from CSS vars
         const roomColor = getComputedStyle(document.documentElement)
           .getPropertyValue(`--${room}`).trim() || '#2563eb';
   
         return `
-          <div style="
-            height:100%;display:flex;align-items:center;gap:6px;
-            padding:0 6px;border-radius:10px;overflow:hidden;
-            background:linear-gradient(180deg, #ffffff, #f8fafc);
-            border:1px solid rgba(0,0,0,.06); box-shadow:0 1px 0 rgba(0,0,0,.04);
-          ">
-            <div style="
-              flex:1; min-width:0; font-weight:700;
-              color:#0f172a; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;
-            ">${name}</div>
-            <div style="
-              flex:0 0 auto;
-              font-size:11px;font-weight:800; letter-spacing:.2px;
-              padding:2px 6px; color:#fff; background:${roomColor};
-              border-radius:999px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.25);
-            ">${label}</div>
+          <div class="booking-event" data-tooltip="${fullLabel}" style="--booking-color:${roomColor}">
+            <div class="booking-rail"></div>
+            <div class="booking-body">
+              <div class="booking-name">${name}</div>
+              <div class="booking-time">${timeLabel}</div>
+              <div class="booking-room">${label}</div>
+            </div>
           </div>
         `;
       }
@@ -176,7 +192,7 @@
   const dateEl    = document.getElementById('date');
   const startEl   = document.getElementById('start');
   const endEl     = document.getElementById('end');
-  const roomDisplay = document.getElementById('roomDisplay');
+  const roomEl    = document.getElementById('room');
   const hoodEl    = document.getElementById('hood');
   const saveBtn   = document.getElementById('saveBtn');
   const cancelBtn = document.getElementById('cancelBtn');
@@ -184,26 +200,66 @@
   const spinner   = document.getElementById('spinner');
   const newBtn    = document.getElementById('newBooking');
   const toastEl   = document.getElementById('toast');
+  const loadError = document.getElementById('loadError');
+  const retryLoad = document.getElementById('retryLoad');
+  const refreshStatus = document.getElementById('refreshStatus');
+  const bookingTooltip = document.getElementById('bookingTooltip');
 
   let BUSY = false;
   let editing = null; // {id, calendarId, ...}
   let activeRoom = 'TC1';
+  let modalRoom = 'TC1';
+  let rangeLoadSeq = 0;
+  const AUTO_REFRESH_MS = 30 * 1000;
 
   // Super-snappy UX helpers
   function syncRoomBadge(room){
-    roomDisplay.textContent = room;
-    roomDisplay.className = 'room-badge ' + room.toLowerCase(); // tc1/tc2/tc3 class for colors
+    modalRoom = room;
+    roomEl.value = room;
+    roomEl.className = 'room-select ' + room.toLowerCase(); // tc1/tc2/tc3 class for colors
   }
+  roomEl.addEventListener('change', ()=>syncRoomBadge(roomEl.value));
   function showSpin(v){ spinner.style.display = v ? 'block' : 'none'; }
   function toast(msg, type='ok', ms=1700){
     toastEl.className = ''; toastEl.classList.add(type);
     toastEl.textContent = msg; toastEl.style.display='flex';
     clearTimeout(toastEl._t); toastEl._t = setTimeout(()=>toastEl.style.display='none', ms);
   }
+  function setLoadError(visible){
+    loadError.classList.toggle('hidden', !visible);
+  }
+  function setRefreshStatus(text){
+    refreshStatus.textContent = text;
+  }
+  function showBookingTooltip(text, x, y){
+    bookingTooltip.textContent = text;
+    bookingTooltip.classList.remove('hidden');
+    const offset = 12;
+    const rect = bookingTooltip.getBoundingClientRect();
+    const left = Math.min(x + offset, window.innerWidth - rect.width - offset);
+    const top = Math.min(y + offset, window.innerHeight - rect.height - offset);
+    bookingTooltip.style.left = `${Math.max(offset, left)}px`;
+    bookingTooltip.style.top = `${Math.max(offset, top)}px`;
+  }
+  function hideBookingTooltip(){
+    bookingTooltip.classList.add('hidden');
+  }
+  function escapeHtml(value){
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
   function uuid(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)}) }
+  function setTabsLocked(locked){
+    document.getElementById('roomTabs').classList.toggle('locked', locked);
+    document.querySelectorAll('#roomTabs .tab').forEach(tab => {
+      tab.setAttribute('aria-disabled', locked ? 'true' : 'false');
+    });
+  }
   function openModal(title, preset){
     modalTitle.textContent = title;
     modalBg.style.display = 'flex';
+    setTabsLocked(true);
   
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
@@ -217,44 +273,140 @@
     deleteBtn.classList.toggle('hidden', preset?.mode !== 'edit');
     setTimeout(()=>nameEl.focus(), 0);
   }
-  function closeModal(){ modalBg.style.display = 'none'; }
+  function closeModal(){
+    modalBg.style.display = 'none';
+    setTabsLocked(false);
+  }
+  modalBg.addEventListener('click', ev => {
+    if (ev.target === modalBg && !BUSY) {
+      editing = null;
+      closeModal();
+    }
+  });
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape' && modalBg.style.display === 'flex' && !BUSY) {
+      editing = null;
+      closeModal();
+    }
+  });
+  document.getElementById('calendar').addEventListener('mousemove', ev => {
+    const eventEl = ev.target.closest('.booking-event');
+    if (!eventEl) {
+      hideBookingTooltip();
+      return;
+    }
+    showBookingTooltip(eventEl.dataset.tooltip || '', ev.clientX, ev.clientY);
+  });
+  document.getElementById('calendar').addEventListener('mouseleave', hideBookingTooltip);
 
   function toLocalDateInputValue(d){ const t = new Date(d); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(0,10); }
   function toLocalTimeInputValue(d){ const t = new Date(d); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(11,16); }
+  function formatTimePart(d, includeMeridiem){
+    const text = d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit', hour12:true });
+    const compact = text.replace(':00', '');
+    return includeMeridiem ? compact : compact.replace(/\s?[AP]M$/i, '');
+  }
+  function formatTimeRange(start, end){
+    const startMeridiem = start.toLocaleTimeString(undefined, { hour12:true }).match(/[AP]M/i)?.[0];
+    const endMeridiem = end.toLocaleTimeString(undefined, { hour12:true }).match(/[AP]M/i)?.[0];
+    const sameMeridiem = startMeridiem && endMeridiem && startMeridiem.toUpperCase() === endMeridiem.toUpperCase();
+    return `${formatTimePart(start, !sameMeridiem)}-${formatTimePart(end, true)}`;
+  }
   function buildDate(dateStr, timeStr){ const [y,m,d]=dateStr.split('-').map(Number); const [hh,mm]=timeStr.split(':').map(Number); return new Date(y,m-1,d,hh,mm,0,0); }
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
+  function hasLocalOverlap(id, calendarId, start, end){
+    return cache.events.some(event => {
+      if (event.id === id || event.calendarId !== calendarId) return false;
+      return new Date(event.start) < end && start < new Date(event.end);
+    });
+  }
 
   /* ---------- FAST data layer (range cache) ---------- */
   const cache = { key: null, events: [] }; // events = [{id, calendarId, title, start, end}]
-  function rangeKey(){ return calendar.getDateRangeStart().toDate().toISOString() + '|' + calendar.getDateRangeEnd().toDate().toISOString(); }
+  const rangeStore = new Map();
+  const prefetchingRanges = new Set();
+  function cloneEvents(events){ return events.map(e => ({ ...e })); }
+  function keyForRange(start, end){ return `${start.toISOString()}|${end.toISOString()}`; }
+  function currentRange(){
+    const start = calendar.getDateRangeStart().toDate();
+    const end = calendar.getDateRangeEnd().toDate();
+    return { start, end, key: keyForRange(start, end) };
+  }
+  function rangeKey(){ return currentRange().key; }
+  function normalizeEvents(data){
+    return data.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, start:x.start, end:x.end }));
+  }
+  function rememberCurrentCache(){
+    if (cache.key) rangeStore.set(cache.key, cloneEvents(cache.events));
+  }
 
-  async function fetchRange(){
-    const s = calendar.getDateRangeStart().toDate().toISOString();
-    const e = calendar.getDateRangeEnd().toDate().toISOString();
+  async function fetchRangeFor(start, end){
+    const s = start.toISOString();
+    const e = end.toISOString();
     const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&timeMin=${encodeURIComponent(s)}&timeMax=${encodeURIComponent(e)}`);
     const json = await res.json();
     return Array.isArray(json) ? json : [];
   }
+  function formatRefreshTime(date = new Date()){
+    return date.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+  }
 
-  async function ensureRangeLoaded(){
-    const k = rangeKey();
-    if (cache.key === k && cache.events.length) return; // already loaded
-    showSpin(true);
-    const data = await fetchRange();
-    cache.key = k;
-    cache.events = data.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, start:x.start, end:x.end }));
-    // render all once
-    Cal.clear();
-    // avoid layout thrash: hide, add, show
-    document.getElementById('calendar').style.visibility = 'hidden';
-    Cal.add(cache.events.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, category:'time', start:new Date(x.start), end:new Date(x.end), isReadOnly:false })));
-    document.getElementById('calendar').style.visibility = '';
-    showSpin(false);
+  async function ensureRangeLoaded({ force = false, quiet = false } = {}){
+    const { start, end, key:k } = currentRange();
+    if (!force && rangeStore.has(k)) {
+      cache.key = k;
+      cache.events = cloneEvents(rangeStore.get(k));
+      setLoadError(false);
+      setRefreshStatus(`Loaded instantly from cache`);
+      prefetchAdjacentRanges();
+      return;
+    }
+    if (!force && cache.key === k && cache.events.length) return; // already loaded
+    const seq = ++rangeLoadSeq;
+    if (!quiet) showSpin(true);
+    try {
+      const data = await fetchRangeFor(start, end);
+      if (seq !== rangeLoadSeq || k !== rangeKey()) return;
+      setLoadError(false);
+      setRefreshStatus(`Updated ${formatRefreshTime()}`);
+      cache.key = k;
+      cache.events = normalizeEvents(data);
+      rememberCurrentCache();
+      // render all once
+      Cal.clear();
+      // avoid layout thrash: hide, add, show
+      document.getElementById('calendar').style.visibility = 'hidden';
+      Cal.add(cache.events.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, category:'time', start:new Date(x.start), end:new Date(x.end), isReadOnly:false })));
+      document.getElementById('calendar').style.visibility = '';
+    } catch (err) {
+      setLoadError(true);
+      setRefreshStatus('Refresh failed');
+      if (!quiet) toast('Could not load bookings.', 'err', 2600);
+      throw err;
+    } finally {
+      if (seq === rangeLoadSeq && !quiet) showSpin(false);
+    }
+  }
+
+  function prefetchAdjacentRanges(){
+    const { start, end } = currentRange();
+    const span = end.getTime() - start.getTime();
+    if (!span) return;
+    [-1, 1].forEach(direction => {
+      const nextStart = new Date(start.getTime() + direction * span);
+      const nextEnd = new Date(end.getTime() + direction * span);
+      const k = keyForRange(nextStart, nextEnd);
+      if (rangeStore.has(k) || prefetchingRanges.has(k)) return;
+      prefetchingRanges.add(k);
+      fetchRangeFor(nextStart, nextEnd)
+        .then(data => rangeStore.set(k, normalizeEvents(data)))
+        .catch(()=>{})
+        .finally(()=>prefetchingRanges.delete(k));
+    });
   }
 
   function renderRoom(room){
     activeRoom = room;
-    if (modalBg.style.display === 'flex') syncRoomBadge(room);
   
     // Re-render from cache: only events for the selected room
     const toRender = cache.events.filter(e => String(e.calendarId).startsWith(`${room}-`));
@@ -276,33 +428,76 @@
 
   /* ---------- API helper ---------- */
   async function postSimple(payload){
-    const res = await fetch(ENDPOINT, {
-      method:'POST',
-      headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: new URLSearchParams({ payload: JSON.stringify(payload), action: payload.action }).toString()
-    });
-    try { return await res.json(); } catch { return {}; }
+    try {
+      const res = await fetch(ENDPOINT, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+        body: new URLSearchParams({ payload: JSON.stringify(payload), action: payload.action }).toString()
+      });
+      try { return await res.json(); } catch { return {}; }
+    } catch (err) {
+      return { ok:false, error:'network' };
+    }
   }
 
   /* ---------- Toolbar + navigation (prefetch pattern) ---------- */
   function reloadRange(){
     setRangeTitle();
-    ensureRangeLoaded().then(()=> renderRoom(activeRoom));
+    const k = rangeKey();
+    if (rangeStore.has(k)) {
+      cache.key = k;
+      cache.events = cloneEvents(rangeStore.get(k));
+      renderRoom(activeRoom);
+      setRefreshStatus('Loaded instantly from cache');
+      ensureRangeLoaded({ force:true, quiet:true })
+        .then(()=>{ renderRoom(activeRoom); prefetchAdjacentRanges(); })
+        .catch(()=>{});
+      return;
+    }
+    ensureRangeLoaded()
+      .then(()=>{ renderRoom(activeRoom); prefetchAdjacentRanges(); })
+      .catch(()=>{});
+  }
+  async function autoRefreshRange(){
+    if (BUSY || modalBg.style.display === 'flex') {
+      setRefreshStatus('Live refresh paused while editing');
+      return;
+    }
+    const room = activeRoom;
+    try {
+      await ensureRangeLoaded({ force:true, quiet:true });
+      renderRoom(room);
+      prefetchAdjacentRanges();
+    } catch (err) {
+      // The inline retry banner is enough for background refresh failures.
+    }
   }
   document.getElementById('prev').onclick  = ()=>{ calendar.prev();  reloadRange(); };
   document.getElementById('today').onclick = ()=>{ calendar.today(); reloadRange(); };
   document.getElementById('next').onclick  = ()=>{ calendar.next();  reloadRange(); };
   document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); reloadRange(); };
   document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); reloadRange(); };
+  retryLoad.onclick = reloadRange;
 
   /* ---------- Tabs ---------- */
   document.querySelectorAll('#roomTabs .tab').forEach(tab=>{
-    tab.addEventListener('click', ()=>{
-      document.querySelectorAll('#roomTabs .tab').forEach(t=>t.classList.remove('active'));
+    const activate = ()=>{
+      if (modalBg.style.display === 'flex') return;
+      document.querySelectorAll('#roomTabs .tab').forEach(t=>{
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
       tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
       renderRoom(tab.dataset.room);
-      if (modalBg.style.display === 'flex') syncRoomBadge(tab.dataset.room);
       toast(`Viewing ${tab.dataset.room}`, 'ok', 800);
+    };
+    tab.addEventListener('click', activate);
+    tab.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        activate();
+      }
     });
   });
 
@@ -351,26 +546,78 @@
 
   /* ---------- Drag/Resize Edit (server-checked, optimistic) ---------- */
   calendar.on('beforeUpdateSchedule', async (ev)=>{
+    if (BUSY) {
+      toast('Finish the current save first.', 'warn', 1400);
+      return;
+    }
     const { schedule, changes } = ev;
     const newStart = (changes.start ? changes.start.toDate() : schedule.start.toDate());
     const newEnd   = (changes.end   ? changes.end.toDate()   : schedule.end.toDate());
     const newCalId = changes.calendarId || schedule.calendarId;
+    const title = changes.title || schedule.title;
 
-    // Optimistic update
-    const prev = { start:schedule.start.toDate(), end:schedule.end.toDate(), calendarId:schedule.calendarId, title:schedule.title };
-    Cal.update(schedule.id, schedule.calendarId, changes);
-
-    const resp = await postSimple({ action:'update', event:{ id: schedule.id, calendarId:newCalId, title: changes.title || schedule.title, start: newStart.toISOString(), end: newEnd.toISOString() }});
-    if (!resp || resp.ok !== true){
-      // revert
-      Cal.update(schedule.id, newCalId, { start:new Date(prev.start), end:new Date(prev.end), calendarId:prev.calendarId, title:prev.title });
-      toast(resp && resp.error === 'conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Update failed. Reverted.', resp && resp.error === 'conflict' ? 'warn' : 'err', 2200);
+    if (newEnd <= newStart) {
+      toast('End time must be after start time.', 'warn');
       return;
     }
-    // update cache
-    const idx = cache.events.findIndex(e=>e.id===schedule.id);
-    if (idx>=0){ cache.events[idx] = { id:schedule.id, calendarId:newCalId, title: schedule.title, start:newStart.toISOString(), end:newEnd.toISOString() }; }
-    toast('Updated.', 'ok', 900);
+    if (hasLocalOverlap(schedule.id, newCalId, newStart, newEnd)) {
+      toast('Conflict: that hood already has a booking.', 'warn', 2200);
+      renderRoom(activeRoom);
+      return;
+    }
+
+    BUSY = true;
+    showSpin(true);
+    setRefreshStatus('Saving time change...');
+
+    const prev = {
+      id: schedule.id,
+      calendarId: schedule.calendarId,
+      title: schedule.title,
+      start: schedule.start.toDate().toISOString(),
+      end: schedule.end.toDate().toISOString()
+    };
+    const next = {
+      id: schedule.id,
+      calendarId: newCalId,
+      title,
+      start: newStart.toISOString(),
+      end: newEnd.toISOString()
+    };
+
+    try {
+      // Optimistic update, using plain Date values so TUI gets a normalized payload.
+      Cal.update(schedule.id, schedule.calendarId, {
+        calendarId: newCalId,
+        title,
+        start: new Date(newStart),
+        end: new Date(newEnd)
+      });
+      const idx = cache.events.findIndex(e=>e.id===schedule.id);
+      if (idx>=0) cache.events[idx] = next;
+      else cache.events.push(next);
+      rememberCurrentCache();
+      renderRoom(activeRoom);
+      toast(`Updating to ${formatTimeRange(newStart, newEnd)}...`, 'ok', 1200);
+
+      const resp = await postSimple({ action:'update', event:{ ...next, previous: prev }});
+      if (!resp || resp.ok !== true){
+        const rollbackIdx = cache.events.findIndex(e=>e.id===schedule.id);
+        if (rollbackIdx>=0) cache.events[rollbackIdx] = prev;
+        else cache.events.push(prev);
+        rememberCurrentCache();
+        renderRoom(activeRoom);
+        toast(resp && resp.error === 'conflict' ? 'Conflict: that hood already has a booking.' : 'Update failed. Reverted.', resp && resp.error === 'conflict' ? 'warn' : 'err', 2200);
+        await ensureRangeLoaded({ force:true }).catch(()=>{});
+        renderRoom(activeRoom);
+      } else {
+        setRefreshStatus(`Updated ${formatRefreshTime()}`);
+        toast('Updated.', 'ok', 900);
+      }
+    } finally {
+      showSpin(false);
+      BUSY = false;
+    }
   });
 
   /* ---------- Modal actions ---------- */
@@ -382,10 +629,13 @@
   
     // Optimistic: close modal and remove immediately
     const id = editing.id;
+    const calendarId = editing.calendarId;
+    const previousEvent = cache.events.find(e => e.id === id);
     closeModal();
-    const curr = Cal.all().find(s => s.id === id);
-    if (curr) Cal.remove(id, curr.calendarId);
+    Cal.remove(id, calendarId);
     cache.events = cache.events.filter(e => e.id !== id);
+    rememberCurrentCache();
+    renderRoom(activeRoom);
   
     // Persist
     const res = await postSimple({ action:'delete', event:{ id } });
@@ -393,8 +643,13 @@
       toast('Deleted.', 'ok', 900);
     } else {
       toast('Delete failed. Reloading…', 'err', 1600);
+      if (previousEvent && !cache.events.some(e => e.id === id)) {
+        cache.events.push(previousEvent);
+        rememberCurrentCache();
+        renderRoom(activeRoom);
+      }
       // Recover by reloading the range and re-rendering the active room
-      await ensureRangeLoaded();
+      await ensureRangeLoaded({ force:true }).catch(()=>{});
       renderRoom(activeRoom);
     }
     BUSY = false; editing = null;
@@ -403,7 +658,7 @@
   saveBtn.onclick = async ()=>{
     if (BUSY) return;
     const name = nameEl.value.trim();
-    const room = activeRoom;           // locked to tab
+    const room = modalRoom;
     const hood = hoodEl.value;
     const calendarId = `${room}-${hood}`;
     const date = dateEl.value;
@@ -419,6 +674,9 @@
     const title = titleFor(name, room, hood);
     if (end <= start){ toast('End time must be after start time.', 'warn'); return; }
     if (end - start < 15*60*1000){ toast('Minimum booking is 15 minutes.', 'warn'); return; }
+    if (hasLocalOverlap(editing?.id || null, calendarId, start, end)){
+      toast('Possible overlap. Server will confirm availability.', 'warn', 2200);
+    }
     if (end <= now){ if(!confirm('This is in the past. Save anyway?')) return; }
   
     BUSY = true;
@@ -426,12 +684,15 @@
     // ---- EDIT EXISTING ----
     if (editing && editing.id){
       const id = editing.id;
+      const oldCalendarId = editing.calendarId;
   
       // Optimistic: close modal, update UI & cache first
       closeModal();
-      Cal.update(id, calendarId, { title, start, end, calendarId });
+      Cal.update(id, oldCalendarId, { title, start, end, calendarId });
       const ci = cache.events.findIndex(e => e.id === id);
       if (ci >= 0) cache.events[ci] = { id, calendarId, title, start: start.toISOString(), end: end.toISOString() };
+      rememberCurrentCache();
+      renderRoom(activeRoom);
   
       // Persist
       const resp = await postSimple({ action:'update', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
@@ -440,7 +701,7 @@
       } else {
         // Rollback on failure
         toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Update failed. Rolling back.', resp && resp.error==='conflict' ? 'warn' : 'err', 2000);
-        await ensureRangeLoaded();
+        await ensureRangeLoaded({ force:true }).catch(()=>{});
         renderRoom(activeRoom);
       }
       BUSY = false; editing = null; return;
@@ -453,6 +714,8 @@
     closeModal();
     Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
     cache.events.push({ id, calendarId, title, start: start.toISOString(), end: end.toISOString() });
+    rememberCurrentCache();
+    renderRoom(activeRoom);
   
     // Persist
     const resp = await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
@@ -465,7 +728,8 @@
       const s = Cal.all().find(x => x.id === id);
       if (s) Cal.remove(id, s.calendarId);
       cache.events = cache.events.filter(e => e.id !== id);
-      await ensureRangeLoaded();
+      rememberCurrentCache();
+      await ensureRangeLoaded({ force:true }).catch(()=>{});
       renderRoom(activeRoom);
     }
     BUSY = false; editing = null;
@@ -474,12 +738,14 @@
   /* ---------- Init ---------- */
   setRangeTitle();
   (async ()=>{
-    await ensureRangeLoaded();
+    await ensureRangeLoaded().catch(()=>{});
     ['TC1','TC2','TC3'].forEach(r => { /* warm: render & clear */
       const old = activeRoom; renderRoom(r); Cal.clear(); activeRoom = old;
     });
     renderRoom(activeRoom);
+    prefetchAdjacentRanges();
   })();
+  setInterval(autoRefreshRange, AUTO_REFRESH_MS);
 
 </script>
 </body>
