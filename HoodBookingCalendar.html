@@ -193,6 +193,9 @@
     week: { hourStart: 2, hourEnd: 24, workweek: false, narrowWeekend: true, startDayOfWeek: 1 },
     calendars: calDefs,
     template: {
+      timegridDisplayPrimaryTime: formatTuiPrimaryTime,
+      timegridDisplayPrimayTime: formatTuiPrimaryTime,
+      timegridDisplayTime: formatTuiGridTime,
       time: function(schedule) {
         const rawTitle = schedule.title || '';
         const rawName = rawTitle.split(' — ')[0] || rawTitle;
@@ -321,6 +324,28 @@
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[ch]));
   }
+  function tuiTimeParts(time){
+    return {
+      hour: Number(time?.hour ?? 0),
+      minutes: Number(time?.minutes ?? time?.minute ?? 0)
+    };
+  }
+  function formatTuiClock(time, showMinutes){
+    const { hour, minutes } = tuiTimeParts(time);
+    const date = new Date(2000, 0, 1, hour, minutes, 0, 0);
+    const text = date.toLocaleTimeString(undefined, {
+      hour:'numeric',
+      minute: showMinutes || minutes ? '2-digit' : undefined,
+      hour12:true
+    });
+    return text.replace(/\s?AM$/i, ' AM').replace(/\s?PM$/i, ' PM');
+  }
+  function formatTuiPrimaryTime(time){
+    return formatTuiClock(time, false);
+  }
+  function formatTuiGridTime(time){
+    return formatTuiClock(time, true);
+  }
   function uuid(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)}) }
   function setTabsLocked(locked){
     document.getElementById('roomTabs').classList.toggle('locked', locked);
@@ -379,6 +404,12 @@
     showBookingTooltip(eventEl.dataset.tooltip || '', ev.clientX, ev.clientY);
   });
   document.getElementById('calendar').addEventListener('mouseleave', hideBookingTooltip);
+  const guideLabelObserver = new MutationObserver(normalizeGuideTimeLabels);
+  guideLabelObserver.observe(document.getElementById('calendar'), {
+    childList:true,
+    subtree:true,
+    characterData:true
+  });
 
   function toLocalDateInputValue(d){ const t = new Date(d); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(0,10); }
   function toLocalTimeInputValue(d){ const t = new Date(d); t.setMinutes(t.getMinutes()-t.getTimezoneOffset()); return t.toISOString().slice(11,16); }
@@ -392,6 +423,37 @@
     const endMeridiem = end.toLocaleTimeString(undefined, { hour12:true }).match(/[AP]M/i)?.[0];
     const sameMeridiem = startMeridiem && endMeridiem && startMeridiem.toUpperCase() === endMeridiem.toUpperCase();
     return `${formatTimePart(start, !sameMeridiem)}-${formatTimePart(end, true)}`;
+  }
+  function formatHourMinute(hour, minutes){
+    const date = new Date(2000, 0, 1, Number(hour), Number(minutes), 0, 0);
+    return date.toLocaleTimeString(undefined, {
+      hour:'numeric',
+      minute:Number(minutes) ? '2-digit' : undefined,
+      hour12:true
+    }).replace(/\s?AM$/i, ' AM').replace(/\s?PM$/i, ' PM');
+  }
+  function replaceMilitaryTimeRanges(text){
+    return String(text).replace(/\b([01]?\d|2[0-3]):([0-5]\d)\s*-\s*([01]?\d|2[0-3]):([0-5]\d)\b/g, (match, h1, m1, h2, m2) => {
+      return `${formatHourMinute(h1, m1)} - ${formatHourMinute(h2, m2)}`;
+    });
+  }
+  function normalizeGuideTimeLabels(){
+    const root = document.getElementById('calendar');
+    if (!root) return;
+    const guides = root.querySelectorAll([
+      '.tui-full-calendar-timegrid-guide',
+      '.tui-full-calendar-timegrid-guide-creation',
+      '.tui-full-calendar-time-guide-creation'
+    ].join(','));
+    guides.forEach(guide => {
+      const walker = document.createTreeWalker(guide, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(node => {
+        const next = replaceMilitaryTimeRanges(node.nodeValue);
+        if (next !== node.nodeValue) node.nodeValue = next;
+      });
+    });
   }
   function formatIcsDate(date){
     return new Date(date).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
