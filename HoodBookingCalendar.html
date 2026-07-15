@@ -18,20 +18,17 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="page-header">
-    <a class="btn portal-btn" href="https://rileylab.github.io/">Go back to Portal</a>
-    <div class="header-main">
-      <button class="btn primary" id="newBooking">+ New booking</button>
-    </div>
-    <div></div>
-  </div>
+  <h1 class="page-title">Riley Lab TC Hood Booking</h1>
 
   <div class="calendar-controls">
     <!-- BIG room tabs -->
-    <div class="tabs" id="roomTabs" role="tablist" aria-label="TC room">
-      <div class="tab active" data-room="TC1" role="tab" tabindex="0" aria-selected="true"><span class="dot"></span>TC1</div>
-      <div class="tab" data-room="TC2" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC2</div>
-      <div class="tab" data-room="TC3" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC3</div>
+    <div class="room-nav">
+      <a class="btn portal-btn" href="https://rileylab.github.io/">Go back to Portal</a>
+      <div class="tabs" id="roomTabs" role="tablist" aria-label="TC room">
+        <div class="tab active" data-room="TC1" role="tab" tabindex="0" aria-selected="true"><span class="dot"></span>TC1</div>
+        <div class="tab" data-room="TC2" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC2</div>
+        <div class="tab" data-room="TC3" role="tab" tabindex="0" aria-selected="false"><span class="dot"></span>TC3</div>
+      </div>
     </div>
 
     <div class="toolbar-actions">
@@ -41,6 +38,34 @@
       <button class="btn" id="next">›</button>
       <button class="btn view-week" id="week">Week</button>
       <button class="btn view-day" id="day">Day</button>
+      <button class="btn primary" id="newBooking">+ New booking</button>
+    </div>
+  </div>
+
+  <div class="slot-finder collapsed" id="slotFinder">
+    <button class="slot-finder-toggle" id="slotFinderToggle" type="button" aria-expanded="false" aria-controls="slotFinderPanel">
+      <span>Quick Find Availability!</span>
+      <span class="slot-finder-icon">⌄</span>
+    </button>
+    <div class="slot-finder-panel" id="slotFinderPanel">
+      <div class="slot-finder-fields">
+      <div class="field compact">
+        <label for="slotDate">Date</label>
+        <input id="slotDate" type="date">
+      </div>
+      <div class="field compact">
+        <label for="slotDuration">Duration</label>
+        <select id="slotDuration">
+          <option value="30">30 min</option>
+          <option value="60" selected>1 hour</option>
+          <option value="90">1.5 hours</option>
+          <option value="120">2 hours</option>
+          <option value="180">3 hours</option>
+        </select>
+      </div>
+      <button class="btn muted" id="refreshSlots">Find slots</button>
+      </div>
+      <div class="slot-results" id="slotResults"></div>
     </div>
   </div>
 
@@ -58,6 +83,17 @@
 <!-- Spinner & Toast -->
 <div id="spinner">Saving…</div>
 <div id="toast"></div>
+<div id="calendarPrompt" class="calendar-prompt hidden">
+  <div>
+    <strong>Booking saved.</strong>
+    <span>Add it to your calendar?</span>
+  </div>
+  <div class="calendar-prompt-actions">
+    <button class="btn primary" id="googleCalendarBtn">Google Calendar</button>
+    <button class="btn muted" id="icsCalendarBtn">Download .ics</button>
+    <button class="btn muted" id="dismissCalendarPrompt">Dismiss</button>
+  </div>
+</div>
 <div id="bookingTooltip" class="booking-tooltip hidden"></div>
 
 <!-- Modal (Create/Edit) -->
@@ -104,8 +140,26 @@
       </div>
     </div>
 
+    <div class="booking-options" id="createOptions">
+      <div class="field compact">
+        <label for="repeatWeeks">Repeat weekly</label>
+        <select id="repeatWeeks">
+          <option value="1">Does not repeat</option>
+          <option value="2">2 weeks</option>
+          <option value="4">4 weeks</option>
+          <option value="8">8 weeks</option>
+          <option value="12">12 weeks</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="availability-box" id="availabilityBox"></div>
+    <div class="suggestions" id="suggestions"></div>
+
     <div class="modal-actions">
       <button class="btn muted" id="cancelBtn">Cancel</button>
+      <button class="btn muted hidden" id="extendBtn">+30 min</button>
+      <button class="btn muted hidden" id="exportBtn">Google Calendar</button>
       <button class="btn danger hidden" id="deleteBtn">Delete</button>
       <button class="btn primary" id="saveBtn">Save</button>
     </div>
@@ -149,13 +203,14 @@
         const end = schedule.end?.toDate ? schedule.end.toDate() : new Date(schedule.end);
         const timeLabel = escapeHtml(formatTimeRange(start, end));
         const fullLabel = escapeHtml(`${rawName} · ${formatTimeRange(start, end)} · ${(schedule.calendarId || '').replace('-', '/Hood ')}`);
-  
+        const isPast = end < new Date();
+
         // room color from CSS vars
         const roomColor = getComputedStyle(document.documentElement)
           .getPropertyValue(`--${room}`).trim() || '#2563eb';
-  
+
         return `
-          <div class="booking-event" data-tooltip="${fullLabel}" style="--booking-color:${roomColor}">
+          <div class="booking-event${isPast ? ' is-past' : ''}" data-tooltip="${fullLabel}" style="--booking-color:${roomColor}">
             <div class="booking-rail"></div>
             <div class="booking-body">
               <div class="booking-name">${name}</div>
@@ -197,6 +252,22 @@
   const saveBtn   = document.getElementById('saveBtn');
   const cancelBtn = document.getElementById('cancelBtn');
   const deleteBtn = document.getElementById('deleteBtn');
+  const extendBtn = document.getElementById('extendBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const createOptions = document.getElementById('createOptions');
+  const repeatWeeksEl = document.getElementById('repeatWeeks');
+  const availabilityBox = document.getElementById('availabilityBox');
+  const suggestionsEl = document.getElementById('suggestions');
+  const slotDateEl = document.getElementById('slotDate');
+  const slotDurationEl = document.getElementById('slotDuration');
+  const refreshSlotsBtn = document.getElementById('refreshSlots');
+  const slotResults = document.getElementById('slotResults');
+  const slotFinder = document.getElementById('slotFinder');
+  const slotFinderToggle = document.getElementById('slotFinderToggle');
+  const calendarPrompt = document.getElementById('calendarPrompt');
+  const googleCalendarBtn = document.getElementById('googleCalendarBtn');
+  const icsCalendarBtn = document.getElementById('icsCalendarBtn');
+  const dismissCalendarPrompt = document.getElementById('dismissCalendarPrompt');
   const spinner   = document.getElementById('spinner');
   const newBtn    = document.getElementById('newBooking');
   const toastEl   = document.getElementById('toast');
@@ -217,6 +288,7 @@
     modalRoom = room;
     roomEl.value = room;
     roomEl.className = 'room-select ' + room.toLowerCase(); // tc1/tc2/tc3 class for colors
+    updateAvailabilityPreview();
   }
   roomEl.addEventListener('change', ()=>syncRoomBadge(roomEl.value));
   function showSpin(v){ spinner.style.display = v ? 'block' : 'none'; }
@@ -260,17 +332,22 @@
     modalTitle.textContent = title;
     modalBg.style.display = 'flex';
     setTabsLocked(true);
-  
+
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
     startEl.value = preset?.start || '';
     endEl.value   = preset?.end || '';
-  
+
     const room = preset?.room || activeRoom || 'TC1';
     syncRoomBadge(room);
-  
+
     hoodEl.value  = preset?.hood || '1';
+    repeatWeeksEl.value = preset?.repeatWeeks || '1';
+    createOptions.classList.toggle('hidden', preset?.mode === 'edit');
     deleteBtn.classList.toggle('hidden', preset?.mode !== 'edit');
+    extendBtn.classList.toggle('hidden', preset?.mode !== 'edit');
+    exportBtn.classList.toggle('hidden', preset?.mode !== 'edit');
+    updateAvailabilityPreview();
     setTimeout(()=>nameEl.focus(), 0);
   }
   function closeModal(){
@@ -288,6 +365,10 @@
       editing = null;
       closeModal();
     }
+  });
+  [nameEl, dateEl, startEl, endEl, hoodEl, repeatWeeksEl].forEach(el => {
+    el.addEventListener('input', updateAvailabilityPreview);
+    el.addEventListener('change', updateAvailabilityPreview);
   });
   document.getElementById('calendar').addEventListener('mousemove', ev => {
     const eventEl = ev.target.closest('.booking-event');
@@ -312,12 +393,138 @@
     const sameMeridiem = startMeridiem && endMeridiem && startMeridiem.toUpperCase() === endMeridiem.toUpperCase();
     return `${formatTimePart(start, !sameMeridiem)}-${formatTimePart(end, true)}`;
   }
+  function formatIcsDate(date){
+    return new Date(date).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+  }
+  function escapeIcsText(value){
+    return String(value ?? '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+  }
+  function downloadIcs(events, filename = 'hood-booking.ics'){
+    if (!events.length) return;
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Riley Lab//TC Hood Booking//EN',
+      'CALSCALE:GREGORIAN'
+    ];
+    events.forEach(event => {
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${escapeIcsText(event.id)}@rileylab.github.io`,
+        `DTSTAMP:${formatIcsDate(new Date())}`,
+        `DTSTART:${formatIcsDate(event.start)}`,
+        `DTEND:${formatIcsDate(event.end)}`,
+        `SUMMARY:${escapeIcsText(event.title || 'TC Hood Booking')}`,
+        `LOCATION:${escapeIcsText((event.calendarId || '').replace('-', '/Hood '))}`,
+        'END:VEVENT'
+      );
+    });
+    lines.push('END:VCALENDAR');
+    const blob = new Blob([lines.join('\r\n')], { type:'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+  function googleCalendarUrl(event){
+    const title = event.title || 'TC Hood Booking';
+    const location = (event.calendarId || '').replace('-', '/Hood ');
+    const details = `Riley Lab TC Hood Booking\n${location}`;
+    const params = new URLSearchParams({
+      action:'TEMPLATE',
+      text:title,
+      dates:`${formatIcsDate(event.start)}/${formatIcsDate(event.end)}`,
+      location,
+      details
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+  function openGoogleCalendar(event){
+    window.open(googleCalendarUrl(event), '_blank', 'noopener');
+  }
+  function showCalendarPrompt(event){
+    calendarPrompt._event = event;
+    calendarPrompt.classList.remove('hidden');
+    clearTimeout(calendarPrompt._t);
+    calendarPrompt._t = setTimeout(()=>calendarPrompt.classList.add('hidden'), 15000);
+  }
   function buildDate(dateStr, timeStr){ const [y,m,d]=dateStr.split('-').map(Number); const [hh,mm]=timeStr.split(':').map(Number); return new Date(y,m-1,d,hh,mm,0,0); }
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
   function hasLocalOverlap(id, calendarId, start, end){
     return cache.events.some(event => {
       if (event.id === id || event.calendarId !== calendarId) return false;
       return new Date(event.start) < end && start < new Date(event.end);
+    });
+  }
+  function modalDateRange(){
+    if (!dateEl.value || !startEl.value || !endEl.value) return null;
+    const start = buildDate(dateEl.value, startEl.value);
+    const end = buildDate(dateEl.value, endEl.value);
+    return end > start ? { start, end } : null;
+  }
+  function findAlternatives(room, durationMs, dateStr, limit = 4){
+    if (!dateStr || !durationMs) return [];
+    const day = buildDate(dateStr, '06:00');
+    const today = toLocalDateInputValue(new Date());
+    if (dateStr === today) {
+      const now = new Date();
+      now.setMinutes(Math.ceil(now.getMinutes()/15)*15,0,0);
+      if (now > day) day.setTime(now.getTime());
+    }
+    const latestStart = buildDate(dateStr, '23:45');
+    const results = [];
+    for (let cursor = new Date(day); cursor <= latestStart && results.length < limit; cursor = new Date(cursor.getTime() + 15*60*1000)) {
+      const start = new Date(cursor);
+      const end = new Date(start.getTime() + durationMs);
+      if (end.getDate() !== start.getDate()) continue;
+      for (const hood of ['1','2','3']) {
+        const calendarId = `${room}-${hood}`;
+        if (!hasLocalOverlap(editing?.id || null, calendarId, start, end)) {
+          results.push({ room, hood, start, end });
+          break;
+        }
+      }
+    }
+    return results;
+  }
+  function updateAvailabilityPreview(){
+    if (!availabilityBox || modalBg.style.display !== 'flex') return;
+    suggestionsEl.innerHTML = '';
+    availabilityBox.className = 'availability-box';
+    availabilityBox.textContent = '';
+    const range = modalDateRange();
+    if (!range) {
+      availabilityBox.classList.add('warn');
+      availabilityBox.textContent = 'Pick a valid start and end time to check availability.';
+      return;
+    }
+    const room = modalRoom || roomEl.value;
+    const hood = hoodEl.value;
+    const hasConflict = hasLocalOverlap(editing?.id || null, `${room}-${hood}`, range.start, range.end);
+    if (!hasConflict) {
+      availabilityBox.classList.add('ok');
+      availabilityBox.textContent = `Available for ${room}/Hood ${hood}.`;
+      return;
+    }
+    availabilityBox.classList.add('warn');
+    availabilityBox.textContent = `Conflict on Hood ${hood}. Try one of these openings:`;
+    const durationMs = range.end - range.start;
+    findAlternatives(room, durationMs, dateEl.value).forEach(option => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'suggestion-btn';
+      btn.textContent = `Hood ${option.hood}, ${formatTimeRange(option.start, option.end)}`;
+      btn.addEventListener('click', () => {
+        hoodEl.value = option.hood;
+        startEl.value = toLocalTimeInputValue(option.start);
+        endEl.value = toLocalTimeInputValue(option.end);
+        updateAvailabilityPreview();
+      });
+      suggestionsEl.appendChild(btn);
     });
   }
 
@@ -331,6 +538,10 @@
     const start = calendar.getDateRangeStart().toDate();
     const end = calendar.getDateRangeEnd().toDate();
     return { start, end, key: keyForRange(start, end) };
+  }
+  function eventIntersectsCurrentRange(event){
+    const { start, end } = currentRange();
+    return new Date(event.start) < end && start < new Date(event.end);
   }
   function rangeKey(){ return currentRange().key; }
   function normalizeEvents(data){
@@ -407,10 +618,10 @@
 
   function renderRoom(room){
     activeRoom = room;
-  
+
     // Re-render from cache: only events for the selected room
     const toRender = cache.events.filter(e => String(e.calendarId).startsWith(`${room}-`));
-  
+
     // Fast redraw without thrash
     Cal.clear();
     document.getElementById('calendar').style.visibility = 'hidden';
@@ -424,6 +635,60 @@
       isReadOnly: false
     })));
     document.getElementById('calendar').style.visibility = '';
+    renderAvailableSlots();
+  }
+
+  function slotsForDay(room, dateStr, durationMinutes){
+    if (!dateStr) return [];
+    const durationMs = Number(durationMinutes || 60) * 60 * 1000;
+    const dayStart = buildDate(dateStr, '06:00');
+    const today = toLocalDateInputValue(new Date());
+    if (dateStr === today) {
+      const now = new Date();
+      now.setMinutes(Math.ceil(now.getMinutes()/30)*30,0,0);
+      if (now > dayStart) dayStart.setTime(now.getTime());
+    }
+    const dayEnd = buildDate(dateStr, '23:59');
+    const slots = [];
+    for (let start = new Date(dayStart); start.getTime() + durationMs <= dayEnd.getTime() && slots.length < 18; start = new Date(start.getTime() + 30*60*1000)) {
+      const end = new Date(start.getTime() + durationMs);
+      ['1','2','3'].forEach(hood => {
+        const calendarId = `${room}-${hood}`;
+        if (!hasLocalOverlap(null, calendarId, start, end)) {
+          slots.push({ room, hood, start:new Date(start), end });
+        }
+      });
+    }
+    return slots;
+  }
+  function renderAvailableSlots(){
+    if (slotFinder?.classList.contains('collapsed')) return;
+    if (!slotResults || !slotDateEl.value) return;
+    const slots = slotsForDay(activeRoom, slotDateEl.value, slotDurationEl.value);
+    slotResults.innerHTML = '';
+    if (!slots.length) {
+      slotResults.innerHTML = '<div class="slot-empty">No open slots found for this room and duration.</div>';
+      return;
+    }
+    slots.slice(0, 12).forEach(slot => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'slot-chip';
+      btn.innerHTML = `${formatTimeRange(slot.start, slot.end)}<span>${slot.room}/Hood ${slot.hood}</span>`;
+      btn.addEventListener('click', () => {
+        openModal('New Booking', {
+          mode:'create',
+          name:'',
+          date: toLocalDateInputValue(slot.start),
+          start: toLocalTimeInputValue(slot.start),
+          end: toLocalTimeInputValue(slot.end),
+          room: slot.room,
+          hood: slot.hood
+        });
+        editing = { id:null };
+      });
+      slotResults.appendChild(btn);
+    });
   }
 
   /* ---------- API helper ---------- */
@@ -438,6 +703,57 @@
     } catch (err) {
       return { ok:false, error:'network' };
     }
+  }
+  function eventFromModal(id, room, hood, start, end, name){
+    return {
+      id,
+      calendarId: `${room}-${hood}`,
+      title: titleFor(name, room, hood),
+      start: start.toISOString(),
+      end: end.toISOString()
+    };
+  }
+  function addDays(date, days){
+    const next = new Date(date);
+    next.setDate(next.getDate() + days);
+    return next;
+  }
+  function generatedCreateEvents(){
+    const name = nameEl.value.trim();
+    const room = modalRoom;
+    const range = modalDateRange();
+    if (!range) return [];
+    const repeatWeeks = Math.max(1, Number(repeatWeeksEl.value || 1));
+    const hood = hoodEl.value;
+    const events = [];
+    for (let week = 0; week < repeatWeeks; week++) {
+      const start = addDays(range.start, week * 7);
+      const end = addDays(range.end, week * 7);
+      events.push(eventFromModal(uuid(), room, hood, start, end, name));
+    }
+    return events;
+  }
+  function renderEventObject(event){
+    return {
+      id: event.id,
+      calendarId: event.calendarId,
+      title: event.title,
+      category:'time',
+      start:new Date(event.start),
+      end:new Date(event.end),
+      isReadOnly:false
+    };
+  }
+  async function persistCreatedEvents(events){
+    const saved = [];
+    for (const event of events) {
+      const resp = await postSimple({ action:'create', event });
+      if (!resp || resp.ok !== true) {
+        return { ok:false, error: resp?.error || 'network', saved };
+      }
+      saved.push(event);
+    }
+    return { ok:true, saved };
   }
 
   /* ---------- Toolbar + navigation (prefetch pattern) ---------- */
@@ -477,6 +793,25 @@
   document.getElementById('next').onclick  = ()=>{ calendar.next();  reloadRange(); };
   document.getElementById('week').onclick  = ()=>{ calendar.changeView('week',true); reloadRange(); };
   document.getElementById('day').onclick   = ()=>{ calendar.changeView('day', true); reloadRange(); };
+  refreshSlotsBtn.onclick = renderAvailableSlots;
+  slotDateEl.addEventListener('change', renderAvailableSlots);
+  slotDurationEl.addEventListener('change', renderAvailableSlots);
+  slotFinderToggle.onclick = ()=>{
+    const collapsed = slotFinder.classList.toggle('collapsed');
+    slotFinderToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    if (!collapsed) renderAvailableSlots();
+  };
+  googleCalendarBtn.onclick = ()=>{
+    if (!calendarPrompt._event) return;
+    openGoogleCalendar(calendarPrompt._event);
+    calendarPrompt.classList.add('hidden');
+  };
+  icsCalendarBtn.onclick = ()=>{
+    if (!calendarPrompt._event) return;
+    downloadIcs([calendarPrompt._event], 'hood-booking.ics');
+    calendarPrompt.classList.add('hidden');
+  };
+  dismissCalendarPrompt.onclick = ()=>calendarPrompt.classList.add('hidden');
   retryLoad.onclick = reloadRange;
 
   /* ---------- Tabs ---------- */
@@ -620,13 +955,36 @@
     }
   });
 
+  extendBtn.onclick = async ()=>{
+    if (!editing?.id || BUSY) return;
+    const range = modalDateRange();
+    if (!range) return;
+    const end = new Date(range.end.getTime() + 30*60*1000);
+    endEl.value = toLocalTimeInputValue(end);
+    updateAvailabilityPreview();
+    toast('Extended by 30 minutes. Save to confirm.', 'ok', 1200);
+  };
+
+  exportBtn.onclick = ()=>{
+    if (!editing?.id) return;
+    const range = modalDateRange();
+    if (!range) return;
+    openGoogleCalendar({
+      id: editing.id,
+      calendarId: `${modalRoom}-${hoodEl.value}`,
+      title: titleFor(nameEl.value.trim(), modalRoom, hoodEl.value),
+      start: range.start,
+      end: range.end
+    });
+  };
+
   /* ---------- Modal actions ---------- */
   cancelBtn.onclick = ()=>{ editing=null; closeModal(); };
 
   deleteBtn.onclick = async ()=>{
     if (!editing?.id || BUSY) return;
     BUSY = true;
-  
+
     // Optimistic: close modal and remove immediately
     const id = editing.id;
     const calendarId = editing.calendarId;
@@ -636,7 +994,7 @@
     cache.events = cache.events.filter(e => e.id !== id);
     rememberCurrentCache();
     renderRoom(activeRoom);
-  
+
     // Persist
     const res = await postSimple({ action:'delete', event:{ id } });
     if (res && res.ok){
@@ -664,10 +1022,10 @@
     const date = dateEl.value;
     const sTime = startEl.value;
     const eTime = endEl.value;
-  
+
     if (!name){ toast('Please enter your name.', 'warn'); return; }
     if (!date || !sTime || !eTime){ toast('Pick a date and start/end times.', 'warn'); return; }
-  
+
     const start = buildDate(date, sTime);
     const end   = buildDate(date, eTime);
     const now   = new Date();
@@ -678,14 +1036,14 @@
       toast('Possible overlap. Server will confirm availability.', 'warn', 2200);
     }
     if (end <= now){ if(!confirm('This is in the past. Save anyway?')) return; }
-  
+
     BUSY = true;
-  
+
     // ---- EDIT EXISTING ----
     if (editing && editing.id){
       const id = editing.id;
       const oldCalendarId = editing.calendarId;
-  
+
       // Optimistic: close modal, update UI & cache first
       closeModal();
       Cal.update(id, oldCalendarId, { title, start, end, calendarId });
@@ -693,7 +1051,7 @@
       if (ci >= 0) cache.events[ci] = { id, calendarId, title, start: start.toISOString(), end: end.toISOString() };
       rememberCurrentCache();
       renderRoom(activeRoom);
-  
+
       // Persist
       const resp = await postSimple({ action:'update', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
       if (resp && resp.ok){
@@ -706,28 +1064,49 @@
       }
       BUSY = false; editing = null; return;
     }
-  
-    // ---- CREATE NEW ----
-    const id = uuid();
-  
+
+    // ---- CREATE NEW / RECURRING ----
+    const events = generatedCreateEvents();
+    if (!events.length) {
+      toast('Could not build that booking.', 'err');
+      BUSY = false;
+      return;
+    }
+    const conflicting = events.filter(event => hasLocalOverlap(null, event.calendarId, new Date(event.start), new Date(event.end)));
+    if (conflicting.length) {
+      const proceed = confirm(`${conflicting.length} generated booking(s) may conflict. Try to save anyway?`);
+      if (!proceed) {
+        BUSY = false;
+        return;
+      }
+    }
+
     // Optimistic: close modal, add to UI & cache first
     closeModal();
-    Cal.add([{ id, calendarId, title, category:'time', start, end, isReadOnly:false }]);
-    cache.events.push({ id, calendarId, title, start: start.toISOString(), end: end.toISOString() });
+    const visibleEvents = events.filter(eventIntersectsCurrentRange);
+    Cal.add(visibleEvents.map(renderEventObject));
+    cache.events.push(...visibleEvents);
     rememberCurrentCache();
     renderRoom(activeRoom);
-  
+
     // Persist
-    const resp = await postSimple({ action:'create', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
-    if (resp && resp.ok){
-      toast('Saved.', 'ok', 900);
+    const result = await persistCreatedEvents(events);
+    if (result.ok){
+      toast(events.length === 1 ? 'Saved.' : `Saved ${events.length} bookings.`, 'ok', 1200);
+      if (events.length === 1) {
+        showCalendarPrompt({ ...events[0], start:new Date(events[0].start), end:new Date(events[0].end) });
+      } else {
+        calendarPrompt._event = null;
+        calendarPrompt.classList.add('hidden');
+        downloadIcs(events.map(event => ({ ...event, start:new Date(event.start), end:new Date(event.end) })), 'hood-bookings.ics');
+      }
     } else {
-      // Rollback on failure
-      toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Create failed. Rolling back.', resp && resp.error==='conflict' ? 'warn' : 'err', 2000);
-      // Remove optimistic one and refresh
-      const s = Cal.all().find(x => x.id === id);
-      if (s) Cal.remove(id, s.calendarId);
-      cache.events = cache.events.filter(e => e.id !== id);
+      // Rollback generated bookings on failure
+      toast(result.error==='conflict' ? 'Conflict while saving. Rolling back.' : 'Create failed. Rolling back.', result.error==='conflict' ? 'warn' : 'err', 2200);
+      await Promise.all((result.saved || []).map(event => postSimple({ action:'delete', event:{ id:event.id } }).catch(()=>null)));
+      const ids = new Set(events.map(event => event.id));
+      events.forEach(event => Cal.remove(event.id, event.calendarId));
+      cache.events = cache.events.filter(event => !ids.has(event.id));
       rememberCurrentCache();
       await ensureRangeLoaded({ force:true }).catch(()=>{});
       renderRoom(activeRoom);
@@ -736,6 +1115,7 @@
   };
 
   /* ---------- Init ---------- */
+  slotDateEl.value = toLocalDateInputValue(new Date());
   setRangeTitle();
   (async ()=>{
     await ensureRangeLoaded().catch(()=>{});
