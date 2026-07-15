@@ -379,15 +379,24 @@
     modalBg.style.display = 'none';
     setTabsLocked(false);
   }
+  function clearCreationGuide(){
+    document.getElementById('calendar').querySelectorAll([
+      '.tui-full-calendar-timegrid-guide',
+      '.tui-full-calendar-timegrid-guide-creation',
+      '.tui-full-calendar-time-guide-creation'
+    ].join(',')).forEach(el => el.remove());
+  }
   modalBg.addEventListener('click', ev => {
     if (ev.target === modalBg && !BUSY) {
       editing = null;
+      clearCreationGuide();
       closeModal();
     }
   });
   document.addEventListener('keydown', ev => {
     if (ev.key === 'Escape' && modalBg.style.display === 'flex' && !BUSY) {
       editing = null;
+      clearCreationGuide();
       closeModal();
     }
   });
@@ -1041,7 +1050,11 @@
   };
 
   /* ---------- Modal actions ---------- */
-  cancelBtn.onclick = ()=>{ editing=null; closeModal(); };
+  cancelBtn.onclick = ()=>{
+    editing=null;
+    clearCreationGuide();
+    closeModal();
+  };
 
   deleteBtn.onclick = async ()=>{
     if (!editing?.id || BUSY) return;
