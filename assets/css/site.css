@@ -391,8 +391,30 @@ html.page-hood-booking{
     /* Modal polish */
     html.page-hood-booking .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:9999}
     html.page-hood-booking .modal{
+      position:relative;
       width:min(720px,94vw); background:#fff; border-radius:18px;
       box-shadow:0 24px 64px rgba(0,0,0,.25); padding:22px 22px 18px;
+    }
+    html.page-hood-booking .modal-close{
+      position:absolute;
+      top:14px;
+      right:14px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:30px;
+      height:30px;
+      border:0;
+      border-radius:999px;
+      background:transparent;
+      color:#64748b;
+      cursor:pointer;
+      font-size:24px;
+      line-height:1;
+    }
+    html.page-hood-booking .modal-close:hover{
+      background:#f1f5f9;
+      color:#0f172a;
     }
     html.page-hood-booking .modal h3{margin:0 0 14px 0; font-size:22px; letter-spacing:.2px}
     html.page-hood-booking .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -439,6 +461,31 @@ html.page-hood-booking{
       gap:8px;
       flex-wrap:wrap;
       margin-top:8px;
+    }
+    html.page-hood-booking .conflict-item{
+      flex:1 1 100%;
+      display:grid;
+      gap:6px;
+      padding:10px;
+      border:1px solid #fbbf24;
+      border-radius:10px;
+      background:#fffaf0;
+    }
+    html.page-hood-booking .conflict-title{
+      color:#7c2d12;
+      font-size:13px;
+      font-weight:850;
+    }
+    html.page-hood-booking .conflict-existing,
+    html.page-hood-booking .conflict-none{
+      color:#92400e;
+      font-size:12px;
+      font-weight:700;
+    }
+    html.page-hood-booking .conflict-alternatives{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
     }
     html.page-hood-booking .suggestion-btn{
       padding:7px 9px;
@@ -528,6 +575,29 @@ html.page-hood-booking{
 	      background:rgba(37,99,235,.12) !important;
 	      box-shadow:inset 0 0 0 1px rgba(255,255,255,.75), 0 6px 18px rgba(37,99,235,.16) !important;
 	    }
+	    html.page-hood-booking .multi-day-drag-layer{
+	      position:fixed;
+	      inset:0;
+	      z-index:9998;
+	      pointer-events:none;
+	    }
+	    html.page-hood-booking .multi-day-drag-box{
+	      position:fixed;
+	      border:2px dashed #2563eb;
+	      border-radius:8px;
+	      background:rgba(37,99,235,.14);
+	      box-shadow:inset 0 0 0 1px rgba(255,255,255,.75), 0 6px 18px rgba(37,99,235,.16);
+	    }
+	    html.page-hood-booking .multi-day-drag-label{
+	      position:absolute;
+	      left:6px;
+	      bottom:4px;
+	      color:#2563eb;
+	      font-size:12px;
+	      font-weight:850;
+	      line-height:1;
+	      white-space:nowrap;
+	    }
 	    html.page-hood-booking .tui-full-calendar-time-guide-resize-handler{
 	      display:block !important;
 	      background:#2563eb !important;
@@ -546,6 +616,7 @@ html.page-hood-booking{
 
     /* Consistent field spacing + no overlap from icons */
     html.page-hood-booking .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+    html.page-hood-booking .field.span-2{grid-column:1 / -1}
 
     html.page-hood-booking input[type="text"],html.page-hood-booking input[type="date"],html.page-hood-booking input[type="time"],html.page-hood-booking select{
       width:100%;
