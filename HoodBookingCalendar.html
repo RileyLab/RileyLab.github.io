@@ -303,7 +303,11 @@
     updateAvailabilityPreview();
   }
   roomEl.addEventListener('change', ()=>syncRoomBadge(roomEl.value));
-  function showSpin(v){ spinner.style.display = v ? 'block' : 'none'; }
+  function showSpin(v, text = 'Saving…'){
+    spinner.textContent = text;
+    spinner.classList.toggle('is-prefill-loading', text !== 'Saving…');
+    spinner.style.display = v ? 'block' : 'none';
+  }
   function toast(msg, type='ok', ms=1700){
     toastEl.className = ''; toastEl.classList.add(type);
     toastEl.textContent = msg; toastEl.style.display='flex';
@@ -1082,6 +1086,53 @@
     renderAvailableSlots();
   }
 
+  function activateRoom(room, { announce = true } = {}){
+    if (!['TC1','TC2','TC3'].includes(room)) return;
+    if (modalBg.style.display === 'flex') return;
+    document.querySelectorAll('#roomTabs .tab').forEach(t=>{
+      const active = t.dataset.room === room;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    renderRoom(room);
+    if (announce) toast(`Viewing ${room}`, 'ok', 800);
+  }
+
+  function initialBookingFromUrl(){
+    const params = new URLSearchParams(location.search);
+    const room = params.get('room');
+    const hood = params.get('hood');
+    const date = params.get('date');
+    const start = params.get('start');
+    const end = params.get('end');
+    if (!['TC1','TC2','TC3'].includes(room)) return null;
+    if (!['1','2','3'].includes(hood)) return null;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return null;
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(start || '')) return null;
+    if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(end || '')) return null;
+    return { room, hood, date, endDate:date, start, end };
+  }
+
+  function openInitialBookingModal(){
+    const preset = initialBookingFromUrl();
+    if (!preset) return false;
+    activateRoom(preset.room, { announce:false });
+    showSpin(false);
+    openModal('New Booking', {
+      mode:'create',
+      name:'',
+      date:preset.date,
+      endDate:preset.endDate,
+      start:preset.start,
+      end:preset.end,
+      room:preset.room,
+      hood:preset.hood,
+      repeatWeeks:'1'
+    });
+    editing = { id:null };
+    return true;
+  }
+
   function slotsForDay(room, dateStr, durationMinutes){
     if (!dateStr) return [];
     const durationMs = Number(durationMinutes || 60) * 60 * 1000;
@@ -1267,15 +1318,7 @@
   /* ---------- Tabs ---------- */
   document.querySelectorAll('#roomTabs .tab').forEach(tab=>{
     const activate = ()=>{
-      if (modalBg.style.display === 'flex') return;
-      document.querySelectorAll('#roomTabs .tab').forEach(t=>{
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      renderRoom(tab.dataset.room);
-      toast(`Viewing ${tab.dataset.room}`, 'ok', 800);
+      activateRoom(tab.dataset.room);
     };
     tab.addEventListener('click', activate);
     tab.addEventListener('keydown', ev => {
@@ -1576,7 +1619,7 @@
       } else {
         calendarPrompt._event = null;
         calendarPrompt.classList.add('hidden');
-        downloadIcs(events.map(event => ({ ...event, start:new Date(event.start), end:new Date(event.end) })), 'hood-bookings.ics');
+        toast('Saved. Use the calendar buttons on individual bookings if needed.', 'ok', 2200);
       }
     } else {
       // Rollback generated bookings on failure
@@ -1595,12 +1638,20 @@
   /* ---------- Init ---------- */
   slotDateEl.value = toLocalDateInputValue(new Date());
   setRangeTitle();
+  if (initialBookingFromUrl()) showSpin(true, 'Preparing booking…');
   (async ()=>{
     await ensureRangeLoaded().catch(()=>{});
     ['TC1','TC2','TC3'].forEach(r => { /* warm: render & clear */
       const old = activeRoom; renderRoom(r); Cal.clear(); activeRoom = old;
     });
-    renderRoom(activeRoom);
+    const initialRoom = new URLSearchParams(location.search).get('room');
+    if (['TC1','TC2','TC3'].includes(initialRoom)) {
+      activateRoom(initialRoom, { announce:false });
+    } else {
+      renderRoom(activeRoom);
+    }
+    openInitialBookingModal();
+    showSpin(false);
     prefetchAdjacentRanges();
   })();
   setInterval(autoRefreshRange, AUTO_REFRESH_MS);

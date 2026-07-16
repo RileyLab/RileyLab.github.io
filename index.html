@@ -9,7 +9,7 @@
   <!-- Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260716-hood-prefill-loading">
 </head>
 <body>
 <div class="wrap">
@@ -94,8 +94,6 @@
   <div class="meeting-body" id="meeting-body"></div>
 </section>
 
-<div class="portal-top-main">
-<div class="portal-top-stack">
 <section class="card ann-banner" aria-labelledby="ann-banner-title">
   <h2 id="ann-banner-title">
     <span class="ms ms-lg" aria-hidden="true">campaign</span>
@@ -105,6 +103,26 @@
   <ul id="ann-banner-list" class="list ann-list"></ul>
 </section>
 
+<div class="portal-top-side">
+  <section class="card rot-293t-card" id="rot-293t-card" aria-labelledby="rot-293t-card-title">
+    <h2 id="rot-293t-card-title">
+      <span class="ms" aria-hidden="true">science</span>
+      293T Schedule
+    </h2>
+    <div class="rot-293t-body">
+      <div class="rot-293t-head">
+        <div class="rot-293t-title">This Week</div>
+      </div>
+      <div class="rot-293t-list" id="rot-293t-list"></div>
+      <div class="rot-293t-actions">
+      </div>
+    </div>
+  </section>
+</div>
+
+</div>
+
+<div class="portal-ops-row">
 <section class="card room-rot" id="rotations-card" aria-labelledby="rot-title">
   <h2 id="rot-title">
     <span class="ms" aria-hidden="true">cleaning_services</span>
@@ -158,23 +176,25 @@
     </div>
   </details>
 </section>
-</div>
 
-<section class="card rot-293t-card" id="rot-293t-card" aria-labelledby="rot-293t-card-title">
-  <h2 id="rot-293t-card-title">
-    <span class="ms" aria-hidden="true">science</span>
-    293T Schedule
+<section class="card hood-availability-card" id="hood-availability-card" aria-labelledby="hood-availability-title">
+  <h2 id="hood-availability-title">
+    <span class="ms" aria-hidden="true">lab_profile</span>
+    Hood Availability
+    <a class="hood-calendar-link" href="HoodBookingCalendar.html" target="_blank" rel="noopener noreferrer" aria-label="Open hood bookings calendar" title="Open hood bookings calendar">
+      <span class="ms" aria-hidden="true">calendar_month</span>
+    </a>
   </h2>
-  <div class="rot-293t-body">
-    <div class="rot-293t-head">
-      <div class="rot-293t-title">This Week</div>
+  <div class="hood-availability-body">
+    <div class="hood-availability-head">
+      <div class="hood-availability-title">Today</div>
+      <div class="hood-availability-updated" id="hood-availability-updated"></div>
     </div>
-    <div class="rot-293t-list" id="rot-293t-list"></div>
-    <div class="rot-293t-actions">
+      <div class="hood-availability-list" id="hood-availability-list">
+        <div class="hood-availability-empty">Loading hood availability...</div>
+      </div>
     </div>
-  </div>
-</section>
-</div>
+  </section>
 </div>
 
 <div class="layout">
@@ -723,6 +743,10 @@ let googleCalendarApiKey = '';
 let current293TSchedule = { status: 'idle', items: [], rangeLabel: '', error: '' };
 const CAL_293T = '0192dc1394d85223a6c361fc1a8875ab5db51d465c28fffafb6d7abe9d9e8e0d@group.calendar.google.com';
 const ROTATION_ADMIN_DRAFT_KEY = 'portalRotationPlanAdminDraft';
+const HOOD_BOOKING_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwzkzB0tuX-1jtCrF0byVzWGhKkH_4Sko6RYImOQ48LSnZwuy7SCVgkC01_t_Ja2otS/exec';
+const HOOD_ROOMS = ['TC1', 'TC2', 'TC3'];
+const HOOD_IDS = ['1', '2', '3'];
+let currentHoodAvailability = { status: 'idle', rooms: [], error: '', updatedAt: null };
 
 /* Renderers */
 /* === Per-announcement read tracking === */
@@ -1307,7 +1331,16 @@ async function load293TSchedule(){
     });
     const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CAL_293T)}/events?${params.toString()}`;
     const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error(`Calendar API responded with ${resp.status}`);
+    if (!resp.ok) {
+      let reason = '';
+      try {
+        const errBody = await resp.json();
+        reason = errBody?.error?.details?.[0]?.reason || errBody?.error?.message || '';
+      } catch (_) {}
+      const err = new Error(`Calendar API responded with ${resp.status}`);
+      err.calendarReason = reason;
+      throw err;
+    }
     const body = await resp.json();
     const items = Array.isArray(body.items) ? body.items : [];
 
@@ -1354,15 +1387,248 @@ async function load293TSchedule(){
       ))
     };
   } catch (e) {
+    const isLocalOrigin = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    const referrerBlocked = String(e?.calendarReason || e?.message || '').includes('API_KEY_HTTP_REFERRER_BLOCKED') ||
+      String(e?.calendarReason || e?.message || '').includes('blocked');
     current293TSchedule = {
       status: 'error',
       items: [],
       rangeLabel: fmtWeekRange(weekStart, weekEnd),
-      error: 'Unable to load 293T schedule right now.'
+      error: isLocalOrigin && referrerBlocked
+        ? `293T schedule is blocked on ${location.origin}. Add this local origin to the Google Calendar API key referrer restrictions.`
+        : 'Unable to load 293T schedule right now.'
     };
   }
 
   render293TSchedule();
+}
+
+function hoodTimeLabel(date){
+  return date.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit', hour12:true })
+    .replace(/\s?AM$/i, ' AM')
+    .replace(/\s?PM$/i, ' PM');
+}
+
+function hoodRangeLabel(start, end){
+  return `${hoodTimeLabel(start)}-${hoodTimeLabel(end)}`;
+}
+
+function roundUpToThirtyMinutes(date){
+  const out = new Date(date);
+  out.setSeconds(0, 0);
+  const minutes = out.getMinutes();
+  const rounded = Math.ceil(minutes / 30) * 30;
+  out.setMinutes(rounded);
+  return out;
+}
+
+function hoodTimeParam(date){
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function normalizeHoodEvents(data){
+  if (!Array.isArray(data)) return [];
+  return data.map((item) => {
+    const start = new Date(item.start);
+    const end = new Date(item.end);
+    const calendarId = String(item.calendarId || '');
+    const [room, hood] = calendarId.split('-');
+    return {
+      id: item.id,
+      calendarId,
+      room,
+      hood,
+      title: item.title || '',
+      start,
+      end
+    };
+  }).filter((event) => (
+    HOOD_ROOMS.includes(event.room) &&
+    HOOD_IDS.includes(event.hood) &&
+    !isNaN(event.start) &&
+    !isNaN(event.end) &&
+    event.end > event.start
+  ));
+}
+
+function nextFreeTimeForHood(events, hood, now, dayEnd){
+  const relevant = events
+    .filter((event) => event.hood === hood && event.end > now && event.start < dayEnd)
+    .sort((a, b) => a.start - b.start);
+  let cursor = new Date(now);
+
+  for (const event of relevant) {
+    if (event.start > cursor) break;
+    if (event.end > cursor) cursor = new Date(event.end);
+  }
+
+  return cursor;
+}
+
+function summarizeHoodRoom(room, events, now, dayEnd){
+  const roomEvents = events
+    .filter((event) => event.room === room && event.end > now && event.start < dayEnd)
+    .sort((a, b) => a.start - b.start);
+  const active = roomEvents.filter((event) => event.start <= now && now < event.end);
+  const activeByHood = new Map(active.map((event) => [event.hood, event]));
+  const freeHoods = HOOD_IDS.filter((hood) => !activeByHood.has(hood));
+  const nextFreeByHood = HOOD_IDS.map((hood) => ({
+    hood,
+    freeAt: nextFreeTimeForHood(roomEvents, hood, now, dayEnd)
+  }));
+  const hoodStatuses = HOOD_IDS.map((hood) => {
+    const nextFree = nextFreeByHood.find((item) => item.hood === hood)?.freeAt || now;
+    const isBusy = nextFree > now;
+    return {
+      hood,
+      state: isBusy ? 'busy' : 'open',
+      label: isBusy ? `Until ${hoodTimeLabel(nextFree)}` : 'Open'
+    };
+  });
+  const nextEvent = roomEvents.find((event) => event.start > now);
+  const bookedTodayCount = events.filter((event) => event.room === room).length;
+  const busyToday = bookedTodayCount >= 6;
+  const nextOpen = nextFreeByHood
+    .filter((item) => item.freeAt > now)
+    .sort((a, b) => a.freeAt - b.freeAt)[0] || null;
+
+  hoodStatuses.forEach((status) => {
+    let start = roundUpToThirtyMinutes(nextFreeByHood.find((item) => item.hood === status.hood)?.freeAt || now);
+    if (start >= dayEnd) {
+      start = new Date(dayEnd);
+      start.setHours(6, 0, 0, 0);
+    }
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const params = new URLSearchParams({
+      room,
+      hood: status.hood,
+      date: ymd(start),
+      start: hoodTimeParam(start),
+      end: hoodTimeParam(end)
+    });
+    status.href = `HoodBookingCalendar.html?${params.toString()}`;
+  });
+
+  if (freeHoods.length) {
+    const hoodText = freeHoods.length === HOOD_IDS.length
+      ? 'All hoods free'
+      : `${freeHoods.map((hood) => `Hood ${hood}`).join(', ')} free`;
+    return {
+      room,
+      state: 'open',
+      status: 'Open now',
+      openCount: freeHoods.length,
+      hoodStatuses,
+      busyToday,
+      detail: hoodText,
+      hints: []
+    };
+  }
+
+  return {
+    room,
+    state: 'busy',
+    status: 'Booked',
+    openCount: 0,
+    hoodStatuses,
+    busyToday,
+    detail: nextOpen ? `Booked until ${hoodTimeLabel(nextOpen.freeAt)}` : 'No hood is open right now',
+    hints: []
+  };
+}
+
+function renderHoodAvailability(){
+  const list = document.getElementById('hood-availability-list');
+  const updated = document.getElementById('hood-availability-updated');
+  if (!list) return;
+
+  if (updated) {
+    updated.textContent = currentHoodAvailability.updatedAt
+      ? `Updated ${hoodTimeLabel(currentHoodAvailability.updatedAt)}`
+      : '';
+  }
+
+  if (currentHoodAvailability.status === 'loading') {
+    list.innerHTML = `<div class="hood-availability-empty">Loading hood availability...</div>`;
+    return;
+  }
+
+  if (currentHoodAvailability.status === 'error') {
+    list.innerHTML = `<div class="hood-availability-empty">${escapeHtml(currentHoodAvailability.error || 'Unable to load hood availability right now.')}</div>`;
+    return;
+  }
+
+  if (!currentHoodAvailability.rooms.length) {
+    list.innerHTML = `<div class="hood-availability-empty">No hood availability found for today.</div>`;
+    return;
+  }
+
+  list.innerHTML = currentHoodAvailability.rooms.map((room) => `
+    <div class="hood-room is-${room.state}${room.busyToday ? ' is-busy-today' : ''}">
+      <div class="hood-room-main">
+        <div class="hood-room-name">${escapeHtml(room.room)}</div>
+        <div class="hood-room-status">${escapeHtml(room.status)}</div>
+      </div>
+      <div class="hood-board" aria-label="${escapeHtml(room.room)} hood status">
+        ${room.hoodStatuses.map((hood) => `
+          <a class="hood-chip is-${hood.state}" href="${escapeHtml(hood.href)}" target="_blank" rel="noopener noreferrer">
+            <span class="hood-chip-name">Hood ${escapeHtml(hood.hood)}</span>
+            <span class="hood-chip-state">${escapeHtml(hood.label)}</span>
+          </a>
+        `).join('')}
+      </div>
+      <div class="hood-occupancy" aria-hidden="true">
+        ${room.hoodStatuses.map((hood) => `<span class="hood-occupancy-segment is-${hood.state}"></span>`).join('')}
+      </div>
+      <div class="hood-room-hints">
+        ${room.busyToday ? '<span class="hood-room-hint is-busy">Busy today</span>' : ''}
+        ${room.hints.map((hint) => `<span class="hood-room-hint">${escapeHtml(hint)}</span>`).join('')}
+      </div>
+      <a class="hood-room-book" href="HoodBookingCalendar.html?room=${encodeURIComponent(room.room)}" target="_blank" rel="noopener noreferrer">
+        <span class="ms" aria-hidden="true">add</span>
+        Book ${escapeHtml(room.room)}
+      </a>
+    </div>
+  `).join('');
+}
+
+async function loadHoodAvailability(){
+  const today = getTodayLocal();
+  const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const dayEnd = new Date(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate() + 1);
+  const now = new Date();
+
+  currentHoodAvailability = { status: 'loading', rooms: [], error: '', updatedAt: null };
+  renderHoodAvailability();
+
+  try {
+    const startIso = dayStart.toISOString();
+    const endIso = dayEnd.toISOString();
+    const params = new URLSearchParams({
+      start: startIso,
+      end: endIso,
+      timeMin: startIso,
+      timeMax: endIso
+    });
+    const resp = await fetch(`${HOOD_BOOKING_ENDPOINT}?${params.toString()}`, { cache: 'no-store' });
+    if (!resp.ok) throw new Error(`Hood booking endpoint responded with ${resp.status}`);
+    const events = normalizeHoodEvents(await resp.json());
+    currentHoodAvailability = {
+      status: 'ready',
+      rooms: HOOD_ROOMS.map((room) => summarizeHoodRoom(room, events, now, dayEnd)),
+      error: '',
+      updatedAt: new Date()
+    };
+  } catch (e) {
+    currentHoodAvailability = {
+      status: 'error',
+      rooms: [],
+      error: 'Unable to load hood availability right now.',
+      updatedAt: null
+    };
+  }
+
+  renderHoodAvailability();
 }
 
 function renderRotations(obj, plan){
@@ -1880,6 +2146,7 @@ document.addEventListener('click', (event) => {
   renderRotationManager(currentRotationPlan);
   updateRotationAdminStatus();
   load293TSchedule();
+  loadHoodAvailability();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 })();
 document.addEventListener('visibilitychange', async () => {
@@ -1905,8 +2172,13 @@ document.addEventListener('visibilitychange', async () => {
   renderRotationManager(currentRotationPlan);
   updateRotationAdminStatus();
   load293TSchedule();
+  loadHoodAvailability();
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
+
+setInterval(() => {
+  if (document.visibilityState === 'visible') loadHoodAvailability();
+}, 60 * 1000);
 
 /* --- Center notes dock in the right gutter --- */
 function positionNotesDock(){

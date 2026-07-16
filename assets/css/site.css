@@ -525,6 +525,19 @@ html.page-hood-booking{
       position:fixed;right:16px;bottom:16px;padding:6px 10px;border:1px solid var(--border);
       background:#fff;border-radius:10px;box-shadow:var(--shadow);display:none;z-index:99999
     }
+    html.page-hood-booking #spinner.is-prefill-loading{
+      left:50%;
+      right:auto;
+      top:50%;
+      bottom:auto;
+      transform:translate(-50%, -50%);
+      padding:14px 18px;
+      border-radius:14px;
+      font-size:15px;
+      font-weight:800;
+      box-shadow:0 20px 60px rgba(0,0,0,.18);
+      z-index:100001;
+    }
     html.page-hood-booking #toast{
       position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
       min-width:280px;max-width:80vw;padding:14px 16px;border-radius:14px;border:1px solid var(--border);
@@ -1226,14 +1239,27 @@ html.page-portal{
     }
     html.page-portal .portal-top-stack{
       display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(420px, .8fr);
       gap:18px;
       min-width:0;
+      align-items:start;
+    }
+    html.page-portal .portal-top-side{
+      display:grid;
+      grid-template-columns:minmax(0, 1fr);
+      gap:18px;
+      min-width:0;
+      align-self:start;
     }
     html.page-portal .portal-top .ann-banner.card,
     html.page-portal .portal-top .card.room-rot,
-    html.page-portal .portal-top .card.rot-293t-card{
+    html.page-portal .portal-top .card.rot-293t-card,
+    html.page-portal .portal-top .card.hood-availability-card{
       max-width:none;
       margin:0;
+    }
+    html.page-portal .portal-top .ann-banner.card{
+      grid-column:1 / -1;
     }
     html.page-portal .next-meeting{
       margin:0;
@@ -1253,6 +1279,30 @@ html.page-portal{
     html.page-portal .rot-293t-card h2{
       background:#f5a3a3;
       color:#222;
+    }
+    html.page-portal .hood-availability-card h2{
+      background:#c8e8dc;
+      color:#17352b;
+    }
+    html.page-portal .hood-calendar-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:32px;
+      height:32px;
+      margin-left:auto;
+      border-radius:999px;
+      border:1px solid rgba(23,53,43,.18);
+      background:rgba(255,255,255,.72);
+      color:#17352b;
+      text-decoration:none;
+    }
+    html.page-portal .hood-calendar-link:hover{
+      background:#fff;
+      border-color:rgba(23,53,43,.32);
+    }
+    html.page-portal .hood-calendar-link .ms{
+      font-size:20px;
     }
     html.page-portal .meeting-body{
       display:flex;
@@ -1346,6 +1396,11 @@ html.page-portal{
       flex-direction:column;
       align-self:start;
     }
+    html.page-portal .hood-availability-card{
+      display:flex;
+      flex-direction:column;
+      align-self:start;
+    }
     html.page-portal .rot-293t-body{
       display:flex;
       flex-direction:column;
@@ -1379,6 +1434,9 @@ html.page-portal{
     @media (max-width: 1380px){
       html.page-portal .portal-top-main{
         grid-template-columns:minmax(0, 1fr) 270px;
+      }
+      html.page-portal .portal-top-stack{
+        grid-template-columns:minmax(0, 1fr) minmax(390px, .75fr);
       }
       html.page-portal .room-rot #rot-title{
         display:grid;
@@ -1426,6 +1484,12 @@ html.page-portal{
       html.page-portal .room-rot .rot-grid{
         grid-template-columns:repeat(2, minmax(0, 1fr));
         gap:8px;
+      }
+    }
+
+    @media (max-width: 1120px){
+      html.page-portal .portal-top-stack{
+        grid-template-columns:1fr;
       }
     }
 
@@ -1849,6 +1913,237 @@ html.page-portal{
       margin-top:10px;
       display:flex;
       justify-content:center;
+    }
+    html.page-portal .hood-availability-body{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    html.page-portal .hood-availability-head{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+    }
+    html.page-portal .hood-availability-title{
+      font-size:18px;
+      font-weight:800;
+      color:#1d3557;
+    }
+    html.page-portal .hood-availability-updated{
+      color:#64748b;
+      font-size:11px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+    html.page-portal .hood-availability-list{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:8px;
+    }
+    html.page-portal .hood-room{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:7px;
+      border:1px solid #dbe8e2;
+      border-radius:10px;
+      background:#f8fbfa;
+      padding:10px;
+      min-width:0;
+    }
+    html.page-portal .hood-room.is-open{
+      border-color:#9fd8bb;
+      background:#f0fbf5;
+    }
+    html.page-portal .hood-room.is-busy{
+      border-color:#f0c2a3;
+      background:#fff7ed;
+    }
+    html.page-portal .hood-room-main{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+    }
+    html.page-portal .hood-room-name{
+      font-size:16px;
+      font-weight:900;
+      color:#111827;
+    }
+    html.page-portal .hood-room-status{
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      border-radius:999px;
+      padding:4px 8px;
+      background:#e2e8f0;
+      color:#334155;
+      font-size:11px;
+      font-weight:900;
+      text-transform:uppercase;
+      white-space:nowrap;
+      justify-self:start;
+    }
+    html.page-portal .hood-room.is-open .hood-room-status{
+      background:#d1fae5;
+      color:#065f46;
+    }
+    html.page-portal .hood-room.is-busy .hood-room-status{
+      background:#fed7aa;
+      color:#9a3412;
+    }
+    html.page-portal .hood-room-detail{
+      color:#475569;
+      font-size:12px;
+      line-height:1.35;
+      font-weight:650;
+    }
+    html.page-portal .hood-room-open-count{
+      color:#0f5132;
+      font-size:12px;
+      line-height:1.2;
+      font-weight:900;
+    }
+    html.page-portal .hood-board{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:6px;
+    }
+    html.page-portal .hood-chip{
+      display:grid;
+      gap:2px;
+      min-width:0;
+      border-radius:8px;
+      border:1px solid #ccebdc;
+      background:#ecfbf3;
+      padding:6px 5px;
+      text-align:center;
+      text-decoration:none;
+      cursor:pointer;
+      transition:background .14s ease, border-color .14s ease, transform .14s ease;
+    }
+    html.page-portal .hood-chip:hover{
+      transform:translateY(-1px);
+      border-color:#8bcfb0;
+      background:#e4f8ed;
+    }
+    html.page-portal .hood-chip.is-busy{
+      border-color:#fed7aa;
+      background:#fff7ed;
+    }
+    html.page-portal .hood-chip.is-busy:hover{
+      border-color:#fdba74;
+      background:#ffedd5;
+    }
+    html.page-portal .hood-chip-name{
+      color:#102033;
+      font-size:10px;
+      line-height:1.1;
+      font-weight:900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    html.page-portal .hood-chip-state{
+      color:#087044;
+      font-size:9px;
+      line-height:1.15;
+      font-weight:800;
+      white-space:normal;
+      overflow-wrap:anywhere;
+    }
+    html.page-portal .hood-chip.is-busy .hood-chip-state{
+      color:#9a3412;
+    }
+    html.page-portal .hood-occupancy{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:4px;
+      height:7px;
+      border-radius:999px;
+      overflow:hidden;
+      background:#e2e8f0;
+    }
+    html.page-portal .hood-occupancy-segment{
+      min-width:0;
+      background:#34d399;
+    }
+    html.page-portal .hood-occupancy-segment.is-busy{
+      background:#fb923c;
+    }
+    html.page-portal .hood-room-hints{
+      display:grid;
+      gap:6px;
+    }
+    html.page-portal .hood-room-hint{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      border:1px solid #dbe8e2;
+      background:#fff;
+      padding:3px 7px;
+      color:#51637f;
+      font-size:10px;
+      font-weight:750;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    html.page-portal .hood-room-hint.is-busy{
+      border-color:#fed7aa;
+      background:#fff7ed;
+      color:#9a3412;
+    }
+    html.page-portal .hood-room-book{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      border-radius:8px;
+      border:1px solid #b7dfcc;
+      background:#fff;
+      color:#0f5132;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:900;
+      padding:6px 8px;
+      margin-top:2px;
+    }
+    html.page-portal .hood-room-book:hover{
+      background:#e8f8ef;
+      border-color:#8bcfb0;
+    }
+    html.page-portal .hood-room-book .ms{
+      font-size:16px;
+    }
+    html.page-portal .hood-availability-empty{
+      border:1px dashed #d8e3f7;
+      border-radius:10px;
+      padding:14px 12px;
+      text-align:center;
+      color:#64748b;
+      background:#fbfdff;
+      font-size:13px;
+      font-weight:700;
+    }
+    html.page-portal .hood-availability-action{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border:1px solid #17352b;
+      border-radius:9px;
+      background:#17352b;
+      color:#fff;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:850;
+      padding:8px 10px;
+    }
+    html.page-portal .hood-availability-action:hover{
+      background:#214c3e;
+      border-color:#214c3e;
     }
 
     html.page-portal .rot-grid{
@@ -2374,7 +2669,8 @@ html.page-portal{
         font-size:10px;
       }
       html.page-portal .next-meeting,
-      html.page-portal .rot-293t-card{
+      html.page-portal .rot-293t-card,
+      html.page-portal .hood-availability-card{
         height:auto !important;
       }
 
@@ -2403,6 +2699,21 @@ html.page-portal{
       }
       html.page-portal .portal-top-main{
         grid-template-columns:1fr;
+      }
+      html.page-portal .portal-top-side{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .portal-top-stack{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .hood-availability-list{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .hood-room{
+        grid-template-columns:1fr;
+      }
+      html.page-portal .hood-room-main{
+        grid-row:auto;
       }
       html.page-portal .meeting-body{
         grid-template-columns:1fr;
@@ -2956,6 +3267,116 @@ html.page-portal{
     html.page-portal .card.ann-banner{ margin: 0 0 12px; }
     html.page-portal .card.room-rot{ margin: 12px auto 16px; }
 
+    /* Top row must consume the full main-column width while 293T stays in its side column. */
+    html.page-portal .portal-top{
+      width:min(calc(100vw - 40px), var(--page-max));
+      max-width:none;
+      margin-left:50%;
+      margin-right:0;
+      transform:translateX(-50%);
+    }
+    html.page-portal .portal-top-main,
+    html.page-portal .portal-top-stack{
+      width:100%;
+    }
+    html.page-portal .portal-top-main{
+      grid-template-columns:minmax(0, 1fr) 300px;
+    }
+    html.page-portal .portal-top-stack{
+      grid-template-columns:minmax(0, 1.25fr) minmax(460px, .75fr);
+    }
+    html.page-portal .portal-top-stack > .card.room-rot,
+    html.page-portal .portal-top-stack > .card.hood-availability-card{
+      width:100%;
+      max-width:none;
+      margin:0 !important;
+      justify-self:stretch;
+      box-sizing:border-box;
+    }
+    @media (max-width: 1380px){
+      html.page-portal .portal-top-stack{
+        grid-template-columns:minmax(0, 1.2fr) minmax(420px, .8fr);
+      }
+    }
+    @media (max-width: 1120px){
+      html.page-portal .portal-top-stack{
+        grid-template-columns:1fr;
+      }
+    }
+
+    /* Final portal-top layout: side cards do not constrain rotations + hood availability. */
+    html.page-portal .portal-top{
+      width:min(calc(100vw - 40px), var(--page-max));
+      max-width:none;
+      margin:0 0 24px 50%;
+      transform:translateX(-50%);
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) 300px;
+      grid-template-areas:
+        "ann side"
+        "ops ops";
+      gap:18px;
+      align-items:start;
+    }
+    html.page-portal .portal-top.has-meeting{
+      grid-template-columns:290px minmax(0, 1fr) 300px;
+      grid-template-areas:
+        "meeting ann side"
+        "ops ops ops";
+    }
+    html.page-portal .portal-top > .next-meeting{
+      grid-area:meeting;
+      width:100%;
+      max-width:none;
+      margin:0;
+    }
+    html.page-portal .portal-top > .ann-banner{
+      grid-area:ann;
+      width:100%;
+      max-width:none;
+      margin:0;
+    }
+    html.page-portal .portal-top > .portal-top-side{
+      grid-area:side;
+      width:100%;
+      min-width:0;
+      margin:0;
+    }
+    html.page-portal .portal-ops-row{
+      grid-area:ops;
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) minmax(560px, 1fr);
+      gap:18px;
+      align-items:start;
+      width:100%;
+      min-width:0;
+    }
+    html.page-portal .portal-ops-row > .card.room-rot,
+    html.page-portal .portal-ops-row > .card.hood-availability-card{
+      width:100%;
+      max-width:none;
+      margin:0 !important;
+      justify-self:stretch;
+      box-sizing:border-box;
+    }
+    @media (max-width: 1200px){
+      html.page-portal .portal-top,
+      html.page-portal .portal-top.has-meeting{
+        grid-template-columns:1fr;
+        grid-template-areas:
+          "meeting"
+          "ann"
+          "side"
+          "ops";
+      }
+      html.page-portal .next-meeting[hidden]{
+        display:none !important;
+      }
+      html.page-portal .portal-ops-row{
+        grid-template-columns:1fr;
+      }
+    }
+
 
 /* 293T Side-by-Side */
 html.page-293t, html.page-293t body {
@@ -3137,4 +3558,263 @@ html.page-portal .rot-admin-status{
     width:100%;
     justify-content:center;
   }
+}
+
+/* Final explicit portal top placement. Keep RIP/announcements/293T in row 1,
+   and let maintenance + hood availability own the full-width row below. */
+html.page-portal #portal-top{
+  width:min(calc(100vw - 40px), var(--page-max)) !important;
+  max-width:none !important;
+  margin:0 0 24px 50% !important;
+  transform:translateX(-50%) !important;
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) 300px !important;
+  grid-template-areas:
+    "ann side"
+    "ops ops" !important;
+  gap:18px !important;
+  align-items:start !important;
+}
+html.page-portal #portal-top.has-meeting{
+  grid-template-columns:290px minmax(0, 1fr) 300px !important;
+  grid-template-areas:
+    "meeting ann side"
+    "ops ops ops" !important;
+}
+html.page-portal #portal-top > #next-meeting-card{
+  grid-area:meeting !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  overflow:hidden;
+  position:relative;
+  z-index:1;
+}
+html.page-portal #portal-top > .ann-banner{
+  grid-area:ann !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  overflow:hidden;
+  position:relative;
+  z-index:1;
+}
+html.page-portal #portal-top > .portal-top-side{
+  grid-area:side !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  position:relative;
+  z-index:1;
+}
+html.page-portal #portal-top > .portal-top-side > .card{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  overflow:hidden;
+}
+html.page-portal #portal-top > .portal-ops-row{
+  grid-area:ops !important;
+  grid-column:auto !important;
+  grid-row:auto !important;
+  display:grid !important;
+  grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+  gap:18px !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  box-sizing:border-box !important;
+  align-items:start !important;
+  justify-self:stretch !important;
+}
+html.page-portal #portal-top > .portal-ops-row > .card{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  justify-self:stretch !important;
+  overflow:hidden;
+}
+html.page-portal #portal-top .ann-list,
+html.page-portal #portal-top .ann-item,
+html.page-portal #portal-top .ann-content-row,
+html.page-portal #portal-top .ann-body{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+html.page-portal #portal-top .ann-body,
+html.page-portal #portal-top .ann-body *{
+  overflow-wrap:anywhere;
+}
+html.page-portal #portal-top,
+html.page-portal #portal-top *,
+html.page-portal #portal-top *::before,
+html.page-portal #portal-top *::after{
+  box-sizing:border-box;
+}
+@media (max-width: 1200px){
+  html.page-portal #portal-top,
+  html.page-portal #portal-top.has-meeting{
+    grid-template-columns:1fr !important;
+    grid-template-areas:
+      "meeting"
+      "ann"
+      "side"
+      "ops" !important;
+  }
+  html.page-portal #portal-top > .portal-ops-row{
+    grid-template-columns:1fr !important;
+  }
+}
+@media (max-width: 1280px){
+  html.page-portal #portal-top > .portal-ops-row{
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* Standalone operations row. This is intentionally outside #portal-top so
+   RIP/announcements/293T can never constrain or overlap it. */
+html.page-portal .wrap > .portal-ops-row{
+  width:100% !important;
+  max-width:var(--page-max) !important;
+  margin:18px auto 24px !important;
+  display:grid !important;
+  grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+  gap:18px !important;
+  align-items:stretch !important;
+  box-sizing:border-box !important;
+}
+html.page-portal .wrap > .portal-ops-row > .card{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  justify-self:stretch !important;
+  align-self:stretch !important;
+  box-sizing:border-box !important;
+  overflow:hidden;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot{
+  display:flex !important;
+  flex-direction:column !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-grid{
+  flex:1 1 auto;
+  align-content:start;
+}
+@media (max-width: 980px){
+  html.page-portal .wrap > .portal-ops-row{
+    grid-template-columns:1fr !important;
+  }
+}
+
+/* Standalone rotation card fit fixes. */
+html.page-portal .wrap > .portal-ops-row .room-rot #rot-title{
+  display:grid !important;
+  grid-template-columns:auto minmax(0, 1fr) auto !important;
+  grid-template-areas:
+    "icon title toggle"
+    "nav nav nav" !important;
+  align-items:center !important;
+  gap:10px 12px !important;
+  padding:14px 16px 12px !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot #rot-title > .ms:first-child{
+  grid-area:icon !important;
+  font-size:21px !important;
+  color:#1f365d !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-title-text{
+  grid-area:title !important;
+  min-width:0 !important;
+  white-space:normal !important;
+  line-height:1.15 !important;
+  font-size:18px !important;
+  font-weight:900 !important;
+  color:#172033 !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-toggle-all{
+  grid-area:toggle !important;
+  justify-self:end !important;
+  margin:0 !important;
+  white-space:nowrap !important;
+  line-height:1 !important;
+  max-width:none !important;
+  min-height:32px !important;
+  padding:0 13px !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.06) !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav{
+  grid-area:nav !important;
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:8px !important;
+  margin:0 auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  width:max-content !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-reset-btn{
+  min-height:30px !important;
+  padding:0 10px !important;
+  border:1px solid #cfdcf3 !important;
+  border-radius:999px !important;
+  background:#fff !important;
+  color:#355886 !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav-btn{
+  width:30px !important;
+  height:30px !important;
+  border-radius:999px !important;
+  background:#eef5ff !important;
+  color:#5371aa !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav-btn .ms{
+  font-size:22px !important;
+}
+html.page-portal .wrap > .portal-ops-row .room-rot #rot-dates{
+  min-width:0 !important;
+  max-width:100% !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+  line-height:1 !important;
+  min-height:30px !important;
+  padding:0 12px !important;
+  border-radius:999px !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  background:#fff !important;
+  color:#1f365d !important;
+  border-color:#cfdcf3 !important;
+}
+html.page-portal .wrap > .portal-ops-row .rot-inline-forecast-dates{
+  display:grid !important;
+  grid-template-columns:auto minmax(0, 1fr) !important;
+  align-items:start !important;
+  justify-content:start !important;
+  text-align:left !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  line-height:1.2 !important;
+}
+html.page-portal .wrap > .portal-ops-row .rot-inline-forecast-dates .ms{
+  line-height:1 !important;
+  margin-top:1px !important;
 }
