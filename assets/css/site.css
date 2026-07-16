@@ -1301,6 +1301,13 @@ html.page-portal{
       background:#fff;
       border-color:rgba(23,53,43,.32);
     }
+    html.page-portal .calendar-293t-link{
+      border-color:rgba(85,24,24,.18);
+      color:#551818;
+    }
+    html.page-portal .calendar-293t-link:hover{
+      border-color:rgba(85,24,24,.34);
+    }
     html.page-portal .hood-calendar-link .ms{
       font-size:20px;
     }
