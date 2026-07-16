@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.js"></script>
-  <link rel="stylesheet" href="assets/css/site.css">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260716-lighter-room-colors">
 </head>
 <body>
 <div class="wrap">
@@ -768,6 +768,24 @@
     clearTimeout(calendarPrompt._t);
     calendarPrompt._t = setTimeout(()=>calendarPrompt.classList.add('hidden'), 15000);
   }
+  function notifyHoodBookingsChanged(action, events = []){
+    const detail = {
+      action,
+      at: Date.now(),
+      events: events.map(event => ({
+        id:event.id,
+        calendarId:event.calendarId,
+        start:event.start,
+        end:event.end
+      }))
+    };
+    try {
+      new BroadcastChannel('riley-hood-bookings').postMessage(detail);
+    } catch (_) {}
+    try {
+      localStorage.setItem('rileyHoodBookingsChanged', JSON.stringify(detail));
+    } catch (_) {}
+  }
   function buildDate(dateStr, timeStr){ const [y,m,d]=dateStr.split('-').map(Number); const [hh,mm]=timeStr.split(':').map(Number); return new Date(y,m-1,d,hh,mm,0,0); }
   function titleFor(name, room, hood){ return `${name || 'Booking'} — ${room}/Hood ${hood}`; }
   function hasLocalOverlap(id, calendarId, start, end){
@@ -1451,6 +1469,7 @@
       } else {
         setRefreshStatus(`Updated ${formatRefreshTime()}`);
         toast('Updated.', 'ok', 900);
+        notifyHoodBookingsChanged('update', [next]);
       }
     } finally {
       showSpin(false);
@@ -1506,6 +1525,7 @@
     const res = await postSimple({ action:'delete', event:{ id } });
     if (res && res.ok){
       toast('Deleted.', 'ok', 900);
+      notifyHoodBookingsChanged('delete', previousEvent ? [previousEvent] : [{ id, calendarId }]);
     } else {
       toast('Delete failed. Reloading…', 'err', 1600);
       if (previousEvent && !cache.events.some(e => e.id === id)) {
@@ -1568,6 +1588,7 @@
       const resp = await postSimple({ action:'update', event:{ id, calendarId, title, start: start.toISOString(), end: end.toISOString() }});
       if (resp && resp.ok){
         toast('Saved.', 'ok', 900);
+        notifyHoodBookingsChanged('update', [{ id, calendarId, title, start:start.toISOString(), end:end.toISOString() }]);
       } else {
         // Rollback on failure
         toast(resp && resp.error==='conflict' ? '⚠️ Conflict: that hood already has a booking.' : 'Update failed. Rolling back.', resp && resp.error==='conflict' ? 'warn' : 'err', 2000);
@@ -1614,6 +1635,7 @@
     const result = await persistCreatedEvents(events);
     if (result.ok){
       toast(events.length === 1 ? 'Saved.' : `Saved ${events.length} bookings.`, 'ok', 1200);
+      notifyHoodBookingsChanged('create', events);
       if (events.length === 1) {
         showCalendarPrompt({ ...events[0], start:new Date(events[0].start), end:new Date(events[0].end) });
       } else {

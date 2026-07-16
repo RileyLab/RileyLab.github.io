@@ -9,7 +9,7 @@
   <!-- Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260716-hood-prefill-loading">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260716-lighter-room-colors">
 </head>
 <body>
 <div class="wrap">
@@ -1564,7 +1564,7 @@ function renderHoodAvailability(){
   }
 
   list.innerHTML = currentHoodAvailability.rooms.map((room) => `
-    <div class="hood-room is-${room.state}${room.busyToday ? ' is-busy-today' : ''}">
+    <div class="hood-room hood-room-${escapeHtml(room.room.toLowerCase())} is-${room.state}${room.busyToday ? ' is-busy-today' : ''}">
       <div class="hood-room-main">
         <div class="hood-room-name">${escapeHtml(room.room)}</div>
         <div class="hood-room-status">${escapeHtml(room.status)}</div>
@@ -1592,14 +1592,17 @@ function renderHoodAvailability(){
   `).join('');
 }
 
-async function loadHoodAvailability(){
+async function loadHoodAvailability({ quiet = false } = {}){
   const today = getTodayLocal();
   const dayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const dayEnd = new Date(dayStart.getFullYear(), dayStart.getMonth(), dayStart.getDate() + 1);
   const now = new Date();
 
-  currentHoodAvailability = { status: 'loading', rooms: [], error: '', updatedAt: null };
-  renderHoodAvailability();
+  const hasExistingRooms = currentHoodAvailability.rooms && currentHoodAvailability.rooms.length;
+  if (!quiet && !hasExistingRooms) {
+    currentHoodAvailability = { status: 'loading', rooms: [], error: '', updatedAt: null };
+    renderHoodAvailability();
+  }
 
   try {
     const startIso = dayStart.toISOString();
@@ -2172,13 +2175,37 @@ document.addEventListener('visibilitychange', async () => {
   renderRotationManager(currentRotationPlan);
   updateRotationAdminStatus();
   load293TSchedule();
-  loadHoodAvailability();
+  loadHoodAvailability({ quiet:true });
   if (typeof syncCalendarHeight === 'function') setTimeout(syncCalendarHeight, 50);
 });
 
 setInterval(() => {
-  if (document.visibilityState === 'visible') loadHoodAvailability();
+  if (document.visibilityState === 'visible') loadHoodAvailability({ quiet:true });
 }, 60 * 1000);
+
+(function listenForHoodBookingChanges(){
+  let lastSeenChange = 0;
+  function refreshFromSignal(signal){
+    const at = Number(signal?.at || 0);
+    if (at && at === lastSeenChange) return;
+    if (at) lastSeenChange = at;
+    loadHoodAvailability({ quiet:true });
+  }
+
+  try {
+    const channel = new BroadcastChannel('riley-hood-bookings');
+    channel.onmessage = (event) => refreshFromSignal(event.data);
+  } catch (_) {}
+
+  window.addEventListener('storage', (event) => {
+    if (event.key !== 'rileyHoodBookingsChanged' || !event.newValue) return;
+    try {
+      refreshFromSignal(JSON.parse(event.newValue));
+    } catch (_) {
+      loadHoodAvailability({ quiet:true });
+    }
+  });
+})();
 
 /* --- Center notes dock in the right gutter --- */
 function positionNotesDock(){

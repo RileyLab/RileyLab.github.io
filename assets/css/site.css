@@ -130,10 +130,10 @@ html.page-czardoms{
 /* Hood Booking Calendar */
 html.page-hood-booking{
       --bg:#f6f7fb; --card:#fff; --text:#111827; --muted:#6b7280; --border:#e5e7eb;
-      --TC1:#2563eb; --TC2:#16a34a; --TC3:#f59e0b;
-      --TC1b:#60a5fa; --TC1c:#93c5fd;
-      --TC2b:#22c55e; --TC2c:#86efac;
-      --TC3b:#fbbf24; --TC3c:#fde68a;
+      --TC1:#f9d65c; --TC2:#86a8f3; --TC3:#98cf82;
+      --TC1b:#f6ca3d; --TC1c:#fdeca6;
+      --TC2b:#9bb8f6; --TC2c:#e7efff;
+      --TC3b:#addc99; --TC3c:#e8f8e0;
       --shadow:0 10px 30px rgba(0,0,0,.08);
       --radius:16px;
     }
@@ -1959,6 +1959,27 @@ html.page-portal{
       border-color:#f0c2a3;
       background:#fff7ed;
     }
+    html.page-portal .hood-room.hood-room-tc1{
+      background:#f9d65c;
+      border-color:#f9d65c;
+    }
+    html.page-portal .hood-room.hood-room-tc2{
+      background:#86a8f3;
+      border-color:#86a8f3;
+    }
+    html.page-portal .hood-room.hood-room-tc3{
+      background:#98cf82;
+      border-color:#98cf82;
+    }
+    html.page-portal .hood-room.hood-room-tc1 .hood-room-name{
+      color:#111;
+    }
+    html.page-portal .hood-room.hood-room-tc2 .hood-room-name{
+      color:#102033;
+    }
+    html.page-portal .hood-room.hood-room-tc3 .hood-room-name{
+      color:#0f2a0f;
+    }
     html.page-portal .hood-room-main{
       display:flex;
       align-items:center;
@@ -1989,8 +2010,23 @@ html.page-portal{
       color:#065f46;
     }
     html.page-portal .hood-room.is-busy .hood-room-status{
-      background:#fed7aa;
-      color:#9a3412;
+      background:#fee2e2;
+      color:#991b1b;
+    }
+    html.page-portal .hood-room.hood-room-tc1 .hood-room-status,
+    html.page-portal .hood-room.hood-room-tc3 .hood-room-status{
+      background:rgba(255,255,255,.72);
+      color:#111;
+    }
+    html.page-portal .hood-room.hood-room-tc2 .hood-room-status{
+      background:rgba(255,255,255,.9);
+      color:#17346d;
+    }
+    html.page-portal .hood-room.hood-room-tc1.is-busy .hood-room-status,
+    html.page-portal .hood-room.hood-room-tc2.is-busy .hood-room-status,
+    html.page-portal .hood-room.hood-room-tc3.is-busy .hood-room-status{
+      background:#fee2e2;
+      color:#991b1b;
     }
     html.page-portal .hood-room-detail{
       color:#475569;
@@ -2014,13 +2050,14 @@ html.page-portal{
       gap:2px;
       min-width:0;
       border-radius:8px;
-      border:1px solid #ccebdc;
-      background:#ecfbf3;
+      border:1px solid #34d399;
+      background:#e6fff0;
       padding:6px 5px;
       text-align:center;
       text-decoration:none;
       cursor:pointer;
       transition:background .14s ease, border-color .14s ease, transform .14s ease;
+      box-shadow:none;
     }
     html.page-portal .hood-chip:hover{
       transform:translateY(-1px);
@@ -2028,12 +2065,13 @@ html.page-portal{
       background:#e4f8ed;
     }
     html.page-portal .hood-chip.is-busy{
-      border-color:#fed7aa;
-      background:#fff7ed;
+      border-color:#dc2626;
+      background:#ffe4e4;
+      box-shadow:none;
     }
     html.page-portal .hood-chip.is-busy:hover{
-      border-color:#fdba74;
-      background:#ffedd5;
+      border-color:#fca5a5;
+      background:#fecaca;
     }
     html.page-portal .hood-chip-name{
       color:#102033;
@@ -2045,7 +2083,7 @@ html.page-portal{
       text-overflow:ellipsis;
     }
     html.page-portal .hood-chip-state{
-      color:#087044;
+      color:#04713f;
       font-size:9px;
       line-height:1.15;
       font-weight:800;
@@ -2053,23 +2091,33 @@ html.page-portal{
       overflow-wrap:anywhere;
     }
     html.page-portal .hood-chip.is-busy .hood-chip-state{
-      color:#9a3412;
+      color:#b91c1c;
     }
     html.page-portal .hood-occupancy{
       display:grid;
       grid-template-columns:repeat(3, minmax(0, 1fr));
       gap:4px;
-      height:7px;
+      height:9px;
       border-radius:999px;
       overflow:hidden;
       background:#e2e8f0;
+      box-shadow:none;
     }
     html.page-portal .hood-occupancy-segment{
       min-width:0;
-      background:#34d399;
+      background:#16a34a;
+    }
+    html.page-portal .hood-room-tc1 .hood-occupancy{
+      background:#f9d65c;
+    }
+    html.page-portal .hood-room-tc2 .hood-occupancy{
+      background:#86a8f3;
+    }
+    html.page-portal .hood-room-tc3 .hood-occupancy{
+      background:#98cf82;
     }
     html.page-portal .hood-occupancy-segment.is-busy{
-      background:#fb923c;
+      background:#dc2626;
     }
     html.page-portal .hood-room-hints{
       display:grid;
@@ -2285,9 +2333,9 @@ html.page-portal{
     }
 
     /* palette */
-    html.page-portal .rot-tc1{ background:#f8bf20; }   /* amber */
-    html.page-portal .rot-tc2{ background:#5a84e8; color:#fff; }
-    html.page-portal .rot-tc3{ background:#74b65a; color:#0f2a0f; }
+    html.page-portal .rot-tc1{ background:#f9d65c; }   /* amber */
+    html.page-portal .rot-tc2{ background:#86a8f3; color:#102033; }
+    html.page-portal .rot-tc3{ background:#98cf82; color:#0f2a0f; }
     html.page-portal .rot-main{ background:#d32f2f; color:#fff; }
 
     /* Editor */
