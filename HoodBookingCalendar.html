@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/tui-time-picker@2.1.6/dist/tui-time-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-date-picker@4.3.0/dist/tui-date-picker.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tui-calendar@1.12.14/dist/tui-calendar.min.js"></script>
-  <link rel="stylesheet" href="assets/css/site.css?v=20260716-lighter-room-colors">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260720-quarter-hour-wheel-contained">
 </head>
 <body>
 <div class="wrap">
@@ -118,11 +118,11 @@
       </div>
       <div class="field">
         <label for="start">Start time</label>
-        <input id="start" type="time" step="900">
+        <input id="start" class="time-wheel-input" type="text" readonly inputmode="none" autocomplete="off" aria-haspopup="listbox">
       </div>
       <div class="field">
         <label for="end">End time</label>
-        <input id="end" type="time" step="900">
+        <input id="end" class="time-wheel-input" type="text" readonly inputmode="none" autocomplete="off" aria-haspopup="listbox">
       </div>
     </div>
 
@@ -283,6 +283,155 @@
   const toastEl   = document.getElementById('toast');
   const loadError = document.getElementById('loadError');
   const retryLoad = document.getElementById('retryLoad');
+
+  function timeValue(hour, minute){
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  }
+  function parseTimeValue(value){
+    const [hour, minute] = String(value || '').split(':').map(Number);
+    return {
+      hour:Number.isFinite(hour) ? hour : 9,
+      minute:[0,15,30,45].includes(minute) ? minute : 0
+    };
+  }
+  function toTwelveHourParts(hour){
+    return {
+      hour12: hour % 12 || 12,
+      period: hour >= 12 ? 'PM' : 'AM'
+    };
+  }
+  function fromTwelveHourParts(hour12, period){
+    const normalizedHour = Number(hour12) === 12 ? 0 : Number(hour12);
+    return String(period).toUpperCase() === 'PM' ? normalizedHour + 12 : normalizedHour;
+  }
+  function displayTimeLabel(value){
+    if (!value) return '';
+    const { hour, minute } = parseTimeValue(value);
+    return new Date(2000, 0, 1, hour, minute, 0, 0)
+      .toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+  }
+  function setTimeFieldValue(input, value){
+    input.dataset.timeValue = value || '';
+    input.value = displayTimeLabel(value);
+  }
+  function getTimeFieldValue(input){
+    return input?.dataset?.timeValue || '';
+  }
+  function installQuarterHourWheel(inputs){
+    const popover = document.createElement('div');
+    popover.className = 'time-wheel-popover hidden';
+    popover.innerHTML = `
+      <div class="time-wheel" role="listbox" aria-label="Choose time">
+        <div class="time-wheel-column" data-part="hour"></div>
+        <div class="time-wheel-column" data-part="minute"></div>
+        <div class="time-wheel-column" data-part="period"></div>
+      </div>
+    `;
+    document.body.appendChild(popover);
+
+    const hourCol = popover.querySelector('[data-part="hour"]');
+    const minuteCol = popover.querySelector('[data-part="minute"]');
+    const periodCol = popover.querySelector('[data-part="period"]');
+    let activeInput = null;
+    let selectedHour12 = 9;
+    let selectedMinute = 0;
+    let selectedPeriod = 'AM';
+
+    function renderColumn(col, items, selected, onPick){
+      col.innerHTML = items.map(item => `
+        <button type="button" class="time-wheel-option${item.value === selected ? ' is-selected' : ''}" data-value="${item.value}">
+          ${item.label}
+        </button>
+      `).join('');
+      col.querySelectorAll('.time-wheel-option').forEach(button => {
+        button.addEventListener('click', () => {
+          const match = items.find(item => String(item.value) === button.dataset.value);
+          onPick(match ? match.value : button.dataset.value);
+        });
+      });
+    }
+
+    function commit(){
+      if (!activeInput) return;
+      setTimeFieldValue(activeInput, timeValue(fromTwelveHourParts(selectedHour12, selectedPeriod), selectedMinute));
+      activeInput.dispatchEvent(new Event('input', { bubbles:true }));
+      activeInput.dispatchEvent(new Event('change', { bubbles:true }));
+    }
+
+    function render(){
+      const hours = Array.from({ length:12 }, (_, index) => ({
+        value:index + 1,
+        label:String(index + 1)
+      }));
+      const minutes = [0, 15, 30, 45].map(minute => ({
+        value:minute,
+        label:String(minute).padStart(2, '0')
+      }));
+      const periods = ['AM', 'PM'].map(period => ({
+        value:period,
+        label:period
+      }));
+      renderColumn(hourCol, hours, selectedHour12, value => {
+        selectedHour12 = value;
+        commit();
+        render();
+      });
+      renderColumn(minuteCol, minutes, selectedMinute, value => {
+        selectedMinute = value;
+        commit();
+        render();
+      });
+      renderColumn(periodCol, periods, selectedPeriod, value => {
+        selectedPeriod = value;
+        commit();
+        render();
+      });
+      requestAnimationFrame(() => {
+        popover.querySelectorAll('.time-wheel-option.is-selected').forEach(option => {
+          option.scrollIntoView({ block:'center' });
+        });
+      });
+    }
+
+    function open(input){
+      activeInput = input;
+      const parts = parseTimeValue(getTimeFieldValue(input));
+      const twelveHour = toTwelveHourParts(parts.hour);
+      selectedHour12 = twelveHour.hour12;
+      selectedPeriod = twelveHour.period;
+      selectedMinute = parts.minute;
+      render();
+      const rect = input.getBoundingClientRect();
+      popover.style.left = `${Math.min(window.innerWidth - 288, Math.max(12, rect.left))}px`;
+      popover.style.top = `${rect.bottom + 6}px`;
+      popover.classList.remove('hidden');
+    }
+
+    function close(){
+      popover.classList.add('hidden');
+      activeInput = null;
+    }
+
+    inputs.forEach(input => {
+      input.addEventListener('click', () => open(input));
+      input.addEventListener('focus', () => open(input));
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Escape') close();
+      });
+    });
+    document.addEventListener('pointerdown', event => {
+      if (!activeInput) return;
+      if (popover.contains(event.target) || event.target === activeInput) return;
+      close();
+    });
+    window.addEventListener('resize', close);
+    window.addEventListener('scroll', event => {
+      if (popover.contains(event.target)) return;
+      close();
+    }, true);
+  }
+
+  installQuarterHourWheel([startEl, endEl]);
   const refreshStatus = document.getElementById('refreshStatus');
   const bookingTooltip = document.getElementById('bookingTooltip');
   const multiDayDragLayer = document.getElementById('multiDayDragLayer');
@@ -375,8 +524,8 @@
     nameEl.value  = preset?.name || '';
     dateEl.value  = preset?.date || '';
     endDateEl.value = preset?.endDate || preset?.date || '';
-    startEl.value = preset?.start || '';
-    endEl.value   = preset?.end || '';
+    setTimeFieldValue(startEl, preset?.start || '');
+    setTimeFieldValue(endEl, preset?.end || '');
 
     const room = preset?.room || activeRoom || 'TC1';
     syncRoomBadge(room);
@@ -813,9 +962,11 @@
     return `${formatDateShort(event.start)} · ${formatTimeRange(new Date(event.start), new Date(event.end))} · ${room}/Hood ${hood}`;
   }
   function modalDateRange(){
-    if (!dateEl.value || !startEl.value || !endEl.value) return null;
-    const start = buildDate(dateEl.value, startEl.value);
-    const end = buildDate(dateEl.value, endEl.value);
+    const startTime = getTimeFieldValue(startEl);
+    const endTime = getTimeFieldValue(endEl);
+    if (!dateEl.value || !startTime || !endTime) return null;
+    const start = buildDate(dateEl.value, startTime);
+    const end = buildDate(dateEl.value, endTime);
     return end > start ? { start, end } : null;
   }
   function eachDateInRange(startDateStr, endDateStr){
@@ -1235,7 +1386,9 @@
   function generatedCreateEvents(){
     const name = nameEl.value.trim();
     const room = modalRoom;
-    if (!startEl.value || !endEl.value) return [];
+    const startTime = getTimeFieldValue(startEl);
+    const endTime = getTimeFieldValue(endEl);
+    if (!startTime || !endTime) return [];
     const repeatWeeks = Math.max(1, Number(repeatWeeksEl.value || 1));
     const hood = hoodEl.value;
     const dates = eachDateInRange(dateEl.value, endDateEl.value || dateEl.value);
@@ -1245,8 +1398,8 @@
       dates.forEach(dateStr => {
         const override = dateOverrides.get(dateStr);
         const eventHood = override?.hood || hood;
-        const start = addDays(buildDate(dateStr, override?.startTime || startEl.value), week * 7);
-        const end = addDays(buildDate(dateStr, override?.endTime || endEl.value), week * 7);
+        const start = addDays(buildDate(dateStr, override?.startTime || startTime), week * 7);
+        const end = addDays(buildDate(dateStr, override?.endTime || endTime), week * 7);
         if (end > start) events.push(eventFromModal(uuid(), room, eventHood, start, end, name));
       });
     }
@@ -1482,7 +1635,7 @@
     const range = modalDateRange();
     if (!range) return;
     const end = new Date(range.end.getTime() + 30*60*1000);
-    endEl.value = toLocalTimeInputValue(end);
+    setTimeFieldValue(endEl, toLocalTimeInputValue(end));
     updateAvailabilityPreview();
     toast('Extended by 30 minutes. Save to confirm.', 'ok', 1200);
   };
@@ -1548,8 +1701,8 @@
     const calendarId = `${room}-${hood}`;
     const date = dateEl.value;
     const endDate = endDateEl.value || date;
-    const sTime = startEl.value;
-    const eTime = endEl.value;
+    const sTime = getTimeFieldValue(startEl);
+    const eTime = getTimeFieldValue(endEl);
 
     if (!name){ toast('Please enter your name.', 'warn'); return; }
     if (!date || !endDate || !sTime || !eTime){ toast('Pick a date range and start/end times.', 'warn'); return; }
