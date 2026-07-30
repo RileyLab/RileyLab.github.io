@@ -11,11 +11,18 @@
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
   "labMeetings": [
     {
-      "date": "2026-07-20",
-      "presenter": "Mgmt.",
-      "title": "Lab Meeting!",
-      "description": "3600 Civic Center Blvd., RM16-102B @ 11:30am. Join us for pizza and some general announcements/updates!",
-      "image": "/assets/uploads/1783613989416-jim.png"
+      "date": "2026-08-03",
+      "presenter": "Summer Trainees",
+      "title": "Summer Trainees Lab Meeting!",
+      "description": "3600 Civic Center Blvd., RM16-102B @ 11:30am",
+      "image": ""
+    },
+    {
+      "date": "2026-08-05",
+      "presenter": "Chloe",
+      "title": "Chloe Poster Presentation!",
+      "description": "Chloe will be presenting her poster on Wednesday, August 5th in Smilow on the 5th floor (JMEC Atrium) from 2:10-3:10. Let's all show our support!!",
+      "image": ""
     }
   ],
   "rotations": {},
