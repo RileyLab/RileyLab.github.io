@@ -1,10 +1,10 @@
 {
   "announcements": [
     {
-      "when": "2026-07-16T20:02:00.000Z",
-      "level": "info",
-      "text": "Hi everyone,I have recently noticed that some biosafety hoods are not being cleaned and organized after use. Please remember that each hood should be left as clean as or cleaner than you found it.Each hood should have:A bucket containing 10-20% bleach solution for disinfecting used serological pipettesA separate bucket, lined with a small biohazard bag, for used pipette tipsOnce the biohazard bag is full, remove it and dispose of it in the red sharps container, in accordance with our lab’s waste disposal procedures.HELPFUL TIP: If your bleach is no longer the expected yellowish color, refresh or replace the bleach to ensure it remains effective.Thank you for helping keep the shared workspace clean and safe!Best,Max",
-      "html": "<p>Hi everyone,</p><p>I have recently noticed that some biosafety hoods are not being cleaned and organized after use. Please remember that each hood should be left as clean as or cleaner than you found it.</p><p>Each hood should have:</p><p></p><ul><li>A bucket containing 10-20% bleach solution for disinfecting used serological pipettes</li><li>A separate bucket, lined with a small biohazard bag, for used pipette tips</li></ul><p></p><p>Once the biohazard bag is full, remove it and dispose of it in the red sharps container, in accordance with our lab’s waste disposal procedures.</p><p><b><u>HELPFUL TIP</u></b>: If your bleach is no longer the expected yellowish color, refresh or replace the bleach to ensure it remains effective.</p><p>Thank you for helping keep the shared workspace clean and safe!</p><p>Best,</p><p>Max</p>",
+      "when": "2026-08-06T20:02:00.000Z",
+      "level": "warn",
+      "text": "Hi everyone,We will have someone coming in on Thursday 8/6 at 10am to calibrate our pipettes. This message is to serve as a notice to try and work around this calibration service so that he can be in and out. Thanks everyone!",
+      "html": "<p>Hi everyone,</p><p>We will have someone coming in on <b><u>Thursday 8/6 at 10am</u></b> to calibrate our pipettes. This message is to serve as a notice to try and work around this calibration service so that he can be in and out. Thanks everyone!</p>",
       "link": ""
     }
   ],
