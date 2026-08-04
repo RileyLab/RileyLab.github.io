@@ -70,7 +70,10 @@
         "Divanshu",
         "Max",
         "Edmund",
-        "Shannon"
+        "Shannon",
+        "Ryan Matour",
+        "Vivin Karthik",
+        "Rob Robino"
       ]
     },
     "anchor": {
@@ -144,12 +147,24 @@
         "name": "Justin G."
       },
       "Edmund": {
-        "active": true,
+        "active": false,
         "name": "Edmund"
       },
       "Gabby": {
         "active": true,
         "name": "Gabby"
+      },
+      "Ryan Matour": {
+        "active": true,
+        "name": "Ryan Matour"
+      },
+      "Vivin Karthik": {
+        "active": true,
+        "name": "Vivin Karthik"
+      },
+      "Rob Robino": {
+        "active": true,
+        "name": "Rob Robino"
       }
     }
   }
