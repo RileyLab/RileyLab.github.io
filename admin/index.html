@@ -568,6 +568,7 @@ const saveToastTitle = document.getElementById('save-toast-title');
 const saveToastText = document.getElementById('save-toast-text');
 let saveToastTimer = 0;
 const pendingAnnouncementUploads = new Map();
+const ROTATION_SLOTS = ['tc1','tc2','tc3','main'];
 
 function deepClone(obj){ return JSON.parse(JSON.stringify(obj)); }
 function slugify(value){ return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50) || 'file'; }
@@ -592,6 +593,13 @@ function toDateInput(value){
   const d = parseAdminDate(value);
   if (!d || Number.isNaN(d.getTime())) return String(value).slice(0,10);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function toInputDateString(date){
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+}
+function getTodayLocal(){
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 function toDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); if (Number.isNaN(d.getTime())) return ''; return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}T${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 function fromDateTimeLocalInput(value){ if (!value) return ''; const d = new Date(value); return Number.isNaN(d.getTime()) ? '' : d.toISOString(); }
@@ -1037,7 +1045,7 @@ function renderMeetings(){
 
 function ensurePeopleFromSlots(){
   const plan = portalData.rotationPlan;
-  ['tc1','tc2','tc3','main'].forEach((slot)=>{
+  ROTATION_SLOTS.forEach((slot)=>{
     plan.slotOrder[slot].forEach((name)=>{
       if (!name) return;
       if (!plan.people[name]) plan.people[name] = { active:true, name };
@@ -1046,18 +1054,148 @@ function ensurePeopleFromSlots(){
   });
 }
 
+function computeRotationPeriod(plan, cycleOffset = 0) {
+  const start = parseYMDLocal(plan?.start);
+  const period = Number(plan?.periodDays) || 14;
+  if (!start || period <= 0) return null;
+
+  const today = getTodayLocal();
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const daysSinceStart = Math.floor((today - start) / msPerDay);
+  const cycleIndex = Math.max(0, Math.floor(daysSinceStart / period)) + cycleOffset;
+  if (cycleIndex < 0) return null;
+
+  const periodStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() + cycleIndex * period);
+  const periodEnd = new Date(periodStart.getFullYear(), periodStart.getMonth(), periodStart.getDate() + period - 1);
+  const positiveMod = (n, m) => ((n % m) + m) % m;
+  const anchor = plan?.anchor || null;
+  const anchorDate = parseYMDLocal(anchor?.date);
+  const anchorCycleDelta = anchorDate ? Math.floor((periodStart - anchorDate) / msPerDay / period) : null;
+  const slotOrder = plan?.slotOrder || plan?.rotationOrder || null;
+  const canonicalOrder = slotOrder || plan?.slots || {};
+
+  const deriveActiveRoster = (slotName) => {
+    const roomOrder = Array.isArray(canonicalOrder?.[slotName]) ? canonicalOrder[slotName] : [];
+    const people = plan?.people || null;
+    if (people && roomOrder.length) {
+      return roomOrder.filter((name) => {
+        const meta = people[name];
+        return meta ? meta.active !== false : true;
+      });
+    }
+
+    const legacy = plan?.activeRoster || plan?.slots || {};
+    const legacyRoom = Array.isArray(legacy?.[slotName]) ? legacy[slotName] : [];
+    if (!roomOrder.length) return legacyRoom;
+    if (!legacyRoom.length) return roomOrder;
+
+    const allowed = new Set(legacyRoom);
+    const filtered = roomOrder.filter((name) => allowed.has(name));
+    return filtered.length ? filtered : legacyRoom;
+  };
+
+  const pick = (arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return '';
+    return arr[cycleIndex % arr.length] || '';
+  };
+
+  const pickAnchored = (slotName, arr) => {
+    const anchorName = anchor?.current?.[slotName] || anchor?.[slotName];
+    if (anchorDate && anchorCycleDelta === 0 && anchorName) return anchorName;
+    if (!Array.isArray(arr) || arr.length === 0) return '';
+    if (!anchorDate || anchorCycleDelta === null || !anchorName) return pick(arr);
+
+    const anchorOrder =
+      Array.isArray(slotOrder?.[slotName]) ? slotOrder[slotName]
+      : Array.isArray(anchor?.slots?.[slotName]) ? anchor.slots[slotName]
+      : null;
+    if (anchorOrder && anchorOrder.length > 0) {
+      const active = new Set(arr);
+      const activeOrder = anchorOrder.filter((name) => active.has(name));
+      if (!activeOrder.length) return '';
+
+      const anchorIndex = Math.max(0, anchorOrder.indexOf(anchorName));
+      const resolveActiveFromCanonicalIndex = (idx) => {
+        for (let hops = 0; hops < anchorOrder.length; hops += 1) {
+          const name = anchorOrder[positiveMod(idx + hops, anchorOrder.length)];
+          if (active.has(name)) return name;
+        }
+        return '';
+      };
+
+      const currentCycleDelta = anchorCycleDelta - cycleOffset;
+      const currentCanonicalIndex = positiveMod(anchorIndex + currentCycleDelta, anchorOrder.length);
+      const currentName = resolveActiveFromCanonicalIndex(currentCanonicalIndex);
+      if (cycleOffset <= 0) return currentName;
+
+      const currentActiveIndex = activeOrder.indexOf(currentName);
+      const startIndex = currentActiveIndex === -1 ? 0 : currentActiveIndex;
+      return activeOrder[positiveMod(startIndex + cycleOffset, activeOrder.length)] || '';
+    }
+
+    const anchorIndex = arr.indexOf(anchorName);
+    if (anchorIndex === -1) return pick(arr);
+
+    return arr[positiveMod(anchorIndex + anchorCycleDelta, arr.length)] || '';
+  };
+
+  const snapshot = {
+    cycleIndex,
+    start: toInputDateString(periodStart),
+    end: toInputDateString(periodEnd)
+  };
+  ROTATION_SLOTS.forEach((slot) => {
+    snapshot[slot] = pickAnchored(slot, deriveActiveRoster(slot));
+  });
+  return snapshot;
+}
+
+function ensureRotationAnchorShape(plan){
+  if (!plan.anchor) plan.anchor = { date:'', current:{} };
+  if (!plan.anchor.current) plan.anchor.current = {};
+  ROTATION_SLOTS.forEach((slot) => {
+    if (typeof plan.anchor.current[slot] !== 'string') plan.anchor.current[slot] = '';
+  });
+}
+
+function setRotationAnchorFromSnapshot(snapshot, anchorDate){
+  const plan = portalData.rotationPlan;
+  ensureRotationAnchorShape(plan);
+  plan.anchor.date = anchorDate || snapshot?.start || plan.anchor.date || '';
+  ROTATION_SLOTS.forEach((slot) => {
+    plan.anchor.current[slot] = snapshot?.[slot] || '';
+  });
+}
+
+function getCurrentRotationSnapshot(){
+  ensurePeopleFromSlots();
+  return computeRotationPeriod(portalData.rotationPlan);
+}
+
+function seedRotationAnchorBeforeRosterMutation(){
+  const snapshot = getCurrentRotationSnapshot();
+  if (snapshot) setRotationAnchorFromSnapshot(snapshot, snapshot.start);
+  return snapshot;
+}
+
+function seedRotationAnchorAfterScheduleMutation(snapshot){
+  if (!snapshot) return;
+  const nextPeriod = computeRotationPeriod(portalData.rotationPlan);
+  setRotationAnchorFromSnapshot(snapshot, nextPeriod?.start || snapshot.start);
+}
+
 function renderRotationPlan(){
   ensurePeopleFromSlots();
   const plan = portalData.rotationPlan;
   document.getElementById('rot-start').value = toDateInput(plan.start);
   document.getElementById('rot-period').value = plan.periodDays || 14;
   document.getElementById('anchor-date').value = toDateInput(plan.anchor?.date || '');
-  document.getElementById('anchor-current-grid').innerHTML = ['tc1','tc2','tc3','main'].map((slot)=>`
+  document.getElementById('anchor-current-grid').innerHTML = ROTATION_SLOTS.map((slot)=>`
     <div class="field"><label>${getSlotLabel(slot)} Current</label><input data-anchor-current="${slot}" value="${escapeHtml(plan.anchor.current?.[slot] || '')}"></div>
   `).join('');
 
   const roomGrid = document.getElementById('room-grid');
-  roomGrid.innerHTML = ['tc1','tc2','tc3','main'].map((slot)=>`
+  roomGrid.innerHTML = ROTATION_SLOTS.map((slot)=>`
     <section class="room-card">
       <div class="item-head" style="margin-bottom:0">
         <h4>${getSlotLabel(slot)}</h4>
@@ -1127,13 +1265,15 @@ function addMeeting(){
 function addPersonToRoom(room, name){
   if (!name) return;
   const plan = portalData.rotationPlan;
-  ['tc1','tc2','tc3','main'].forEach((slot)=>{ plan.slotOrder[slot] = plan.slotOrder[slot].filter((person)=>person !== name); });
+  seedRotationAnchorBeforeRosterMutation();
+  ROTATION_SLOTS.forEach((slot)=>{ plan.slotOrder[slot] = plan.slotOrder[slot].filter((person)=>person !== name); });
   plan.slotOrder[room].push(name);
   if (!plan.people[name]) plan.people[name] = { active:true, name };
   plan.people[name].name = name;
   renderRotationPlan(); markChanged();
 }
 function removePerson(room, name){
+  seedRotationAnchorBeforeRosterMutation();
   portalData.rotationPlan.slotOrder[room] = portalData.rotationPlan.slotOrder[room].filter((person)=>person !== name);
   renderRotationPlan(); markChanged();
 }
@@ -1263,8 +1403,22 @@ function bindEvents(){
       markChanged();
       return;
     }
-    if (event.target.id === 'rot-start') { portalData.rotationPlan.start = event.target.value; markChanged(); return; }
-    if (event.target.id === 'rot-period') { portalData.rotationPlan.periodDays = Number(event.target.value || '14') || 14; markChanged(); return; }
+    if (event.target.id === 'rot-start') {
+      const snapshot = getCurrentRotationSnapshot();
+      portalData.rotationPlan.start = event.target.value;
+      seedRotationAnchorAfterScheduleMutation(snapshot);
+      renderRotationPlan();
+      markChanged();
+      return;
+    }
+    if (event.target.id === 'rot-period') {
+      const snapshot = getCurrentRotationSnapshot();
+      portalData.rotationPlan.periodDays = Number(event.target.value || '14') || 14;
+      seedRotationAnchorAfterScheduleMutation(snapshot);
+      renderRotationPlan();
+      markChanged();
+      return;
+    }
     if (event.target.id === 'anchor-date') { portalData.rotationPlan.anchor.date = event.target.value; markChanged(); return; }
     const anchorSlot = event.target.getAttribute('data-anchor-current');
     if (anchorSlot) { portalData.rotationPlan.anchor.current[anchorSlot] = event.target.value; markChanged(); }
@@ -1278,8 +1432,10 @@ function bindEvents(){
   document.addEventListener('change', (event) => {
     const personActive = event.target.getAttribute('data-person-active');
     if (personActive) {
+      seedRotationAnchorBeforeRosterMutation();
       if (!portalData.rotationPlan.people[personActive]) portalData.rotationPlan.people[personActive] = { active:true, name:personActive };
       portalData.rotationPlan.people[personActive].active = event.target.checked;
+      renderRotationPlan();
       markChanged();
       return;
     }
@@ -1384,6 +1540,7 @@ function bindEvents(){
       const arr = portalData.rotationPlan.slotOrder[room];
       const next = personMove === 'up' ? index - 1 : index + 1;
       if (next < 0 || next >= arr.length) return;
+      seedRotationAnchorBeforeRosterMutation();
       [arr[index], arr[next]] = [arr[next], arr[index]];
       renderRotationPlan(); markChanged(); return;
     }
