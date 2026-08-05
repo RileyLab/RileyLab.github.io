@@ -1,6 +1,13 @@
 {
   "announcements": [
     {
+      "when": "2026-08-05T14:28:59.609Z",
+      "level": "urgent",
+      "text": "Everyone, please rinse all beakers, flasks, and other vessels thoroughly after use. Facilities staff have reported finding used glassware with visible broth, bacterial residue, and other materials still inside.They are here to support our team, and leaving contaminated or visibly soiled vessels for them to handle is neither appropriate nor respectful. Please make sure all items are properly rinsed before they are left for cleaning.Thank you for your cooperation!",
+      "html": "<p>Everyone, please rinse all beakers, flasks, and other vessels thoroughly after use. Facilities staff have reported finding used glassware with visible broth, bacterial residue, and other materials still inside.</p><p>They are here to support our team, and leaving contaminated or visibly soiled vessels for them to handle is neither appropriate nor respectful. Please make sure all items are properly rinsed before they are left for cleaning.</p><p>Thank you for your cooperation!</p>",
+      "link": "/assets/uploads/1785940312947-img-5598.jpeg"
+    },
+    {
       "when": "2026-08-06T20:02:00.000Z",
       "level": "warn",
       "text": "Hi everyone,We will have someone coming in on Thursday 8/6 at 10am to calibrate our pipettes. This message is to serve as a notice to try and work around this calibration service so that he can be in and out. Thanks everyone!",
