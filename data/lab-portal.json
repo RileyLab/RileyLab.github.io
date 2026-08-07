@@ -18,17 +18,87 @@
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
   "labMeetings": [
     {
-      "date": "2026-08-03",
-      "presenter": "Summer Trainees",
-      "title": "Summer Trainees Lab Meeting!",
-      "description": "3600 Civic Center Blvd., RM16-102B @ 11:30am",
+      "date": "2026-08-21",
+      "presenter": "Dr. Amarnath",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Shoba's talk + breakfast @ 9AM in RM16-102B!",
       "image": ""
     },
     {
-      "date": "2026-08-05",
-      "presenter": "Chloe",
-      "title": "Chloe Poster Presentation!",
-      "description": "Chloe will be presenting her poster on Wednesday, August 5th in Smilow on the 5th floor (JMEC Atrium) from 2:10-3:10. Let's all show our support!!",
+      "date": "2026-09-04",
+      "presenter": "Dr. Riley",
+      "title": "State of the Lab Address",
+      "description": "Please join us for Jim's State of the Lab Address + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/uploads/1783613989416-jim.png"
+    },
+    {
+      "date": "2026-09-18",
+      "presenter": "Dr. Shukla",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Divanshu's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/divanshu.jpeg"
+    },
+    {
+      "date": "2026-10-02",
+      "presenter": "Dr. Knudsen-Clark",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Amelia's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/amelia.png"
+    },
+    {
+      "date": "2026-10-09",
+      "presenter": "Dr. Bhardwaj",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Vipin's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/vipin.png"
+    },
+    {
+      "date": "2026-10-16",
+      "presenter": "Dr. Jin",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Xiaoling's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/xiaoling.png"
+    },
+    {
+      "date": "2026-10-23",
+      "presenter": "Caitlin",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Caitlin's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/caitlin.jpeg"
+    },
+    {
+      "date": "2026-10-30",
+      "presenter": "Justin Gabrielski",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Justin's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/justing.jpeg"
+    },
+    {
+      "date": "2026-11-13",
+      "presenter": "Justin Shayne",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Justin's talk + breakfast @ 9AM in RM16-102B!",
+      "image": "assets/images/lab-members/justins.jpeg"
+    },
+    {
+      "date": "2026-11-20",
+      "presenter": "Gabby",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Gabby's talk + breakfast @ 9AM in RM16-102B!",
+      "image": ""
+    },
+    {
+      "date": "2026-12-04",
+      "presenter": "Rob",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Rob's talk + breakfast @ 9AM in RM16-102B!",
+      "image": ""
+    },
+    {
+      "date": "2026-12-18",
+      "presenter": "Dr. Liu",
+      "title": "Riley Lab Meeting",
+      "description": "Riley Lab RIP. Please join us for Nancy's talk + breakfast @ 9AM in RM16-102B!",
       "image": ""
     }
   ],
