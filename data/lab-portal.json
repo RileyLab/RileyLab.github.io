@@ -112,16 +112,17 @@
         "Nancy",
         "Vipin",
         "Emileigh",
-        "Divanshu"
+        "Divanshu",
+        "Vivin"
       ],
       "tc2": [
         "Kaitlin",
         "Amelia",
         "Caitlin",
-        "Max",
         "Jiayi",
         "Justin G.",
-        "Rob Robino"
+        "Rob Robino",
+        "Ryan"
       ],
       "tc3": [
         "Mosha",
@@ -130,8 +131,8 @@
         "Gabby",
         "Edmund",
         "Shannon",
-        "Vivin Karthik",
-        "Ryan Matour"
+        "Max",
+        "Jonah"
       ],
       "main": [
         "Gabby",
@@ -148,18 +149,17 @@
         "Xiaoling",
         "Jiayi",
         "Divanshu",
-        "Max",
         "Edmund",
         "Shannon"
       ]
     },
     "anchor": {
-      "date": "2026-07-27",
+      "date": "2026-08-24",
       "current": {
-        "tc1": "Emileigh",
-        "tc2": "Justin G.",
-        "tc3": "Mosha",
-        "main": "Vipin"
+        "tc1": "Vipin",
+        "tc2": "Amelia",
+        "tc3": "Justin S.",
+        "main": "Mosha"
       }
     },
     "people": {
@@ -242,6 +242,18 @@
       "Rob Robino": {
         "active": true,
         "name": "Rob Robino"
+      },
+      "Vivin": {
+        "active": true,
+        "name": "Vivin"
+      },
+      "Ryan": {
+        "active": true,
+        "name": "Ryan"
+      },
+      "Jonah": {
+        "active": true,
+        "name": "Jonah"
       }
     }
   }
