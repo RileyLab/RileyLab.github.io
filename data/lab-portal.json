@@ -112,26 +112,18 @@
         "Nancy",
         "Vipin",
         "Emileigh",
-        "Divanshu",
-        "Vivin"
+        "Divanshu"
       ],
       "tc2": [
-        "Kaitlin",
         "Amelia",
         "Caitlin",
-        "Jiayi",
         "Justin G.",
-        "Rob Robino",
-        "Ryan"
+        "Rob Robino"
       ],
       "tc3": [
         "Mosha",
-        "Tanishk",
         "Justin S.",
         "Gabby",
-        "Edmund",
-        "Shannon",
-        "Max",
         "Jonah"
       ],
       "main": [
@@ -141,16 +133,15 @@
         "Justin S.",
         "Caitlin",
         "Vipin",
-        "Tanishk",
         "Amelia",
         "Nancy",
         "Mosha",
-        "Kaitlin",
         "Xiaoling",
-        "Jiayi",
         "Divanshu",
-        "Edmund",
-        "Shannon"
+        "Max",
+        "Ryan",
+        "Vivin",
+        "Rob"
       ]
     },
     "anchor": {
@@ -254,6 +245,10 @@
       "Jonah": {
         "active": true,
         "name": "Jonah"
+      },
+      "Rob": {
+        "active": true,
+        "name": "Rob"
       }
     }
   }
