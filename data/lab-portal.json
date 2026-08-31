@@ -8,10 +8,10 @@
       "link": "/assets/uploads/1785940312947-img-5598.jpeg"
     },
     {
-      "when": "2026-08-06T20:02:00.000Z",
-      "level": "warn",
-      "text": "Hi everyone,We will have someone coming in on Thursday 8/6 at 10am to calibrate our pipettes. This message is to serve as a notice to try and work around this calibration service so that he can be in and out. Thanks everyone!",
-      "html": "<p>Hi everyone,</p><p>We will have someone coming in on <b><u>Thursday 8/6 at 10am</u></b> to calibrate our pipettes. This message is to serve as a notice to try and work around this calibration service so that he can be in and out. Thanks everyone!</p>",
+      "when": "2026-08-31T20:02:00.000Z",
+      "level": "info",
+      "text": "Hi everyone,OG Bart is back in business! I just completed the transfer of all racks from the FL16 backup -180 to our official BART unit that is fully repaired. Please note that all racks are now arranged in alphabetical order!",
+      "html": "<p>Hi everyone,</p><p>OG Bart is back in business! I just completed the transfer of all racks from the FL16 backup -180 to our official BART unit that is fully repaired. Please note that all racks are now arranged in alphabetical order!</p>",
       "link": ""
     }
   ],
@@ -107,7 +107,6 @@
     "start": "2025-10-20",
     "periodDays": 14,
     "slotOrder": {
-
       "tc1": [
         "Xiaoling",
         "Nancy",
