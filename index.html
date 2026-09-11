@@ -1041,23 +1041,21 @@ function renderAnnouncements(items){
     const time = document.createElement('div');
     time.className = 'ann-time';
     time.textContent = d ? fmtDayShort(d) : '';
+    const badgeNew = document.createElement('span');
+    badgeNew.className = 'badge-new';
+    badgeNew.textContent = 'NEW';
+    head.append(time, badgeNew);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'ann-body';
     const headerText = String(header || title || '').trim();
     if (headerText) {
       const titleEl = document.createElement('div');
       titleEl.className = 'ann-title';
       titleEl.textContent = headerText;
-      head.append(time, titleEl);
-    } else {
-      head.append(time);
+      body.appendChild(titleEl);
     }
-    const badgeNew = document.createElement('span');
-    badgeNew.className = 'badge-new';
-    badgeNew.textContent = 'NEW';
-    head.append(badgeNew);
-
-    // Body
-    const body = document.createElement('div');
-    body.className = 'ann-body';
     const safe = document.createElement('div');
     const rawHtml = (html && html.trim()) ? html : null;
     if (rawHtml) {
