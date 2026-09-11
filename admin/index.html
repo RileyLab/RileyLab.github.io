@@ -267,6 +267,13 @@
     .ann-preview-time.info{ background:#eef4ff; color:var(--ann-info); border-color:#d5e3ff; }
     .ann-preview-time.warn{ background:#fff7ea; color:var(--ann-warn); border-color:#ffddb3; }
     .ann-preview-time.urgent{ background:#ffecec; color:var(--ann-urgent); border-color:#ffb3b3; }
+    .ann-preview-title{
+      color:#18212f;
+      font-size:16px;
+      font-weight:850;
+      line-height:1.3;
+      overflow-wrap:anywhere;
+    }
     .ann-preview-content{ color:#263238; line-height:1.5; }
     .ann-preview-content ul,.ann-preview-content ol{ margin:8px 0 0; padding-left:20px; }
     .ann-preview-content a{ color:#17448f; }
@@ -669,9 +676,11 @@ function renderAnnouncementPreviewMarkup(ann){
   const level = getAnnouncementLevel(ann.level);
   const content = ann.html ? ann.html : escapeHtml(ann.text || '').replace(/\n/g,'<br>');
   const link = normalizeUploadPath(ann.link);
+  const header = String(ann.header || ann.title || '').trim();
   return `
     <div class="ann-preview-live ${level}">
       <div class="ann-preview-time ${level}">${escapeHtml(formatShortDate(ann.when))}</div>
+      ${header ? `<div class="ann-preview-title">${escapeHtml(header)}</div>` : ''}
       <div class="ann-preview-content">${content || '<span class="hint">No content yet.</span>'}</div>
       ${isImagePath(link) ? `<div class="attached-image"><img src="${escapeHtml(link)}" alt=""><span>${escapeHtml(link)}</span></div>` : ''}
     </div>
@@ -981,6 +990,7 @@ function renderAnnouncements(){
           </select>
         </div>
       </div>
+      <div class="field" style="margin-top:12px"><label>Header <span class="hint">(optional)</span></label><input data-ann-field="header" data-index="${index}" value="${escapeHtml(ann.header || ann.title || '')}" placeholder="Optional announcement header"></div>
       ${announcementEditorMarkup(ann, index)}
       <div class="grid-2" style="margin-top:12px">
         <div class="field"><label>Link</label><input data-ann-field="link" data-index="${index}" value="${escapeHtml(ann.link || '')}" placeholder="https://... or /assets/uploads/..." /></div>

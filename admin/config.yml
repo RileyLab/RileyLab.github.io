@@ -24,6 +24,7 @@ collections:
             widget: list
             fields:
               - { label: "Text", name: "text", widget: text, required: false }
+              - { label: "Header", name: "header", widget: string, required: false, hint: "Optional short heading shown above the announcement text." }
               - { label: "HTML", name: "html", widget: text, required: false, hint: "Optional raw HTML. Use this when you need full announcement formatting." }
               - { label: "Level", name: "level", widget: select, required: false, options: ["info", "warn", "urgent"], default: "info" }
               - { label: "Link", name: "link", widget: string, required: false }

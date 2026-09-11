@@ -442,6 +442,8 @@
   let modalRoom = 'TC1';
   let rangeLoadSeq = 0;
   const AUTO_REFRESH_MS = 30 * 1000;
+  const RANGE_STORAGE_PREFIX = 'rileyHoodBookingRange:';
+  const RANGE_STORAGE_TTL_MS = 10 * 60 * 1000;
   let dateOverrides = new Map();
 
   // Super-snappy UX helpers
@@ -1142,7 +1144,6 @@
   /* ---------- FAST data layer (range cache) ---------- */
   const cache = { key: null, events: [] }; // events = [{id, calendarId, title, start, end}]
   const rangeStore = new Map();
-  const prefetchingRanges = new Set();
   function cloneEvents(events){ return events.map(e => ({ ...e })); }
   function keyForRange(start, end){ return `${start.toISOString()}|${end.toISOString()}`; }
   function currentRange(){
@@ -1158,16 +1159,69 @@
   function normalizeEvents(data){
     return data.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, start:x.start, end:x.end }));
   }
+  function storedRangeKey(key){
+    return `${RANGE_STORAGE_PREFIX}${encodeURIComponent(key)}`;
+  }
+  function readStoredRange(key){
+    try {
+      const saved = JSON.parse(localStorage.getItem(storedRangeKey(key)) || 'null');
+      if (!saved || !Array.isArray(saved.events) || Date.now() - Number(saved.savedAt || 0) > RANGE_STORAGE_TTL_MS) return null;
+      return normalizeEvents(saved.events);
+    } catch (_) {
+      return null;
+    }
+  }
+  function writeStoredRange(key, events){
+    try {
+      localStorage.setItem(storedRangeKey(key), JSON.stringify({ savedAt:Date.now(), events:normalizeEvents(events) }));
+    } catch (_) {}
+  }
   function rememberCurrentCache(){
-    if (cache.key) rangeStore.set(cache.key, cloneEvents(cache.events));
+    if (cache.key) {
+      rangeStore.set(cache.key, cloneEvents(cache.events));
+      writeStoredRange(cache.key, cache.events);
+    }
   }
 
-  async function fetchRangeFor(start, end){
+  function delay(ms){
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+  async function fetchJsonWithTimeout(url, timeoutMs = 12000){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, { cache:'no-store', signal:controller.signal });
+      if (!res.ok) throw new Error(`Booking endpoint responded with ${res.status}`);
+      return await res.json();
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  async function fetchRangeFor(start, end, { retries = 2, timeoutMs = 12000 } = {}){
     const s = start.toISOString();
     const e = end.toISOString();
-    const res = await fetch(`${ENDPOINT}?start=${encodeURIComponent(s)}&end=${encodeURIComponent(e)}&timeMin=${encodeURIComponent(s)}&timeMax=${encodeURIComponent(e)}`);
-    const json = await res.json();
-    return Array.isArray(json) ? json : [];
+    let lastError = null;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const params = new URLSearchParams({
+          start:s,
+          end:e,
+          timeMin:s,
+          timeMax:e,
+          v:String(Date.now())
+        });
+        const url = `${ENDPOINT}?${params.toString()}`;
+        const json = await fetchJsonWithTimeout(url, timeoutMs);
+        return Array.isArray(json) ? json : [];
+      } catch (err) {
+        lastError = err;
+        if (attempt < retries) {
+          setRefreshStatus(`Loading bookings... retry ${attempt + 1}`);
+          await delay(700 * (attempt + 1));
+        }
+      }
+    }
+    throw lastError || new Error('Could not load bookings');
   }
   async function fetchEventsCovering(events){
     if (!events.length) return [];
@@ -1186,13 +1240,25 @@
       cache.events = cloneEvents(rangeStore.get(k));
       setLoadError(false);
       setRefreshStatus(`Loaded instantly from cache`);
-      prefetchAdjacentRanges();
-      return;
+      return 'memory-cache';
     }
-    if (!force && cache.key === k && cache.events.length) return; // already loaded
+    if (!force) {
+      const stored = readStoredRange(k);
+      if (stored) {
+        cache.key = k;
+        cache.events = stored;
+        rangeStore.set(k, cloneEvents(stored));
+        setLoadError(false);
+        setRefreshStatus('Loaded saved bookings; refreshing...');
+        ensureRangeLoaded({ force:true, quiet:true }).then(()=>renderRoom(activeRoom)).catch(()=>{});
+        return 'stored-cache';
+      }
+    }
+    if (!force && cache.key === k && cache.events.length) return 'current-cache'; // already loaded
     const seq = ++rangeLoadSeq;
     if (!quiet) showSpin(true);
     try {
+      setRefreshStatus('Loading bookings...');
       const data = await fetchRangeFor(start, end);
       if (seq !== rangeLoadSeq || k !== rangeKey()) return;
       setLoadError(false);
@@ -1206,6 +1272,7 @@
       document.getElementById('calendar').style.visibility = 'hidden';
       Cal.add(cache.events.map(x=>({ id:x.id, calendarId:x.calendarId, title:x.title, category:'time', start:new Date(x.start), end:new Date(x.end), isReadOnly:false })));
       document.getElementById('calendar').style.visibility = '';
+      return 'network';
     } catch (err) {
       setLoadError(true);
       setRefreshStatus('Refresh failed');
@@ -1214,23 +1281,6 @@
     } finally {
       if (seq === rangeLoadSeq && !quiet) showSpin(false);
     }
-  }
-
-  function prefetchAdjacentRanges(){
-    const { start, end } = currentRange();
-    const span = end.getTime() - start.getTime();
-    if (!span) return;
-    [-1, 1].forEach(direction => {
-      const nextStart = new Date(start.getTime() + direction * span);
-      const nextEnd = new Date(end.getTime() + direction * span);
-      const k = keyForRange(nextStart, nextEnd);
-      if (rangeStore.has(k) || prefetchingRanges.has(k)) return;
-      prefetchingRanges.add(k);
-      fetchRangeFor(nextStart, nextEnd)
-        .then(data => rangeStore.set(k, normalizeEvents(data)))
-        .catch(()=>{})
-        .finally(()=>prefetchingRanges.delete(k));
-    });
   }
 
   function renderRoom(room){
@@ -1417,6 +1467,16 @@
     };
   }
   async function persistCreatedEvents(events){
+    if (events.length > 1) {
+      const batchResp = await postSimple({ action:'createMany', events });
+      if (batchResp && batchResp.ok === true) {
+        return { ok:true, saved:batchResp.saved || events };
+      }
+      if (batchResp && batchResp.error !== 'unknown action') {
+        return { ok:false, error:batchResp?.error || 'network', saved:batchResp?.saved || [] };
+      }
+    }
+
     const saved = [];
     for (const event of events) {
       const resp = await postSimple({ action:'create', event });
@@ -1438,12 +1498,12 @@
       renderRoom(activeRoom);
       setRefreshStatus('Loaded instantly from cache');
       ensureRangeLoaded({ force:true, quiet:true })
-        .then(()=>{ renderRoom(activeRoom); prefetchAdjacentRanges(); })
+        .then(()=>{ renderRoom(activeRoom); })
         .catch(()=>{});
       return;
     }
     ensureRangeLoaded()
-      .then(()=>{ renderRoom(activeRoom); prefetchAdjacentRanges(); })
+      .then(()=>{ renderRoom(activeRoom); })
       .catch(()=>{});
   }
   async function autoRefreshRange(){
@@ -1455,7 +1515,6 @@
     try {
       await ensureRangeLoaded({ force:true, quiet:true });
       renderRoom(room);
-      prefetchAdjacentRanges();
     } catch (err) {
       // The inline retry banner is enough for background refresh failures.
     }
@@ -1827,7 +1886,6 @@
     }
     openInitialBookingModal();
     showSpin(false);
-    prefetchAdjacentRanges();
   })();
   setInterval(autoRefreshRange, AUTO_REFRESH_MS);
 

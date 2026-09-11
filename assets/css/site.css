@@ -1731,6 +1731,14 @@ html.page-portal{
     html.page-portal .ann-item.info   .ann-head{ color: var(--ann-info); }
     html.page-portal .ann-item.warn   .ann-head{ color: var(--ann-warn); }
     html.page-portal .ann-item.urgent .ann-head{ color: var(--ann-urgent); }
+    html.page-portal .ann-title{
+      min-width: 0;
+      color: #1c2430;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.25;
+      overflow-wrap: anywhere;
+    }
 
     /* Remove icon chip */
     html.page-portal .ann-chip{ display: none !important; }

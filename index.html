@@ -1016,7 +1016,7 @@ function renderAnnouncements(items){
   const frag = document.createDocumentFragment();
 
   sorted.forEach((a) => {
-    const { id: suppliedId, text, html, when, level, link } = a;
+    const { id: suppliedId, header, title, text, html, when, level, link } = a;
 
     const d  = parseDateSafe(when) || new Date(0);
     const ts = d.getTime();
@@ -1041,10 +1041,19 @@ function renderAnnouncements(items){
     const time = document.createElement('div');
     time.className = 'ann-time';
     time.textContent = d ? fmtDayShort(d) : '';
+    const headerText = String(header || title || '').trim();
+    if (headerText) {
+      const titleEl = document.createElement('div');
+      titleEl.className = 'ann-title';
+      titleEl.textContent = headerText;
+      head.append(time, titleEl);
+    } else {
+      head.append(time);
+    }
     const badgeNew = document.createElement('span');
     badgeNew.className = 'badge-new';
     badgeNew.textContent = 'NEW';
-    head.append(time, badgeNew);
+    head.append(badgeNew);
 
     // Body
     const body = document.createElement('div');
