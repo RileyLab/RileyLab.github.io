@@ -141,12 +141,12 @@
       ]
     },
     "anchor": {
-      "date": "2026-08-24",
+      "date": "2026-09-07",
       "current": {
-        "tc1": "Xiaoling",
-        "tc2": "Amelia",
-        "tc3": "Gabby",
-        "main": "Mosha"
+        "tc1": "Vipin",
+        "tc2": "Caitlin",
+        "tc3": "Max",
+        "main": "Xiaoling"
       }
     },
     "people": {
@@ -191,7 +191,7 @@
         "name": "Kaitlin"
       },
       "Emileigh": {
-        "active": true,
+        "active": false,
         "name": "Emileigh"
       },
       "Nancy": {
