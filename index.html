@@ -9,7 +9,7 @@
   <!-- Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260716-293t-calendar-button">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260916-odd-requests">
 </head>
 <body>
 <div class="wrap">
@@ -62,6 +62,10 @@
     </details>
 
     <div class="header-brand">
+      <button type="button" class="odd-request-trigger" id="odd-request-open" aria-label="Submit a request" title="Submit a request">
+        <span class="ms" aria-hidden="true">add_comment</span>
+        <span>Submit Request</span>
+      </button>
       <img
               src="/assets/images/riley-lab-logo.png"
               alt="Riley Lab"
@@ -84,6 +88,33 @@
       </a>
     </div>
   </header>
+
+  <div class="odd-request-backdrop" id="odd-request-modal" hidden>
+    <div class="odd-request-dialog" role="dialog" aria-modal="true" aria-labelledby="odd-request-title">
+      <button type="button" class="odd-request-close" id="odd-request-close" aria-label="Close request form">
+        <span class="ms" aria-hidden="true">close</span>
+      </button>
+      <h2 id="odd-request-title">Submit request</h2>
+      <form id="odd-request-form" class="odd-request-form">
+        <label>
+          <span>Name</span>
+          <input id="odd-request-name" name="name" type="text" autocomplete="name" required>
+        </label>
+        <label>
+          <span>Request</span>
+          <textarea id="odd-request-text" name="request" rows="4" placeholder="Odd/Random questions or concerns? Type any request here to let your management know!" required></textarea>
+        </label>
+        <div class="odd-request-actions">
+          <button type="button" class="odd-request-secondary" id="odd-request-cancel">Cancel</button>
+          <button type="submit" class="odd-request-submit">
+            <span class="ms" aria-hidden="true">send</span>
+            <span>Send</span>
+          </button>
+        </div>
+        <p class="odd-request-status" id="odd-request-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
 
 <div class="portal-top" id="portal-top">
 <section class="card next-meeting" id="next-meeting-card" aria-labelledby="meeting-title" hidden>
@@ -639,6 +670,94 @@ if (q && qResults) {
     }
   });
 }
+
+const ODD_REQUESTS_URL = 'https://script.google.com/macros/s/AKfycbwUBI7v68dVzqVPEqcQd2_Dnwk0hggemP-QzuzyLtDt1Fc_vLoYpUlg52zKVpIkS3eUGw/exec';
+
+function setupOddRequestModal() {
+  const openBtn = document.getElementById('odd-request-open');
+  const modal = document.getElementById('odd-request-modal');
+  const closeBtn = document.getElementById('odd-request-close');
+  const cancelBtn = document.getElementById('odd-request-cancel');
+  const form = document.getElementById('odd-request-form');
+  const nameInput = document.getElementById('odd-request-name');
+  const requestInput = document.getElementById('odd-request-text');
+  const status = document.getElementById('odd-request-status');
+  if (!openBtn || !modal || !closeBtn || !cancelBtn || !form || !nameInput || !requestInput || !status) return;
+
+  const submitBtn = form.querySelector('.odd-request-submit');
+  let lastFocused = null;
+
+  function setStatus(message, type = '') {
+    status.textContent = message;
+    status.classList.toggle('is-error', type === 'error');
+    status.classList.toggle('is-success', type === 'success');
+  }
+
+  function openModal() {
+    lastFocused = document.activeElement;
+    modal.hidden = false;
+    setStatus(ODD_REQUESTS_URL ? '' : 'Request logging needs a Google Sheet endpoint before submissions can be saved.', ODD_REQUESTS_URL ? '' : 'error');
+    setTimeout(() => nameInput.focus(), 0);
+  }
+
+  function closeModal() {
+    modal.hidden = true;
+    form.reset();
+    setStatus('');
+    if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+  }
+
+  openBtn.addEventListener('click', openModal);
+  closeBtn.addEventListener('click', closeModal);
+  cancelBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) closeModal();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (!ODD_REQUESTS_URL) {
+      setStatus('Request logging needs a Google Sheet endpoint before submissions can be saved.', 'error');
+      return;
+    }
+
+    const name = nameInput.value.trim();
+    const request = requestInput.value.trim();
+    if (!name || !request) {
+      setStatus('Please add your name and request.', 'error');
+      return;
+    }
+
+    const submittedAt = new Date().toISOString();
+    const body = new URLSearchParams({ name, submittedAt, request });
+
+    try {
+      if (submitBtn) submitBtn.disabled = true;
+      setStatus('Sending...');
+      await fetch(ODD_REQUESTS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body
+      });
+      setStatus('Request sent.', 'success');
+      form.reset();
+      setTimeout(closeModal, 900);
+    } catch (err) {
+      console.warn('Odd request submission failed:', err);
+      setStatus('Could not send the request. Please try again.', 'error');
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+}
+setupOddRequestModal();
 
 /* === DATA LOAD (Decap JSON) === */
 function portalJsonUrl() {

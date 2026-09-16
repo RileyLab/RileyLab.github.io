@@ -821,17 +821,184 @@ html.page-portal{
     html.page-portal .header-brand{
       grid-area:brand;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      flex-direction: row;
+      gap: 12px;
       align-items:center;
       justify-self:center;
       text-align:center;
+    }
+
+    html.page-portal .odd-request-trigger{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:36px;
+      padding:8px 13px;
+      border-radius:999px;
+      border:1px solid #0b3d91;
+      background:#0b3d91;
+      color:#fff;
+      box-shadow:0 5px 14px rgba(11,61,145,.24);
+      font:inherit;
+      font-size:12px;
+      font-weight:800;
+      line-height:1;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    html.page-portal .odd-request-trigger:hover{
+      background:#174ea6;
+      border-color:#174ea6;
+      box-shadow:0 7px 18px rgba(11,61,145,.3);
+    }
+    html.page-portal .odd-request-trigger:focus-visible{
+      outline:none;
+      box-shadow:0 0 0 3px var(--ring);
+    }
+    html.page-portal .odd-request-trigger .ms{
+      font-size:18px;
     }
 
     html.page-portal .header-logo{
       height: auto;
       width: 300px;
       display: block;
+    }
+
+    html.page-portal .odd-request-backdrop{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      background:rgba(15,23,42,.42);
+      z-index:10000;
+    }
+    html.page-portal .odd-request-backdrop[hidden]{
+      display:none !important;
+    }
+    html.page-portal .odd-request-dialog{
+      position:relative;
+      width:min(420px, 100%);
+      border:1px solid #d6e3ff;
+      border-radius:12px;
+      background:#fff;
+      box-shadow:0 18px 44px rgba(15,23,42,.22);
+      padding:18px;
+    }
+    html.page-portal .odd-request-dialog h2{
+      margin:0 34px 14px 0;
+      color:#10233f;
+      font-size:20px;
+      line-height:1.2;
+      letter-spacing:0;
+    }
+    html.page-portal .odd-request-close{
+      position:absolute;
+      top:10px;
+      right:10px;
+      width:32px;
+      height:32px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid #dfe6ef;
+      border-radius:999px;
+      background:#fff;
+      color:#35506d;
+      cursor:pointer;
+    }
+    html.page-portal .odd-request-close:hover{
+      background:#f8fbff;
+    }
+    html.page-portal .odd-request-form{
+      display:grid;
+      gap:12px;
+    }
+    html.page-portal .odd-request-form label{
+      display:grid;
+      gap:6px;
+      color:#37587b;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+    html.page-portal .odd-request-form input,
+    html.page-portal .odd-request-form textarea{
+      width:100%;
+      box-sizing:border-box;
+      border:1px solid #dfe6ef;
+      border-radius:10px;
+      background:#fff;
+      color:#10233f;
+      font:inherit;
+      font-size:14px;
+      font-weight:500;
+      letter-spacing:0;
+      text-transform:none;
+      padding:10px 12px;
+      outline:none;
+    }
+    html.page-portal .odd-request-form textarea{
+      min-height:104px;
+      resize:vertical;
+    }
+    html.page-portal .odd-request-form input:focus,
+    html.page-portal .odd-request-form textarea:focus{
+      border-color:#9bbcff;
+      box-shadow:0 0 0 3px var(--ring);
+    }
+    html.page-portal .odd-request-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:2px;
+    }
+    html.page-portal .odd-request-secondary,
+    html.page-portal .odd-request-submit{
+      min-height:36px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      border-radius:999px;
+      font:inherit;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      padding:8px 13px;
+    }
+    html.page-portal .odd-request-secondary{
+      border:1px solid #dfe6ef;
+      background:#fff;
+      color:#35506d;
+    }
+    html.page-portal .odd-request-submit{
+      border:1px solid #0b3d91;
+      background:#0b3d91;
+      color:#fff;
+    }
+    html.page-portal .odd-request-submit:disabled{
+      cursor:not-allowed;
+      opacity:.62;
+    }
+    html.page-portal .odd-request-status{
+      min-height:18px;
+      margin:0;
+      color:#4f6680;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.35;
+    }
+    html.page-portal .odd-request-status.is-error{
+      color:#9a3412;
+    }
+    html.page-portal .odd-request-status.is-success{
+      color:#166534;
     }
 
     html.page-portal .subtitle{
@@ -2652,6 +2819,19 @@ html.page-portal{
       html.page-portal .header-quick > summary::after{
         right:7px;
         font-size:16px;
+      }
+      html.page-portal .header-brand{
+        flex-direction:column-reverse;
+        gap:8px;
+        justify-self:center;
+      }
+      html.page-portal .header-logo{
+        width:min(280px, 84vw);
+      }
+      html.page-portal .odd-request-trigger{
+        min-height:34px;
+        padding:7px 10px;
+        font-size:12px;
       }
       html.page-portal .quick-link{
         padding:8px 10px;
