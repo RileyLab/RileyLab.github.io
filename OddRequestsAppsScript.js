@@ -34,7 +34,10 @@ function getOddRequestsSheet_() {
 
 function notifySlack_(submittedAt, name, request) {
   const webhookUrl = PropertiesService.getScriptProperties().getProperty(SLACK_WEBHOOK_PROPERTY);
-  if (!webhookUrl) return;
+  if (!webhookUrl) {
+    console.warn(`Missing script property: ${SLACK_WEBHOOK_PROPERTY}`);
+    return;
+  }
 
   const message = [
     ':bell: *New Riley Lab Portal request*',
@@ -43,12 +46,22 @@ function notifySlack_(submittedAt, name, request) {
     `*Request:* ${request}`
   ].join('\n');
 
-  UrlFetchApp.fetch(webhookUrl, {
+  const response = UrlFetchApp.fetch(webhookUrl, {
     method: 'post',
     contentType: 'application/json',
     payload: JSON.stringify({ text: message }),
     muteHttpExceptions: true
   });
+
+  const code = response.getResponseCode();
+  const text = response.getContentText();
+  if (code < 200 || code >= 300) {
+    console.error(`Slack notification failed: ${code} ${text}`);
+  }
+}
+
+function testSlackNotification() {
+  notifySlack_(new Date().toISOString(), 'Test User', 'This is a test from Riley Lab Portal Apps Script.');
 }
 
 function json_(payload) {
