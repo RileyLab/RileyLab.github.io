@@ -9,7 +9,7 @@
   <!-- Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:wght@300..700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/site.css?v=20260916-odd-requests">
+  <link rel="stylesheet" href="assets/css/site.css?v=20260918-empty-state-message">
 </head>
 <body>
 <div class="wrap">
@@ -117,7 +117,7 @@
   </div>
 
 <div class="portal-top" id="portal-top">
-<section class="card next-meeting" id="next-meeting-card" aria-labelledby="meeting-title" hidden>
+<section class="card next-meeting" id="next-meeting-card" aria-labelledby="meeting-title">
   <h2 id="meeting-title">
     <span class="ms" aria-hidden="true">groups</span>
     <span class="meeting-title-text">Riley Lab RIP</span>
@@ -1096,10 +1096,21 @@ function renderAnnouncements(items){
   const readSet = getReadSet();
 
   const sorted = (items||[]).slice().sort((a,b) => {
-    const da = parseDateSafe(a.when) || new Date(0);
-    const db = parseDateSafe(b.when) || new Date(0);
-    return db - da;
+    const da = parseDateSafe(a.when);
+    const db = parseDateSafe(b.when);
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+    return da - db;
   });
+
+  if (!sorted.length) {
+    list.innerHTML = `<li class="ann-empty">No announcements at the moment!</li>`;
+    showAnnToast(0);
+    updateAnnDotVisibility();
+    applyAnnLayout();
+    return;
+  }
 
   // hook overlay
   (function wireAnnOverlay(){
@@ -1163,18 +1174,20 @@ function renderAnnouncements(items){
     const badgeNew = document.createElement('span');
     badgeNew.className = 'badge-new';
     badgeNew.textContent = 'NEW';
-    head.append(time, badgeNew);
+    head.append(time);
 
-    // Body
-    const body = document.createElement('div');
-    body.className = 'ann-body';
     const headerText = String(header || title || '').trim();
     if (headerText) {
       const titleEl = document.createElement('div');
       titleEl.className = 'ann-title';
       titleEl.textContent = headerText;
-      body.appendChild(titleEl);
+      head.appendChild(titleEl);
     }
+    head.appendChild(badgeNew);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'ann-body';
     const safe = document.createElement('div');
     const rawHtml = (html && html.trim()) ? html : null;
     if (rawHtml) {
@@ -1307,10 +1320,10 @@ function renderNextLabMeeting(meetings){
 
   const meeting = getNextLabMeeting(meetings);
   if (!meeting) {
-    card.hidden = true;
+    card.hidden = false;
     card.style.height = '';
-    body.innerHTML = '';
-    top.classList.remove('has-meeting');
+    body.innerHTML = `<div class="meeting-empty">No upcoming RIP Meetings!</div>`;
+    top.classList.add('has-meeting');
     return;
   }
 
@@ -1768,6 +1781,7 @@ async function loadHoodAvailability({ quiet = false } = {}){
 function renderRotations(obj, plan){
   const elDates = document.getElementById('rot-dates');
   const elGrid  = document.getElementById('rot-grid');
+  const elCard = document.getElementById('rotations-card');
   const elToggleAll = document.getElementById('rot-toggle-all');
   const elPrev = document.getElementById('rot-prev');
   const elNext = document.getElementById('rot-next');
@@ -1802,6 +1816,9 @@ function renderRotations(obj, plan){
     { key: 'main', label: 'Main Lab', cls: 'rot-main', value: obj.main }
   ];
   const allOpen = roomCards.every((card) => openRotationSlots.has(card.key));
+  if (elCard) {
+    elCard.classList.toggle('has-open-rotation', openRotationSlots.size > 0);
+  }
 
   elDates.innerHTML = `<span class="ms" aria-hidden="true">calendar_month</span> ${badgeDateYMD(obj.start)} – ${badgeDateYMD(obj.end)}`;
   if (elToggleAll) {

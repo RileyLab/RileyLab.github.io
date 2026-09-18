@@ -1620,6 +1620,19 @@ html.page-portal{
       max-width:none;
       text-align:center;
     }
+    html.page-portal .meeting-empty{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:130px;
+      padding:18px;
+      color:#49617f;
+      font-size:18px;
+      font-weight:850;
+      line-height:1.25;
+      text-align:center;
+    }
     html.page-portal .rot-293t-card{
       display:flex;
       flex-direction:column;
@@ -3959,6 +3972,56 @@ html.page-portal #portal-top .ann-body,
 html.page-portal #portal-top .ann-body *{
   overflow-wrap:anywhere;
 }
+html.page-portal #portal-top > .ann-banner .ann-list{
+  grid-template-columns:1fr !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-item{
+  grid-template-columns:1fr !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-content-row{
+  grid-column:1 / -1 !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-head{
+  display:grid !important;
+  grid-template-columns:auto minmax(0, 1fr) auto;
+  align-items:center;
+  gap:10px;
+  width:100%;
+}
+html.page-portal #portal-top > .ann-banner .ann-head::before{
+  display:none;
+}
+html.page-portal #portal-top > .ann-banner .ann-title{
+  margin:0;
+  text-align:center;
+}
+html.page-portal #portal-top > .ann-banner .badge-new{
+  margin-left:0;
+}
+html.page-portal #portal-top > .ann-banner .ann-content-row,
+html.page-portal #portal-top > .ann-banner .ann-content-row.has-actions{
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr);
+  width:100%;
+}
+html.page-portal #portal-top > .ann-banner .ann-actions{
+  justify-self:end;
+}
+html.page-portal #portal-top > .ann-banner .ann-empty{
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  min-height:130px;
+  padding:18px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#6b5d3b;
+  font-size:18px;
+  font-weight:850;
+  line-height:1.25;
+  text-align:center;
+}
 html.page-portal #portal-top,
 html.page-portal #portal-top *,
 html.page-portal #portal-top *::before,
@@ -4116,4 +4179,157 @@ html.page-portal .wrap > .portal-ops-row .rot-inline-forecast-dates{
 html.page-portal .wrap > .portal-ops-row .rot-inline-forecast-dates .ms{
   line-height:1 !important;
   margin-top:1px !important;
+}
+
+/* Final announcement item layout: title centered, body full width. */
+html.page-portal #portal-top > .ann-banner .ann-item{
+  display:block !important;
+  width:100% !important;
+  padding:16px !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-head{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-height:34px !important;
+  margin:0 0 12px !important;
+  padding:0 128px !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-head::before{
+  display:none !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-time{
+  position:absolute !important;
+  left:0 !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-title{
+  width:100% !important;
+  max-width:100% !important;
+  margin:0 !important;
+  text-align:center !important;
+}
+html.page-portal #portal-top > .ann-banner .badge-new{
+  position:absolute !important;
+  right:0 !important;
+  top:50% !important;
+  transform:translateY(-50%) !important;
+  margin:0 !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-content-row,
+html.page-portal #portal-top > .ann-banner .ann-content-row.has-actions{
+  display:block !important;
+  width:100% !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-body{
+  width:100% !important;
+  max-width:none !important;
+}
+html.page-portal #portal-top > .ann-banner .ann-actions{
+  display:flex !important;
+  justify-content:flex-end !important;
+  margin-top:10px !important;
+}
+@media (max-width: 640px){
+  html.page-portal #portal-top > .ann-banner .ann-head{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    justify-items:center !important;
+    gap:8px !important;
+    padding:0 !important;
+  }
+  html.page-portal #portal-top > .ann-banner .ann-time,
+  html.page-portal #portal-top > .ann-banner .badge-new{
+    position:static !important;
+    transform:none !important;
+  }
+}
+
+/* Equal-height top cards on desktop: the tallest card sets the row height. */
+@media (min-width: 1201px){
+  html.page-portal #portal-top,
+  html.page-portal #portal-top.has-meeting{
+    align-items:stretch !important;
+  }
+  html.page-portal #portal-top > #next-meeting-card,
+  html.page-portal #portal-top > .ann-banner,
+  html.page-portal #portal-top > .portal-top-side{
+    align-self:stretch !important;
+    height:100% !important;
+  }
+  html.page-portal #portal-top > #next-meeting-card,
+  html.page-portal #portal-top > .ann-banner,
+  html.page-portal #portal-top > .portal-top-side > .rot-293t-card{
+    display:flex !important;
+    flex-direction:column !important;
+  }
+  html.page-portal #portal-top > .portal-top-side > .rot-293t-card{
+    height:100% !important;
+  }
+  html.page-portal #portal-top > .ann-banner > .ann-list,
+  html.page-portal #portal-top > .portal-top-side > .rot-293t-card > .rot-293t-body,
+  html.page-portal #portal-top > #next-meeting-card > .meeting-body{
+    flex:1 1 auto !important;
+  }
+  html.page-portal #portal-top > .portal-top-side > .rot-293t-card > .rot-293t-body,
+  html.page-portal #portal-top > #next-meeting-card > .meeting-body{
+    justify-content:center !important;
+  }
+}
+
+/* Let rotation tiles fill the available card height. */
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-grid{
+  flex:1 1 auto !important;
+  align-content:center !important;
+  align-items:stretch !important;
+  grid-auto-rows:minmax(0, .7fr) !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-col{
+  height:92% !important;
+  min-height:88px;
+  display:flex !important;
+  flex-direction:column !important;
+  align-self:center !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-col.is-active{
+  height:auto !important;
+  align-self:start !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-body{
+  flex:1 1 auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-col.is-active .rot-body{
+  justify-content:flex-start !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot .rot-inline-forecast{
+  width:100% !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation{
+  height:auto !important;
+  min-height:0 !important;
+  align-self:start !important;
+  overflow:visible !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation .rot-grid{
+  flex:0 0 auto !important;
+  align-content:start !important;
+  align-items:start !important;
+  grid-auto-rows:auto !important;
+  overflow:visible !important;
+}
+html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation .rot-col{
+  height:auto !important;
+  align-self:start !important;
+}
+@media (max-width: 640px){
+  html.page-portal .wrap > .portal-ops-row > .room-rot .rot-col{
+    min-height:72px;
+  }
 }
