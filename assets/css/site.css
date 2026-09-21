@@ -4245,62 +4245,28 @@ html.page-portal #portal-top > .ann-banner .ann-actions{
   margin-top:6px !important;
 }
 html.page-portal .ann-item.urgent{
-  overflow:visible;
+  outline:3px solid var(--ann-urgent);
+  outline-offset:0;
+  animation:annUrgentPulse 1.35s ease-in-out infinite;
 }
 html.page-portal .ann-item.urgent.new{
-  animation:annPop .35s ease-out;
+  animation:annPop .35s ease-out, annUrgentPulse 1.35s ease-in-out .35s infinite;
 }
-html.page-portal .ann-item.urgent::before,
-html.page-portal .ann-item.urgent::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  padding:4px;
-  pointer-events:none;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite:exclude;
-}
-html.page-portal .ann-item.urgent::before{
-  background:var(--ann-urgent);
-}
-html.page-portal .ann-item.urgent::after{
-  background:conic-gradient(
-    from var(--ann-trace-angle, 0deg),
-    transparent 0deg,
-    transparent 198deg,
-    rgba(255,31,31,.04) 230deg,
-    rgba(255,31,31,.16) 262deg,
-    rgba(255,31,31,.38) 292deg,
-    rgba(255,31,31,.75) 316deg,
-    #ff1f1f 332deg,
-    #fff 340deg,
-    #ff1f1f 348deg,
-    transparent 360deg
-  );
-  filter:drop-shadow(0 0 7px rgba(229,57,53,.95));
-  animation:annUrgentTrace 3.1s linear infinite;
-}
-@property --ann-trace-angle{
-  syntax:"<angle>";
-  inherits:false;
-  initial-value:0deg;
-}
-@keyframes annUrgentTrace{
-  to{ --ann-trace-angle:360deg; }
+@keyframes annUrgentPulse{
+  0%, 100%{
+    outline-width:3px;
+    outline-offset:0;
+    box-shadow:0 0 0 0 rgba(229,57,53,.62), 0 0 12px rgba(229,57,53,.18), var(--shadow);
+  }
+  50%{
+    outline-width:5px;
+    outline-offset:1px;
+    box-shadow:0 0 0 10px rgba(229,57,53,0), 0 0 22px rgba(229,57,53,.34), var(--shadow);
+  }
 }
 @media (prefers-reduced-motion: reduce){
   html.page-portal .ann-item.urgent,
   html.page-portal .ann-item.urgent.new{
-    animation:none;
-  }
-  html.page-portal .ann-item.urgent::after{
     animation:none;
   }
 }
