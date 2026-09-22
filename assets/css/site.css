@@ -4375,3 +4375,75 @@ html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation .rot-col{
     min-height:72px;
   }
 }
+
+@media (max-width: 820px){
+  html.page-portal .wrap > .portal-ops-row > .room-rot{
+    padding:12px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot #rot-title{
+    grid-template-columns:auto minmax(0, 1fr) auto !important;
+    gap:8px 10px !important;
+    margin:-12px -12px 12px !important;
+    padding:12px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot #rot-title > .ms:first-child{
+    font-size:20px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-title-text{
+    font-size:16px !important;
+    line-height:1.2 !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-toggle-all{
+    min-height:28px !important;
+    padding:0 10px !important;
+    font-size:10px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav{
+    width:100% !important;
+    gap:6px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-reset-btn,
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav-btn{
+    flex:0 0 auto !important;
+    min-height:28px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-nav-btn{
+    width:28px !important;
+    height:28px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot #rot-dates{
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    padding:0 8px !important;
+    font-size:11px !important;
+  }
+  html.page-portal .wrap > .portal-ops-row > .room-rot .rot-grid,
+  html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation .rot-grid{
+    grid-template-columns:1fr !important;
+    gap:10px !important;
+    grid-auto-rows:auto !important;
+    align-content:start !important;
+  }
+  html.page-portal .wrap > .portal-ops-row > .room-rot .rot-col,
+  html.page-portal .wrap > .portal-ops-row > .room-rot.has-open-rotation .rot-col{
+    height:auto !important;
+    min-height:0 !important;
+    align-self:stretch !important;
+  }
+  html.page-portal .wrap > .portal-ops-row > .room-rot .rot-body{
+    padding:10px 12px !important;
+  }
+}
+
+@media (max-width: 480px){
+  html.page-portal .wrap > .portal-ops-row .room-rot #rot-title{
+    grid-template-columns:auto minmax(0, 1fr) !important;
+    grid-template-areas:
+      "icon title"
+      "toggle toggle"
+      "nav nav" !important;
+  }
+  html.page-portal .wrap > .portal-ops-row .room-rot .rot-toggle-all{
+    justify-self:end !important;
+  }
+}
