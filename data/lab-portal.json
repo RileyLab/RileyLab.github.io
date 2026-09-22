@@ -10,7 +10,7 @@
     },
     {
       "when": "2026-09-22T18:07:00.000Z",
-      "level": "warn",
+      "level": "urgent",
       "text": "EVS will be performing floor care on our floor on Tuesday, September 22, continuing into the morning of Wednesday, September 23.Please ensure that all items are removed from the floor before leaving the lab on Tuesday, 9/22, so the space is clear for EVS.Thank you!",
       "html": "<p>EVS will be performing floor care on our floor on Tuesday, September 22, continuing into the morning of Wednesday, September 23.</p><p>Please ensure that <b><u>all items are removed from the floor</u></b> before leaving the lab on Tuesday, 9/22, so the space is clear for EVS.</p><p>Thank you!</p>",
       "link": "",
