@@ -7,22 +7,6 @@
       "html": "<p>Hi everyone,</p><p>Our reign over the cold room has officially come to an end. We’ll soon be sharing the space with a new lab moving onto the 16th floor.</p><p>To prepare, I’ve moved all Riley Lab belongings to the <strong>right-hand side of the cold room</strong>. Going forward, please make sure that <strong>all Riley Lab items stay on the right side and that nothing is placed or stored on the left side</strong>, as that space will belong to the new lab.</p>",
       "link": "",
       "header": "Cold Room Storage"
-    },
-    {
-      "when": "2026-09-22T18:07:00.000Z",
-      "level": "urgent",
-      "text": "EVS will be performing floor care on our floor on Tuesday, September 22, continuing into the morning of Wednesday, September 23.Please ensure that all items are removed from the floor before leaving the lab on Tuesday, 9/22, so the space is clear for EVS.Thank you!",
-      "html": "<p>EVS will be performing floor care on our floor on Tuesday, September 22, continuing into the morning of Wednesday, September 23.</p><p>Please ensure that <b><u>all items are removed from the floor</u></b> before leaving the lab on Tuesday, 9/22, so the space is clear for EVS.</p><p>Thank you!</p>",
-      "link": "",
-      "header": "Lab Floor Care Schedule 9/22"
-    },
-    {
-      "when": "2026-09-23T14:28:00.000Z",
-      "level": "info",
-      "text": "Hi everyone,We will be having a Lab Lunch at Dim Sum House on September 23rd at 12PM to celebrate Shoba's time with us in the lab!",
-      "html": "<p>Hi everyone,</p><p>We will be having a Lab Lunch at Dim Sum House on September 23rd at 12PM to celebrate Shoba's time with us in the lab!</p>",
-      "link": "",
-      "header": "Lab Lunch For Shoba on 9/23 at 12PM!"
     }
   ],
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
