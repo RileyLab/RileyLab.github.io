@@ -106,7 +106,8 @@
         "Nancy",
         "Vipin",
         "Emileigh",
-        "Divanshu"
+        "Divanshu",
+        "Vivin"
       ],
       "tc2": [
         "Amelia",
@@ -136,17 +137,16 @@
         "Divanshu",
         "Max",
         "Ryan",
-        "Vivin",
         "Rob"
       ]
     },
     "anchor": {
-      "date": "2026-09-07",
+      "date": "2026-09-21",
       "current": {
-        "tc1": "Vipin",
-        "tc2": "Caitlin",
-        "tc3": "Max",
-        "main": "Xiaoling"
+        "tc1": "Divanshu",
+        "tc2": "Justin G.",
+        "tc3": "Jonah",
+        "main": "Divanshu"
       }
     },
     "people": {
@@ -195,7 +195,7 @@
         "name": "Emileigh"
       },
       "Nancy": {
-        "active": false,
+        "active": true,
         "name": "Nancy"
       },
       "Jiayi": {
