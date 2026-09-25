@@ -1,6 +1,14 @@
 {
   "announcements": [
     {
+      "when": "2026-09-25T18:46:17.629Z",
+      "level": "info",
+      "text": "Hi everyone,Important reminder that if you are the last to take a certain reagent, to please let me know ASAP so that I can order more. In this case, I am talking about the RPMII ordered many bottles yesterday, but they unfortunately will not deliver until Monday. If you need a bottle or two, you are welcome to pick up from the stockroom and give them this order number: 1087410. Thanks!",
+      "html": "<div><div><div><div><div><div><div><div><div><div><div><div>Hi everyone,<br>Important reminder that if you are the last to take a certain reagent, to please let me know ASAP so that I can order more. In this case, I am talking about the RPMI</div></div></div></div></div></div></div></div></div></div></div></div><div><div><div><div><div><div><div><div><div><div><div><div>I ordered many bottles yesterday, but they unfortunately will not deliver until Monday. If you need a bottle or two, you are welcome to pick up from the stockroom and give them this order number: <span>1087410. </span>Thanks!</div></div></div></div></div></div></div></div></div></div></div></div>",
+      "link": "",
+      "header": "RPMI"
+    },
+    {
       "when": "2026-09-21T14:49:27.334Z",
       "level": "urgent",
       "text": "Hi everyone,Our reign over the cold room has officially come to an end. We’ll soon be sharing the space with a new lab moving onto the 16th floor.To prepare, I’ve moved all Riley Lab belongings to the right-hand side of the cold room. Going forward, please make sure that all Riley Lab items stay on the right side and that nothing is placed or stored on the left side, as that space will belong to the new lab.",
