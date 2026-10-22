@@ -1,20 +1,12 @@
 {
   "announcements": [
     {
-      "when": "2026-10-07T15:06:22.095Z",
-      "level": "warn",
-      "text": "Hi everyone,I noticed that our 4°C receiving fridge has become increasingly cluttered with received orders. Please take a moment to identify any items that belong to you and move them to your designated personal storage as soon as possible.The receiving fridge is intended for temporary storage of incoming orders, so items should not remain there for extended periods. When orders are left in the receiving fridge for several days, it also makes it difficult to determine whether those items were truly needed or ordered with appropriate urgency.Going forward, please make sure to retrieve and properly store your orders promptly after they are received. This will help keep the receiving area organized and ensure we have adequate space for incoming deliveries. Thank you!",
-      "html": "<p>Hi everyone,</p><p>I noticed that our 4°C receiving fridge has become increasingly cluttered with received orders. Please take a moment to identify any items that belong to you and move them to your designated personal storage as soon as possible.</p><p>The receiving fridge is intended for temporary storage of incoming orders, so items should not remain there for extended periods. When orders are left in the receiving fridge for several days, it also makes it difficult to determine whether those items were truly needed or ordered with appropriate urgency.</p><p>Going forward, please make sure to retrieve and properly store your orders promptly after they are received. This will help keep the receiving area organized and ensure we have adequate space for incoming deliveries. Thank you!</p>",
-      "link": "",
-      "header": "Please collect received items in 4C Deli Fridge & -20C Freezer"
-    },
-    {
-      "when": "2026-09-21T14:49:27.334Z",
+      "when": "2026-10-22T15:06:00.000Z",
       "level": "urgent",
-      "text": "Hi everyone,Our reign over the cold room has officially come to an end. We’ll soon be sharing the space with a new lab moving onto the 16th floor.To prepare, I’ve moved all Riley Lab belongings to the right-hand side of the cold room. Going forward, please make sure that all Riley Lab items stay on the right side and that nothing is placed or stored on the left side, as that space will belong to the new lab.",
-      "html": "<p>Hi everyone,</p><p>Our reign over the cold room has officially come to an end. We’ll soon be sharing the space with a new lab moving onto the 16th floor.</p><p>To prepare, I’ve moved all Riley Lab belongings to the <strong>right-hand side of the cold room</strong>. Going forward, please make sure that <strong>all Riley Lab items stay on the right side and that nothing is placed or stored on the left side</strong>, as that space will belong to the new lab.</p>",
+      "text": "After removing the rotor, please wipe out any condensation that is left in the chamber with a clean paper towel or lint free cloth. Paper towels and 2% Neutrad solution can be found on the racks near the centrifuge. Keep the centrifuge lid open to dry completely and either set the centrifuge to RT or power the instrument down to prevent frost formation inside the centrifuge chamber. Keeping the refrigeration system running without spinning for an extended period shortens the life of the cooling system and can increase our operating costs. Repair costs for all shared equipment are passed on to the labs as I3H does not have a separate budget to pay for those types of services.Remember to log off the instrument after use.",
+      "html": "<ul><li><span>After removing the rotor, please wipe out any condensation that is left in the chamber with a clean paper towel or lint free cloth. Paper towels and 2% Neutrad solution can be found on the racks near the centrifuge.&nbsp;</span></li><li><span>Keep the centrifuge lid open to dry completely and either set the centrifuge to RT or power the instrument down to prevent frost formation inside the centrifuge chamber. Keeping the refrigeration system running without spinning for an extended period shortens the life of the cooling system and can increase our operating costs. Repair costs for all shared equipment are passed on to the labs as I3H does not have a separate budget to pay for those types of services.</span></li><li><span>Remember to log off the instrument after use.&nbsp;</span></li></ul>",
       "link": "",
-      "header": "Cold Room Storage"
+      "header": "IMPORTANT REMINDERS FOR CENTRIFUGE USAGE"
     }
   ],
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
