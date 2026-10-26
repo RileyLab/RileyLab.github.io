@@ -1,6 +1,14 @@
 {
   "announcements": [
     {
+      "when": "2026-10-26T17:23:28.810Z",
+      "level": "urgent",
+      "text": "For those who may not be aware, when placing red sharps containers out for collection, you must attach a BLUE pickup sticker to the outside of each container. Containers without a blue pickup sticker may not be collected.If you notice that we are running out of stickers, please let me know!*Example of aforementioned sticker attached to this message*Thank you!",
+      "html": "For those who may not be aware, when placing red sharps containers out for collection, you <b>must attach a BLUE pickup sticker</b> to the outside of each container. Containers without a blue pickup sticker may not be collected.<div><br></div><div><span class=\"ann-size-lg\"><b>If you notice that we are running out of stickers, please let me know!</b></span><br><div><br></div><div><i><u>*Example of aforementioned sticker attached to this message*</u></i><br><div><br></div><div>Thank you!</div></div></div>",
+      "link": "/assets/uploads/1793035734176-40d2d6be-c039-40ec-950e-e8050c55ecf4.jpg",
+      "header": "PSA: SHARPS BIN PICKUP INFO!"
+    },
+    {
       "when": "2026-10-22T15:06:00.000Z",
       "level": "urgent",
       "text": "All six buckets must be installed whenever a swinging-bucket rotor is used, even if the buckets do not contain a sample. After removing the rotor, please wipe out any condensation that is left in the chamber with a clean paper towel or lint free cloth. Paper towels and 2% Neutrad solution can be found on the racks near the centrifuge. Keep the centrifuge lid open to dry completely and either set the centrifuge to RT or power the instrument down to prevent frost formation inside the centrifuge chamber. Keeping the refrigeration system running without spinning for an extended period shortens the life of the cooling system and can increase our operating costs. Repair costs for all shared equipment are passed on to the labs as I3H does not have a separate budget to pay for those types of services.Remember to log off the instrument after use.",
