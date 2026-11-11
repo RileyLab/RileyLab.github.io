@@ -1,20 +1,20 @@
 {
   "announcements": [
     {
+      "when": "2026-12-17T21:21:00.000Z",
+      "level": "info",
+      "text": "Hi everyone,The Microbiology Holiday Reception will be on Thursday, December 17th from 4-6PM! Location: 14th Floor KRB",
+      "html": "Hi everyone,<div><br></div><div>The Microbiology Holiday Reception will be on Thursday, December 17th from 4-6PM!&nbsp;</div><div><br></div><div><b><u>Location:</u></b> 14th Floor KRB</div>",
+      "link": "",
+      "header": "Microbiology Holiday Reception"
+    },
+    {
       "when": "2026-11-10T15:13:25.553Z",
       "level": "warn",
       "text": "Hi everyone,We are currently running low on P200 pipette tips, and unfortunately, most of our usual suppliers are experiencing backorders, with availability not expected until at least early next year.Fortunately, I was able to secure a cost-effective alternative from MIDSCI: sterile, 200 µL filtered, low-retention pipette tips.Please take some time to try these tips and share your feedback on their performance and compatibility with our pipettes. If they work well for everyone, we may temporarily switch to this brand until our usual tips become available again.Thanks, everyone!",
       "html": "<p>Hi everyone,</p><p>We are currently running low on P200 pipette tips, and unfortunately, most of our usual suppliers are experiencing backorders, with availability not expected until at least early next year.</p><p>Fortunately, I was able to secure a cost-effective alternative from MIDSCI: <strong>sterile, 200 µL filtered, low-retention pipette tips.</strong></p><p>Please take some time to try these tips and share your feedback on their performance and compatibility with our pipettes. If they work well for everyone, we may temporarily switch to this brand until our usual tips become available again.</p><p>Thanks, everyone!</p>",
       "link": "",
       "header": "P200 Pipette Tips in Backorder Until Feb. 2027"
-    },
-    {
-      "when": "2026-10-26T17:23:28.810Z",
-      "level": "urgent",
-      "text": "For those who may not be aware, when placing red sharps containers out for collection, you must attach a BLUE pickup sticker to the outside of each container. Containers without a blue pickup sticker may not be collected.If you notice that we are running out of stickers, please let me know!*Example of aforementioned sticker attached to this message*Thank you!",
-      "html": "For those who may not be aware, when placing red sharps containers out for collection, you <b>must attach a BLUE pickup sticker</b> to the outside of each container. Containers without a blue pickup sticker may not be collected.<div><br></div><div><span class=\"ann-size-lg\"><b>If you notice that we are running out of stickers, please let me know!</b></span><br><div><br></div><div><i><u>*Example of aforementioned sticker attached to this message*</u></i><br><div><br></div><div>Thank you!</div></div></div>",
-      "link": "/assets/uploads/1793035734176-40d2d6be-c039-40ec-950e-e8050c55ecf4.jpg",
-      "header": "PSA: SHARPS BIN PICKUP INFO!"
     }
   ],
   "googleCalendarApiKey": "AIzaSyAa4jpvXpGr5HMrFmfIgXsZOYntE18qwpQ",
