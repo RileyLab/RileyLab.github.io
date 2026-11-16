@@ -99,12 +99,12 @@
       ]
     },
     "anchor": {
-      "date": "2026-09-21",
+      "date": "2026-11-16",
       "current": {
-        "tc1": "Divanshu",
-        "tc2": "Justin G.",
+        "tc1": "Vipin",
+        "tc2": "Caitlin",
         "tc3": "Jonah",
-        "main": "Divanshu"
+        "main": "Rob"
       }
     },
     "people": {
@@ -113,7 +113,7 @@
         "name": "Vipin"
       },
       "Divanshu": {
-        "active": true,
+        "active": false,
         "name": "Divanshu"
       },
       "Max": {
